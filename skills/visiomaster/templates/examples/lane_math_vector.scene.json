@@ -1,0 +1,158 @@
+{
+  "version": "0.1",
+  "metadata": {
+    "title": "Lane Arrow and Math Vector Smoke",
+    "style_profile": "paper_white",
+    "fidelity": "exact",
+    "source_aspect_ratio": 2.6667,
+    "region_strategy": "region_first"
+  },
+  "page": {
+    "width": 960,
+    "height": 360,
+    "units": "px",
+    "origin": "top-left",
+    "target_width_in": 10,
+    "background": "#FFFFFF"
+  },
+  "nodes": [
+    {
+      "id": "quality_panel",
+      "type": "group_container",
+      "x": 40,
+      "y": 40,
+      "w": 360,
+      "h": 250,
+      "text": "Quality Description",
+      "shape": "rounded",
+      "style": {
+        "line_dash": "solid",
+        "line": "#777777"
+      }
+    },
+    {
+      "id": "pool_stats",
+      "type": "text_block",
+      "x": 78,
+      "y": 120,
+      "w": 130,
+      "h": 70,
+      "text": "Pooling\nStatistics",
+      "container_id": "quality_panel",
+      "style": {
+        "font_size_pt": 13
+      }
+    },
+    {
+      "id": "quality_head",
+      "type": "trapezoid_node",
+      "x": 230,
+      "y": 92,
+      "w": 76,
+      "h": 130,
+      "text": "Quality\nHead Q_m",
+      "orientation": "right",
+      "container_id": "quality_panel",
+      "style": {
+        "fill": "#D1D1D1",
+        "line": "#333333",
+        "font_size_pt": 10
+      }
+    },
+    {
+      "id": "q_vector",
+      "type": "math_vector",
+      "x": 320,
+      "y": 103,
+      "w": 76,
+      "h": 100,
+      "prefix": "q =",
+      "entries": ["q_RGB", "q_IR", "q_SAR"],
+      "container_id": "quality_panel"
+    },
+    {
+      "id": "env_panel",
+      "type": "group_container",
+      "x": 440,
+      "y": 40,
+      "w": 440,
+      "h": 250,
+      "text": "Environment Perception",
+      "shape": "rounded",
+      "style": {
+        "line_dash": "solid",
+        "line": "#777777"
+      }
+    },
+    {
+      "id": "fs_block",
+      "type": "cuboid_node",
+      "x": 480,
+      "y": 100,
+      "w": 42,
+      "h": 62,
+      "container_id": "env_panel",
+      "style": {
+        "fill": "#2E79AA",
+        "side_fill": "#164B73",
+        "top_fill": "#7CB1D7"
+      }
+    },
+    {
+      "id": "extractor",
+      "type": "trapezoid_node",
+      "x": 610,
+      "y": 74,
+      "w": 88,
+      "h": 150,
+      "text": "Environment\nResponse\nExtractor",
+      "orientation": "right",
+      "container_id": "env_panel",
+      "style": {
+        "fill": "#F4B07B",
+        "line": "#666666",
+        "font_size_pt": 10
+      }
+    },
+    {
+      "id": "gap_grid",
+      "type": "feature_map_grid",
+      "x": 744,
+      "y": 124,
+      "w": 48,
+      "h": 48,
+      "rows": 6,
+      "cols": 6,
+      "row_colors": ["#6E93D6", "#6E93D6", "#6E93D6", "#6E93D6", "#6E93D6", "#6E93D6"],
+      "column_shades": [0, 0.15, 0.35, 0.55, 0.25, 0],
+      "container_id": "env_panel"
+    }
+  ],
+  "edges": [
+    {
+      "id": "pool_to_quality",
+      "type": "lane_arrow",
+      "from": "pool_stats:right@0.50",
+      "to": "quality_head:left@0.50",
+      "route": "horizontal",
+      "lane_axis": "horizontal"
+    },
+    {
+      "id": "fs_to_extractor",
+      "type": "lane_arrow",
+      "from": "fs_block:right@0.50",
+      "to": "extractor:left@0.50",
+      "route": "horizontal",
+      "lane_axis": "horizontal"
+    },
+    {
+      "id": "extractor_to_gap",
+      "type": "lane_arrow",
+      "from": "extractor:right@0.50",
+      "to": "gap_grid:left@0.50",
+      "route": "horizontal",
+      "lane_axis": "horizontal"
+    }
+  ],
+  "assets": []
+}

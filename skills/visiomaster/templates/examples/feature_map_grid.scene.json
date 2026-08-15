@@ -1,0 +1,102 @@
+{
+  "version": "0.1",
+  "metadata": {
+    "title": "Feature Map Grid Smoke Test",
+    "style_profile": "paper_white",
+    "notes": [
+      "Exercises editable AM-ResNet-style feature maps with shaded columns instead of opaque black bars."
+    ]
+  },
+  "page": {
+    "width": 4.6,
+    "height": 2.0,
+    "units": "in",
+    "origin": "top-left",
+    "background": "#FFFFFF"
+  },
+  "nodes": [
+    {
+      "id": "label",
+      "type": "text_block",
+      "x": 1.12,
+      "y": 0.20,
+      "w": 2.30,
+      "h": 0.24,
+      "text": "AM-ResNet features",
+      "style": {
+        "font_size_pt": 16,
+        "font_weight": "bold"
+      }
+    },
+    {
+      "id": "features",
+      "type": "feature_map_grid",
+      "x": 1.28,
+      "y": 0.54,
+      "w": 1.84,
+      "h": 0.92,
+      "rows": 6,
+      "cols": 9,
+      "row_colors": [
+        "#F2A66F",
+        "#A8D7E5",
+        "#C8D9C2",
+        "#F3E889",
+        "#9BC6D9",
+        "#F2A66F"
+      ],
+      "column_shades": [0.0, 0.20, 0.0, 0.45, 0.72, 0.45, 0.0, 0.20, 0.0],
+      "max_shade": 0.58,
+      "show_column_lines": true,
+      "show_row_lines": false
+    },
+    {
+      "id": "fork",
+      "type": "junction_point",
+      "x": 3.18,
+      "y": 0.96,
+      "w": 0.03,
+      "h": 0.03
+    }
+  ],
+  "edges": [
+    {
+      "id": "in_arrow",
+      "type": "arrow_connector",
+      "from_point": [0.58, 1.00],
+      "to": "features:left",
+      "route": "straight"
+    },
+    {
+      "id": "feature_to_fork",
+      "type": "join_connector",
+      "from": "features:right",
+      "to": "fork:center",
+      "route": "straight"
+    },
+    {
+      "id": "out_1",
+      "type": "fork_connector",
+      "from": "fork:center",
+      "to_point": [4.10, 0.36],
+      "route": "straight",
+      "allow_diagonal": true
+    },
+    {
+      "id": "out_2",
+      "type": "fork_connector",
+      "from": "fork:center",
+      "to_point": [4.10, 1.00],
+      "route": "straight"
+    },
+    {
+      "id": "out_3",
+      "type": "fork_connector",
+      "from": "fork:center",
+      "to_point": [4.10, 1.64],
+      "route": "straight",
+      "allow_diagonal": true
+    }
+  ],
+  "assets": []
+}

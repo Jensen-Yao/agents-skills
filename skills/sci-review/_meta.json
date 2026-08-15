@@ -1,0 +1,18 @@
+{
+  "name": "sci-review",
+  "version": "1.0.0",
+  "author": "Shuo Zhao",
+  "description": "Scientific literature review and peer-review rebuttal assistant",
+  "category": "academic",
+  "tags": [
+    "science",
+    "writing",
+    "rebuttal",
+    "literature-review",
+    "academic-writing"
+  ],
+  "templates": [
+    "templates/literature-review-template.md",
+    "templates/rebuttal-template.md"
+  ]
+}

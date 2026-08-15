@@ -1,0 +1,965 @@
+{
+  "version": "0.1",
+  "default_profile": "paper_white",
+  "profiles": {
+    "paper_white": {
+      "global_text": {
+        "font_family": "Times New Roman",
+        "font_family_candidates": ["Times New Roman", "Cambria", "Georgia", "Garamond", "Book Antiqua"],
+        "font_role": "paper_serif",
+        "font_weight": "regular",
+        "text_color": "#000000",
+        "single_line_width_safety_factor": 1.12,
+        "cjk_text_width_safety_factor": 1.22,
+        "rotated_text_box_safety_factor": 1.18
+      },
+      "global_edge": {
+        "line": "#000000",
+        "line_weight_pt": 1.25,
+        "line_dash": "solid",
+        "end_arrow": "triangle",
+        "arrow_size": "small",
+        "route": "auto",
+        "snap_tolerance_in": 0.2,
+        "axis_snap_in": 0.03
+      },
+      "node_types": {
+        "page_background": {
+          "fill": "#FFFFFF",
+          "line": "none",
+          "line_weight_pt": 0
+        },
+        "group_container": {
+          "line": "#000000",
+          "line_weight_pt": 1.25,
+          "line_dash": "dash",
+          "rounding_in": 0.0
+        },
+        "dashed_region": {
+          "line": "#777777",
+          "line_weight_pt": 1.1,
+          "line_dash": "dash",
+          "rounding_in": 0.0
+        },
+        "audit_region": {
+          "fill": "none",
+          "line": "none",
+          "line_weight_pt": 0
+        },
+        "rounded_process": {
+          "line": "#B8B8B8",
+          "line_weight_pt": 1.15,
+          "rounding_in": 0.16
+        },
+        "stacked_process": {
+          "line_weight_pt": 0.8,
+          "rounding_in": 0.06,
+          "layers": 4,
+          "stack_dx_in": -0.04,
+          "stack_dy_in": 0.035
+        },
+        "stacked_token": {
+          "line_weight_pt": 0.75,
+          "rounding_in": 0.04,
+          "layers": 5,
+          "stack_dx_in": -0.035,
+          "stack_dy_in": 0.028
+        },
+        "notched_block": {
+          "line_weight_pt": 0.8,
+          "notch_fill": "#FFFFFF"
+        },
+        "feature_map_banded": {
+          "line": "#C7C7C7",
+          "line_weight_pt": 0.55
+        },
+        "feature_map_grid": {
+          "line": "#111111",
+          "line_weight_pt": 0.9,
+          "grid_line": "#333333",
+          "grid_line_weight_pt": 0.35,
+          "grid_line_transparency_pct": 35,
+          "max_shade": 0.58
+        },
+        "merge_bus": {
+          "line": "#555555",
+          "line_weight_pt": 0.8,
+          "branch_end_arrow": "none",
+          "branch_arrow_size": "small"
+        },
+        "branch_trunk": {
+          "line": "#555555",
+          "line_weight_pt": 0.9,
+          "branch_end_arrow": "triangle",
+          "branch_arrow_size": "small"
+        },
+        "merge_trunk": {
+          "line": "#555555",
+          "line_weight_pt": 0.9,
+          "branch_end_arrow": "none"
+        },
+        "paper_bus": {
+          "line": "#555555",
+          "line_weight_pt": 0.9,
+          "branch_end_arrow": "none"
+        },
+        "collector_bar": {
+          "line": "#555555",
+          "line_weight_pt": 0.9,
+          "branch_end_arrow": "none"
+        },
+        "junction_bus": {
+          "line": "#333333",
+          "line_weight_pt": 0.85
+        },
+        "text_block": {
+          "font_size_pt": 16,
+          "text_fit": "shrink_to_fit",
+          "min_font_size_pt": 5.5
+        },
+        "ellipse_node": {
+          "line": "#000000",
+          "line_weight_pt": 1.2
+        },
+        "polygon_node": {
+          "line": "#000000",
+          "line_weight_pt": 1.0
+        },
+        "trapezoid_node": {
+          "line": "#000000",
+          "line_weight_pt": 1.0,
+          "taper_ratio": 0.22
+        },
+        "cuboid_node": {
+          "line": "#000000",
+          "line_weight_pt": 0.9,
+          "depth_x_in": 0.18,
+          "depth_y_in": -0.16
+        },
+        "tensor_stack": {
+          "line": "#000000",
+          "line_weight_pt": 0.9,
+          "depth_x_in": 0.18,
+          "depth_y_in": -0.16,
+          "layers": 5,
+          "layer_dx_in": -0.055,
+          "layer_dy_in": 0.025,
+          "stack_render_mode": "thin_feature_slabs",
+          "perspective_mode": "medium",
+          "sheet_line_weight_pt": 0.8,
+          "min_layer_shift_in": 0.0,
+          "skew_x_in": 0.04,
+          "sheet_scale": 0,
+          "depth_scale": 1.0,
+          "tensor_mode_policy": "crop_driven"
+        },
+        "modality_spine": {
+          "fill": "#C9C9C9",
+          "line": "#555555",
+          "line_weight_pt": 0.8,
+          "port_fill": "#CFE8BE",
+          "port_line": "#555555",
+          "port_font_size_pt": 10
+        },
+        "math_vector": {
+          "bracket_line": "#000000",
+          "bracket_line_weight_pt": 0.8,
+          "font_family": "Times New Roman",
+          "font_family_candidates": ["Times New Roman", "Cambria Math", "Cambria"],
+          "font_role": "math",
+          "font_size_pt": 10,
+          "entry_font_size_pt": 10,
+          "text_fit": "single_line",
+          "math_render_mode": "fragments",
+          "min_font_size_pt": 5.5,
+          "prefix_w_in": 0.34,
+          "gap_in": 0.035,
+          "bracket_w_in": 0.07
+        },
+        "math_label_box": {
+          "font_family": "Cambria Math",
+          "font_family_candidates": ["Cambria Math", "Times New Roman", "Cambria"],
+          "font_role": "math",
+          "font_size_pt": 10,
+          "label_font_size_pt": 10,
+          "label_text_fit": "math_label",
+          "label_min_font_size_pt": 4.5,
+          "label_inset_in": 0.012
+        },
+        "math_text": {
+          "font_family": "Times New Roman",
+          "font_family_candidates": ["Times New Roman", "Cambria Math", "Cambria"],
+          "font_role": "math",
+          "font_size_pt": 12,
+          "text_fit": "math_label",
+          "min_font_size_pt": 5.5,
+          "math_render_mode": "fragments",
+          "subscript_scale": 0.72,
+          "subscript_offset_in": 0.035,
+          "line_gap_in": 0.035,
+          "fragment_pad_in": 0.006,
+          "subscript_pad_in": 0.002,
+          "subscript_box_pad_in": 0.045,
+          "prime_scale": 0.82,
+          "prime_tuck_in": 0.01,
+          "prime_box_pad_in": 0.01,
+          "auto_compact_math": false,
+          "allow_inline_mixed_text": true
+        },
+        "formula_text_block": {
+          "font_family": "Times New Roman",
+          "font_family_candidates": ["Times New Roman", "Cambria Math", "Cambria", "Microsoft YaHei UI"],
+          "font_role": "math",
+          "font_size_pt": 12,
+          "text_fit": "math_label",
+          "min_font_size_pt": 5.5,
+          "math_render_mode": "fragments",
+          "allow_inline_mixed_text": true
+        },
+        "tfr_panel": {
+          "font_family": "Times New Roman",
+          "font_family_candidates": ["Times New Roman", "Cambria", "Georgia"],
+          "font_role": "paper_serif",
+          "title_font_size_pt": 18,
+          "subtitle_font_size_pt": 12,
+          "input_font_size_pt": 16,
+          "rounding_in": 0.12,
+          "grid_line": "#777777",
+          "grid_line_weight_pt": 0.75,
+          "grid_outline": "#666666",
+          "grid_outline_weight_pt": 0.8
+        },
+        "loss_region": {
+          "line": "#777777",
+          "line_weight_pt": 1.1,
+          "line_dash": "dash",
+          "font_family": "Times New Roman",
+          "font_family_candidates": ["Times New Roman", "Cambria Math", "Cambria"],
+          "font_role": "paper_serif",
+          "font_size_pt": 13,
+          "title_font_size_pt": 15,
+          "title_position": "inside",
+          "title_fill": "#FFFFFF",
+          "title_pad_x_in": 0.1,
+          "title_overlap_ratio": 0.45
+        },
+        "operator_node": {
+          "line": "#000000",
+          "line_weight_pt": 1.15,
+          "font_size_pt": 15,
+          "symbol_font_family": "Cambria Math",
+          "symbol_font_family_candidates": ["Cambria Math", "Cambria", "Times New Roman"],
+          "symbol_font_role": "math",
+          "operator_size_tier": "medium",
+          "enforce_circle": true,
+          "symbol_text_fit": "single_line",
+          "symbol_min_font_size_pt": 4.5,
+          "symbol_text_margin_in": 0.0
+        },
+        "boundary_port": {
+          "line": "#000000",
+          "line_weight_pt": 0.8
+        },
+        "wave_signal": {
+          "line": "#000000",
+          "line_weight_pt": 1.1
+        },
+        "classifier_head": {
+          "line": "#000000",
+          "line_weight_pt": 1.0,
+          "font_size_pt": 11,
+          "block_text_fit": "single_line",
+          "block_min_font_size_pt": 6,
+          "internal_arrow_size": "tiny"
+        },
+        "layer_sequence": {
+          "line": "#000000",
+          "line_weight_pt": 1.1,
+          "font_size_pt": 15,
+          "frame_visible": true,
+          "rounding_in": 0.12,
+          "title_align": 1,
+          "title_area_ratio": 0.22,
+          "block_line": "#000000",
+          "block_line_weight_pt": 1.0,
+          "block_font_size_pt": 12,
+          "block_text_fit": "single_line",
+          "block_min_font_size_pt": 6,
+          "block_constrain_text_box": true,
+          "strict_block_layout": false,
+          "dense": false,
+          "preserve_block_fills": false,
+          "draw_internal_arrows": false,
+          "block_connector_arrow_size": "tiny",
+          "block_shadow": {
+            "color": "#000000",
+            "offset_x_in": 0.015,
+            "offset_y_in": -0.015,
+            "transparency_pct": 92
+          }
+        },
+        "boundary_fanout": {
+          "line": "#000000",
+          "line_weight_pt": 1.0,
+          "arrow_size": "small"
+        },
+        "annotation_block": {
+          "font_family": "Times New Roman",
+          "font_family_candidates": ["Times New Roman", "Calibri", "Arial", "Microsoft YaHei UI"],
+          "font_role": "paper_serif",
+          "font_size_pt": 10,
+          "text_fit": "shrink_to_fit",
+          "min_font_size_pt": 5.0
+        },
+        "caption_block": {
+          "font_family": "Times New Roman",
+          "font_family_candidates": ["Times New Roman", "Cambria", "Georgia", "Garamond", "Book Antiqua"],
+          "font_role": "paper_serif",
+          "font_size_pt": 10,
+          "text_fit": "single_line",
+          "min_font_size_pt": 5.5,
+          "strict_mode": false,
+          "caption_align": "center",
+          "baseline_offset_in": 0.0
+        },
+        "grid_matrix": {
+          "cell_fill": "#FFFFFF",
+          "active_fill": "#2F7F91",
+          "grid_line": "#000000",
+          "grid_line_weight_pt": 1.0
+        },
+        "token_grid": {
+          "cell_fill": "#FFFFFF",
+          "cell_line": "#000000",
+          "cell_line_weight_pt": 1.0,
+          "cell_font_size_pt": 13,
+          "cell_text_fit": "single_line",
+          "cell_min_font_size_pt": 6,
+          "cell_gap_in": 0.04,
+          "square_cells": false,
+          "grid_align_x": "center",
+          "grid_align_y": "center"
+        },
+        "probability_bar_list": {
+          "font_family": "Times New Roman",
+          "font_family_candidates": ["Times New Roman", "Cambria", "Microsoft YaHei UI"],
+          "font_role": "paper_serif",
+          "font_size_pt": 12,
+          "label_font_size_pt": 11,
+          "label_min_font_size_pt": 5.5,
+          "padding_in": 0.09,
+          "panel_inner_padding_left_in": 0.10,
+          "panel_inner_padding_right_in": 0.10,
+          "panel_inner_padding_top_in": 0.08,
+          "panel_inner_padding_bottom_in": 0.08,
+          "row_gap_in": 0.06,
+          "bar_gap_in": 0.04,
+          "axis_line": "#000000",
+          "axis_line_weight_pt": 1.0,
+          "label_align": 2,
+          "pre_value_align": 2,
+          "value_align": 0,
+          "bar_value_align": 1,
+          "row_vertical_align": 1,
+          "bar_value_anchor": "bar_area",
+          "bar_max_fraction": 0.88,
+          "bar_value_text_gap_in": 0.03,
+          "bar_value_background_fill": "none",
+          "bar_value_background_line": "none",
+          "shadow": {
+            "offset_x_in": 0.03,
+            "offset_y_in": -0.03,
+            "transparency_pct": 84
+          }
+        },
+        "concat_operator": {
+          "line": "#000000",
+          "line_weight_pt": 1.2,
+          "concat_size_tier": "small",
+          "glyph_mode": "bracket_pair",
+          "tick_in": 0.08,
+          "gap_ratio": 0.22
+        },
+        "brace_merge": {
+          "line": "#333333",
+          "line_weight_pt": 1.1,
+          "brace_shape": "smooth",
+          "curve_tightness": 0.0,
+          "waist_ratio": 0.5,
+          "curl_ratio": 0.2,
+          "neck_ratio": 0.1,
+          "waist_width_in": 0
+        },
+        "bracket": {
+          "line": "#333333",
+          "line_weight_pt": 1.1,
+          "waist_ratio": 0.5,
+          "curl_ratio": 0.2,
+          "neck_ratio": 0.1
+        },
+        "junction_point": {
+          "fill": "none",
+          "line": "none"
+        },
+        "vector_label_group": {
+          "cell_line_weight_pt": 0.75,
+          "cell_font_size_pt": 9,
+          "cell_text_fit": "single_line",
+          "cell_min_font_size_pt": 4.5,
+          "label_gap_in": 0.04
+        }
+      },
+      "edge_types": {
+        "arrow_connector": {
+          "line": "#000000",
+          "line_weight_pt": 1.35
+        },
+        "lane_arrow": {
+          "line": "#000000",
+          "line_weight_pt": 1.15,
+          "arrow_size": "small",
+          "route": "horizontal",
+          "snap_tolerance_in": 0.08,
+          "axis_snap_in": 0.02
+        },
+        "curved_arrow": {
+          "line": "#666666",
+          "line_weight_pt": 1.3,
+          "arrow_size": "small",
+          "curve_mode": "polyline",
+          "axis_snap_in": 0.0
+        },
+        "loop_arrow": {
+          "line": "#666666",
+          "line_weight_pt": 1.3,
+          "arrow_size": "small",
+          "curve_mode": "smooth",
+          "smooth_samples": 14,
+          "axis_snap_in": 0.0
+        },
+        "dashed_feedback_path": {
+          "line": "#777777",
+          "line_weight_pt": 1.0,
+          "line_dash": "dash",
+          "arrow_size": "small",
+          "route": "orthogonal",
+          "axis_snap_in": 0.02
+        },
+        "line_segment": {
+          "line": "#000000",
+          "line_weight_pt": 1.0,
+          "end_arrow": "none"
+        },
+        "residual_connector": {
+          "line": "#555555",
+          "line_weight_pt": 0.9
+        },
+        "join_connector": {
+          "line": "#000000",
+          "line_weight_pt": 1.0,
+          "end_arrow": "none"
+        },
+        "fork_connector": {
+          "line": "#000000",
+          "line_weight_pt": 1.0
+        },
+        "boundary_arrow": {
+          "line": "#000000",
+          "line_weight_pt": 1.0,
+          "arrow_size": "small"
+        },
+        "residual_loop": {
+          "line": "#555555",
+          "line_weight_pt": 0.9
+        }
+      }
+    },
+    "clean_white": {
+      "global_text": {
+        "font_family": "Microsoft YaHei UI",
+        "font_family_candidates": ["Microsoft YaHei UI", "Microsoft YaHei", "Calibri", "Arial", "Segoe UI"],
+        "font_role": "ui_sans",
+        "font_weight": "regular",
+        "text_color": "#0F172A",
+        "single_line_width_safety_factor": 1.12,
+        "cjk_text_width_safety_factor": 1.22,
+        "rotated_text_box_safety_factor": 1.18
+      },
+      "global_edge": {
+        "line": "#334155",
+        "line_weight_pt": 1.35,
+        "line_dash": "solid",
+        "end_arrow": "triangle",
+        "arrow_size": "small",
+        "route": "auto",
+        "snap_tolerance_in": 0.2,
+        "axis_snap_in": 0.03
+      },
+      "node_types": {
+        "page_background": {
+          "fill": "#FFFFFF",
+          "line": "none",
+          "line_weight_pt": 0
+        },
+        "process_box": {
+          "fill": "#FFFFFF",
+          "line": "#CBD5E1",
+          "line_weight_pt": 1.0,
+          "shadow": {
+            "color": "#0F172A",
+            "offset_x_in": 0.035,
+            "offset_y_in": -0.035,
+            "transparency_pct": 86
+          }
+        },
+        "rounded_process": {
+          "fill": "#FFFFFF",
+          "line": "#CBD5E1",
+          "line_weight_pt": 1.0,
+          "rounding_in": 0.12,
+          "shadow": {
+            "color": "#0F172A",
+            "offset_x_in": 0.035,
+            "offset_y_in": -0.035,
+            "transparency_pct": 86
+          }
+        },
+        "stacked_process": {
+          "line": "#CBD5E1",
+          "line_weight_pt": 1.0,
+          "rounding_in": 0.08,
+          "layers": 4,
+          "stack_dx_in": -0.04,
+          "stack_dy_in": 0.035,
+          "shadow": {
+            "color": "#0F172A",
+            "offset_x_in": 0.035,
+            "offset_y_in": -0.035,
+            "transparency_pct": 86
+          }
+        },
+        "stacked_token": {
+          "line": "#CBD5E1",
+          "line_weight_pt": 0.9,
+          "rounding_in": 0.05,
+          "layers": 5,
+          "stack_dx_in": -0.035,
+          "stack_dy_in": 0.028
+        },
+        "notched_block": {
+          "line": "#CBD5E1",
+          "line_weight_pt": 1.0,
+          "notch_fill": "#FFFFFF"
+        },
+        "feature_map_banded": {
+          "line": "#CBD5E1",
+          "line_weight_pt": 0.7
+        },
+        "feature_map_grid": {
+          "line": "#334155",
+          "line_weight_pt": 0.85,
+          "grid_line": "#334155",
+          "grid_line_weight_pt": 0.3,
+          "grid_line_transparency_pct": 45,
+          "max_shade": 0.48
+        },
+        "merge_bus": {
+          "line": "#475569",
+          "line_weight_pt": 1.0,
+          "branch_end_arrow": "none",
+          "branch_arrow_size": "small"
+        },
+        "branch_trunk": {
+          "line": "#475569",
+          "line_weight_pt": 1.0,
+          "branch_end_arrow": "triangle",
+          "branch_arrow_size": "small"
+        },
+        "merge_trunk": {
+          "line": "#475569",
+          "line_weight_pt": 1.0,
+          "branch_end_arrow": "none"
+        },
+        "paper_bus": {
+          "line": "#475569",
+          "line_weight_pt": 1.0,
+          "branch_end_arrow": "none"
+        },
+        "collector_bar": {
+          "line": "#475569",
+          "line_weight_pt": 1.0,
+          "branch_end_arrow": "none"
+        },
+        "junction_bus": {
+          "line": "#475569",
+          "line_weight_pt": 0.9
+        },
+        "operator_node": {
+          "line": "#334155",
+          "line_weight_pt": 1.1,
+          "font_size_pt": 14,
+          "symbol_font_family": "Cambria Math",
+          "symbol_font_family_candidates": ["Cambria Math", "Cambria", "Times New Roman"],
+          "symbol_font_role": "math",
+          "operator_size_tier": "medium",
+          "enforce_circle": true,
+          "symbol_text_fit": "single_line",
+          "symbol_min_font_size_pt": 4.5,
+          "symbol_text_margin_in": 0.0
+        },
+        "polygon_node": {
+          "line": "#334155",
+          "line_weight_pt": 1.0
+        },
+        "trapezoid_node": {
+          "line": "#334155",
+          "line_weight_pt": 1.0,
+          "taper_ratio": 0.22
+        },
+        "cuboid_node": {
+          "line": "#334155",
+          "line_weight_pt": 0.9,
+          "depth_x_in": 0.18,
+          "depth_y_in": -0.16
+        },
+        "tensor_stack": {
+          "line": "#334155",
+          "line_weight_pt": 0.9,
+          "depth_x_in": 0.18,
+          "depth_y_in": -0.16,
+          "layers": 5,
+          "layer_dx_in": -0.055,
+          "layer_dy_in": 0.025,
+          "stack_render_mode": "thin_feature_slabs",
+          "perspective_mode": "medium",
+          "sheet_line_weight_pt": 0.8,
+          "min_layer_shift_in": 0.0,
+          "skew_x_in": 0.04,
+          "sheet_scale": 0,
+          "depth_scale": 1.0,
+          "tensor_mode_policy": "crop_driven"
+        },
+        "modality_spine": {
+          "fill": "#CBD5E1",
+          "line": "#64748B",
+          "line_weight_pt": 0.8,
+          "port_fill": "#DCFCE7",
+          "port_line": "#64748B",
+          "port_font_size_pt": 10
+        },
+        "math_vector": {
+          "bracket_line": "#334155",
+          "bracket_line_weight_pt": 0.8,
+          "font_family": "Cambria Math",
+          "font_family_candidates": ["Cambria Math", "Cambria", "Times New Roman"],
+          "font_role": "math",
+          "font_size_pt": 10,
+          "entry_font_size_pt": 10,
+          "text_fit": "single_line",
+          "math_render_mode": "fragments",
+          "min_font_size_pt": 5.5,
+          "prefix_w_in": 0.34,
+          "gap_in": 0.035,
+          "bracket_w_in": 0.07
+        },
+        "math_label_box": {
+          "font_family": "Cambria Math",
+          "font_family_candidates": ["Cambria Math", "Cambria", "Times New Roman"],
+          "font_role": "math",
+          "font_size_pt": 10,
+          "label_font_size_pt": 10,
+          "label_text_fit": "math_label",
+          "label_min_font_size_pt": 4.5,
+          "label_inset_in": 0.012
+        },
+        "math_text": {
+          "font_family": "Cambria Math",
+          "font_family_candidates": ["Cambria Math", "Cambria", "Times New Roman"],
+          "font_role": "math",
+          "font_size_pt": 12,
+          "text_fit": "math_label",
+          "min_font_size_pt": 5.5,
+          "math_render_mode": "fragments",
+          "subscript_scale": 0.72,
+          "subscript_offset_in": 0.035,
+          "line_gap_in": 0.035,
+          "fragment_pad_in": 0.006,
+          "subscript_pad_in": 0.002,
+          "subscript_box_pad_in": 0.045,
+          "prime_scale": 0.82,
+          "prime_tuck_in": 0.01,
+          "prime_box_pad_in": 0.01,
+          "auto_compact_math": false,
+          "allow_inline_mixed_text": true
+        },
+        "formula_text_block": {
+          "font_family": "Cambria Math",
+          "font_family_candidates": ["Cambria Math", "Cambria", "Times New Roman", "Microsoft YaHei UI"],
+          "font_role": "math",
+          "font_size_pt": 12,
+          "text_fit": "math_label",
+          "min_font_size_pt": 5.5,
+          "math_render_mode": "fragments",
+          "allow_inline_mixed_text": true
+        },
+        "tfr_panel": {
+          "font_family": "Cambria Math",
+          "font_family_candidates": ["Cambria Math", "Cambria", "Times New Roman"],
+          "font_role": "math",
+          "title_font_size_pt": 17,
+          "subtitle_font_size_pt": 11,
+          "input_font_size_pt": 15,
+          "rounding_in": 0.12,
+          "grid_line": "#64748B",
+          "grid_line_weight_pt": 0.65,
+          "grid_outline": "#64748B",
+          "grid_outline_weight_pt": 0.8
+        },
+        "loss_region": {
+          "line": "#94A3B8",
+          "line_weight_pt": 1.0,
+          "line_dash": "dash",
+          "font_family": "Cambria Math",
+          "font_family_candidates": ["Cambria Math", "Cambria", "Times New Roman"],
+          "font_role": "math",
+          "font_size_pt": 12,
+          "title_font_size_pt": 14,
+          "title_position": "inside",
+          "title_fill": "#FFFFFF",
+          "title_pad_x_in": 0.1,
+          "title_overlap_ratio": 0.45
+        },
+        "boundary_port": {
+          "fill": "#FFFFFF",
+          "line": "#475569",
+          "line_weight_pt": 0.8
+        },
+        "wave_signal": {
+          "line": "#334155",
+          "line_weight_pt": 1.1
+        },
+        "classifier_head": {
+          "line": "#CBD5E1",
+          "line_weight_pt": 1.0,
+          "font_size_pt": 10,
+          "rounding_in": 0.05,
+          "block_text_fit": "single_line",
+          "block_min_font_size_pt": 6,
+          "internal_arrow_size": "tiny"
+        },
+        "layer_sequence": {
+          "line": "#334155",
+          "line_weight_pt": 1.0,
+          "font_size_pt": 14,
+          "frame_visible": true,
+          "rounding_in": 0.12,
+          "title_align": 1,
+          "title_area_ratio": 0.22,
+          "block_line": "#334155",
+          "block_line_weight_pt": 1.0,
+          "block_font_size_pt": 11,
+          "block_text_fit": "single_line",
+          "block_min_font_size_pt": 6,
+          "block_constrain_text_box": true,
+          "strict_block_layout": false,
+          "dense": false,
+          "preserve_block_fills": false,
+          "draw_internal_arrows": false,
+          "block_connector_arrow_size": "tiny",
+          "block_shadow": {
+            "color": "#0F172A",
+            "offset_x_in": 0.015,
+            "offset_y_in": -0.015,
+            "transparency_pct": 93
+          }
+        },
+        "boundary_fanout": {
+          "line": "#475569",
+          "line_weight_pt": 1.0,
+          "arrow_size": "small"
+        },
+        "annotation_block": {
+          "font_family": "Calibri",
+          "font_family_candidates": ["Calibri", "Arial", "Segoe UI", "Microsoft YaHei UI"],
+          "font_role": "ui_sans",
+          "font_size_pt": 10,
+          "text_fit": "shrink_to_fit",
+          "min_font_size_pt": 5.0
+        },
+        "caption_block": {
+          "font_family": "Cambria",
+          "font_family_candidates": ["Cambria", "Times New Roman", "Georgia"],
+          "font_role": "serif",
+          "font_size_pt": 10,
+          "text_fit": "single_line",
+          "min_font_size_pt": 5.5,
+          "strict_mode": false,
+          "caption_align": "center",
+          "baseline_offset_in": 0.0
+        },
+        "group_container": {
+          "line": "#CBD5E1",
+          "line_weight_pt": 1.0,
+          "line_dash": "dash",
+          "rounding_in": 0.0
+        },
+        "dashed_region": {
+          "line": "#94A3B8",
+          "line_weight_pt": 1.0,
+          "line_dash": "dash",
+          "rounding_in": 0.0
+        },
+        "audit_region": {
+          "fill": "none",
+          "line": "none",
+          "line_weight_pt": 0
+        },
+        "token_grid": {
+          "cell_fill": "#FFFFFF",
+          "cell_line": "#334155",
+          "cell_line_weight_pt": 1.0,
+          "cell_font_size_pt": 12,
+          "cell_text_fit": "single_line",
+          "cell_min_font_size_pt": 6,
+          "cell_gap_in": 0.04,
+          "square_cells": false,
+          "grid_align_x": "center",
+          "grid_align_y": "center"
+        },
+        "probability_bar_list": {
+          "font_family": "Cambria Math",
+          "font_family_candidates": ["Cambria Math", "Cambria", "Times New Roman", "Microsoft YaHei UI"],
+          "font_role": "math",
+          "font_size_pt": 11,
+          "label_font_size_pt": 10,
+          "label_min_font_size_pt": 5.5,
+          "padding_in": 0.08,
+          "panel_inner_padding_left_in": 0.09,
+          "panel_inner_padding_right_in": 0.09,
+          "panel_inner_padding_top_in": 0.07,
+          "panel_inner_padding_bottom_in": 0.07,
+          "row_gap_in": 0.06,
+          "bar_gap_in": 0.04,
+          "axis_line": "#475569",
+          "axis_line_weight_pt": 1.0,
+          "label_align": 2,
+          "pre_value_align": 2,
+          "value_align": 0,
+          "bar_value_align": 1,
+          "row_vertical_align": 1,
+          "bar_value_anchor": "bar_area",
+          "bar_max_fraction": 0.86,
+          "bar_value_text_gap_in": 0.03,
+          "bar_value_background_fill": "none",
+          "bar_value_background_line": "none",
+          "shadow": {
+            "offset_x_in": 0.025,
+            "offset_y_in": -0.025,
+            "transparency_pct": 86
+          }
+        },
+        "concat_operator": {
+          "line": "#475569",
+          "line_weight_pt": 1.2,
+          "concat_size_tier": "small",
+          "glyph_mode": "bracket_pair",
+          "tick_in": 0.08,
+          "gap_ratio": 0.22,
+          "port_length_in": 0.0
+        },
+        "brace_merge": {
+          "line": "#475569",
+          "line_weight_pt": 1.1,
+          "brace_shape": "smooth",
+          "curve_tightness": 0.0,
+          "waist_ratio": 0.5,
+          "curl_ratio": 0.2,
+          "neck_ratio": 0.1,
+          "waist_width_in": 0
+        },
+        "bracket": {
+          "line": "#475569",
+          "line_weight_pt": 1.1,
+          "waist_ratio": 0.5,
+          "curl_ratio": 0.2,
+          "neck_ratio": 0.1
+        },
+        "junction_point": {
+          "fill": "none",
+          "line": "none"
+        },
+        "vector_label_group": {
+          "cell_line_weight_pt": 0.75,
+          "cell_font_size_pt": 9,
+          "cell_text_fit": "single_line",
+          "cell_min_font_size_pt": 4.5,
+          "label_gap_in": 0.04
+        }
+      },
+      "edge_types": {
+        "arrow_connector": {
+          "line": "#475569",
+          "line_weight_pt": 1.35
+        },
+        "lane_arrow": {
+          "line": "#475569",
+          "line_weight_pt": 1.1,
+          "arrow_size": "small",
+          "route": "horizontal",
+          "snap_tolerance_in": 0.08,
+          "axis_snap_in": 0.02
+        },
+        "curved_arrow": {
+          "line": "#475569",
+          "line_weight_pt": 1.2,
+          "arrow_size": "small",
+          "curve_mode": "polyline",
+          "axis_snap_in": 0.0
+        },
+        "loop_arrow": {
+          "line": "#475569",
+          "line_weight_pt": 1.2,
+          "arrow_size": "small",
+          "curve_mode": "smooth",
+          "smooth_samples": 14,
+          "axis_snap_in": 0.0
+        },
+        "dashed_feedback_path": {
+          "line": "#64748B",
+          "line_weight_pt": 1.0,
+          "line_dash": "dash",
+          "arrow_size": "small",
+          "route": "orthogonal",
+          "axis_snap_in": 0.02
+        },
+        "line_segment": {
+          "line": "#475569",
+          "line_weight_pt": 1.0,
+          "end_arrow": "none"
+        },
+        "residual_connector": {
+          "line": "#475569",
+          "line_weight_pt": 1.1
+        },
+        "join_connector": {
+          "line": "#475569",
+          "line_weight_pt": 1.0,
+          "end_arrow": "none"
+        },
+        "fork_connector": {
+          "line": "#475569",
+          "line_weight_pt": 1.0
+        },
+        "boundary_arrow": {
+          "line": "#475569",
+          "line_weight_pt": 1.0,
+          "arrow_size": "small"
+        },
+        "residual_loop": {
+          "line": "#475569",
+          "line_weight_pt": 1.1
+        }
+      }
+    }
+  }
+}

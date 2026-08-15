@@ -1,0 +1,3319 @@
+﻿From af808b8b6d944835ee046cea9913e4903a708b47 Mon Sep 17 00:00:00 2001
+From: Jensen-Yao <203140439+Jensen-Yao@users.noreply.github.com>
+Date: Sun, 16 Aug 2026 01:02:23 +0800
+Subject: [PATCH 1/7] =?UTF-8?q?fix(config):=20=E9=A1=B9=E7=9B=AE=E9=85=8D?=
+ =?UTF-8?q?=E7=BD=AE=E4=BB=8E=E6=B3=A8=E5=86=8C=E8=A1=A8=20state=5Fdir=20?=
+ =?UTF-8?q?=E5=8F=A0=E5=8A=A0=EF=BC=8C=E9=98=B2=E6=AD=A2=E6=A8=A1=E5=9E=8B?=
+ =?UTF-8?q?=E9=80=89=E6=8B=A9=E5=9B=9E=E9=80=80=E5=88=B0=E9=BB=98=E8=AE=A4?=
+ =?UTF-8?q?=E6=B8=A0=E9=81=93?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+旧加载器读 state/local/<project>/project_config.json，而注册表把项目
+state_dir 指到 output/<project>，导致 sketch/render 的
+image_generation_selection 缺失并回退到 LingShan-G2（NewAPI 503）。
+load_project_config 现在叠加注册表 state_dir 的规范配置（只读查找，
+缺失时行为不变）。
+---
+ src/novelvideo/project_config.py | 52 ++++++++++++++++++++++++++++++++
+ 1 file changed, 52 insertions(+)
+
+diff --git a/src/novelvideo/project_config.py b/src/novelvideo/project_config.py
+index 8c424aeb..37312bd0 100644
+--- a/src/novelvideo/project_config.py
++++ b/src/novelvideo/project_config.py
+@@ -347,9 +347,61 @@ def save_project_config_in_state_dir(
+     return update_project_config_file_in_state_dir(state_dir, _apply)
+ 
+ 
++def _registry_state_dir_for(username: str, project: str) -> str | None:
++    """Return the registry state_dir for a local project, if one is recorded.
++
++    The registry (STATE_DIR/local/projects.db) is canonical for where a
++    project's live data lives. Several legacy call sites still resolve the
++    project config through ``state/local/<project>/project_config.json`` even
++    though the registry may point ``state_dir`` at ``output/<project>``. This
++    read-only lookup lets ``load_project_config`` overlay the canonical config
++    without touching the legacy file.
++    """
++    import sqlite3
++
++    from novelvideo import config as _config
++
++    db_path = Path(_config.STATE_DIR) / "local" / "projects.db"
++    if not db_path.exists():
++        return None
++    try:
++        con = sqlite3.connect(f"file:{db_path.as_posix()}?mode=ro", uri=True)
++        try:
++            row = con.execute(
++                "SELECT state_dir FROM projects "
++                "WHERE owner_username = ? AND name = ? LIMIT 1",
++                (username, project),
++            ).fetchone()
++        finally:
++            con.close()
++    except Exception:  # pragma: no cover - registry is best-effort
++        return None
++    return str(row[0]) if row and row[0] else None
++
++
++def _overlay_registry_state_dir_config(username: str, project: str, config: dict) -> dict:
++    """Overlay the registry state_dir config onto a legacy config load.
++
++    The state_dir copy is canonical: image selections, visual style, narration
++    settings, and embedding bindings must follow the project the registry
++    actually points at. Keys missing from the canonical copy keep their legacy
++    values (e.g. narrator audio), so the merge is strictly additive.
++    """
++    state_dir = _registry_state_dir_for(username, project)
++    if not state_dir:
++        return config
++    canonical = load_project_config_file_from_state_dir(state_dir)
++    if not canonical:
++        return config
++    merged = dict(config)
++    merged.update(canonical)
++    return merged
++
++
+ def load_project_config(username: str, project: str) -> dict:
+     """Load project configuration with runtime defaults applied."""
+     config = load_project_config_file(username, project)
++    config = _overlay_registry_state_dir_config(username, project, config)
+ 
+     project_uuid = str(config.get("project_uuid", "") or "").strip()
+     if config and not project_uuid:
+-- 
+2.54.0.windows.1
+
+
+From 6d2306d9e2f25ce95d517bcfb9ab2c2c507229a7 Mon Sep 17 00:00:00 2001
+From: Jensen-Yao <203140439+Jensen-Yao@users.noreply.github.com>
+Date: Sun, 16 Aug 2026 01:02:33 +0800
+Subject: [PATCH 2/7] =?UTF-8?q?fix(runners):=20Windows=20=E6=96=87?=
+ =?UTF-8?q?=E4=BB=B6=E9=94=81=E9=87=8D=E8=AF=95=E3=80=81=E5=BE=AE=E7=A7=92?=
+ =?UTF-8?q?=E7=BA=A7=E4=B8=B4=E6=97=B6=E6=96=87=E4=BB=B6=E6=97=B6=E9=97=B4?=
+ =?UTF-8?q?=E6=88=B3=E3=80=81inline=20runner=20=E5=B4=A9=E6=BA=83=E5=85=9C?=
+ =?UTF-8?q?=E5=BA=95?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+- pool_indexer: replace/copy 加重试（WinError 32 由杀软或并发扫描触发）
+- sketch/render runner: tmp 文件名时间戳加微秒，避免同秒并行任务互踩（WinError 2）
+- ports/local/tasks: _run_inline 捕获任务异常，防止 runner bug 带崩整个 API 进程
+---
+ src/novelvideo/generators/pool_indexer.py     | 34 +++++++++++++++++--
+ src/novelvideo/ports/local/tasks.py           | 30 ++++++++++------
+ src/novelvideo/task_backend/runners/render.py |  4 +--
+ src/novelvideo/task_backend/runners/sketch.py |  8 +++--
+ 4 files changed, 59 insertions(+), 17 deletions(-)
+
+diff --git a/src/novelvideo/generators/pool_indexer.py b/src/novelvideo/generators/pool_indexer.py
+index f73672cd..08bc3d0a 100644
+--- a/src/novelvideo/generators/pool_indexer.py
++++ b/src/novelvideo/generators/pool_indexer.py
+@@ -5,6 +5,8 @@
+ 
+ import hashlib
+ import json
++import shutil
++import time
+ from datetime import datetime
+ from pathlib import Path
+ from typing import Dict, List, Optional, Union
+@@ -26,6 +28,34 @@ import re
+ _POOL_INDEX_FILENAME = "pool_index.json"
+ 
+ 
++def _replace_with_retry(src: Path, dst: Path, attempts: int = 15, delay: float = 0.5) -> None:
++    """Rename with retries to absorb transient Windows file locks.
++
++    Freshly written PNGs can be held briefly by antivirus scanners or by a
++    concurrent splitter pass (WinError 32). Retrying instead of failing keeps
++    the whole inline task runner alive.
++    """
++    for attempt in range(attempts):
++        try:
++            src.replace(dst)
++            return
++        except PermissionError:
++            if attempt >= attempts - 1:
++                raise
++            time.sleep(delay)
++
++
++def _copy2_with_retry(src: str, dst: str, attempts: int = 15, delay: float = 0.5) -> None:
++    for attempt in range(attempts):
++        try:
++            shutil.copy2(src, dst)
++            return
++        except PermissionError:
++            if attempt >= attempts - 1:
++                raise
++            time.sleep(delay)
++
++
+ def compute_beat_content_hash(
+     beat: dict,
+     sketch_colors: Optional[Dict[str, str]] = None,
+@@ -723,7 +753,7 @@ def save_grid_and_split(
+         beat_num = beat_nums[i]
+         cell_name = f"beat_{beat_num:02d}_t{ts}.png"
+         cell_path = target_dir / cell_name
+-        raw_path.replace(cell_path)
++        _replace_with_retry(raw_path, cell_path)
+ 
+         result = add_cell_with_dedup(
+             pool=pool,
+@@ -755,7 +785,7 @@ def save_grid_and_split(
+             promote.mkdir(parents=True, exist_ok=True)
+             dst = promote / f"beat_{beat_num:02d}.png"
+             if force_promote or not dst.exists():
+-                shutil.copy2(str(cell_path), str(dst))
++                _copy2_with_retry(str(cell_path), str(dst))
+ 
+         # 重复则删除新 cell（promote 之后再删）
+         if not result:
+diff --git a/src/novelvideo/ports/local/tasks.py b/src/novelvideo/ports/local/tasks.py
+index 2e7b3b4d..066a30bc 100644
+--- a/src/novelvideo/ports/local/tasks.py
++++ b/src/novelvideo/ports/local/tasks.py
+@@ -224,17 +224,25 @@ class InlineTaskBackend:
+         job: _InlineLaneJob,
+     ) -> None:
+         loop = asyncio.get_running_loop()
+-        await loop.run_in_executor(
+-            lane.executor,
+-            partial(
+-                run_project_task_core_sync,
+-                job.envelope,
+-                job.ctx,
+-                job.manager,
+-                run_task_id=job.run_task_id,
+-                metadata=job.metadata,
+-            ),
+-        )
++        try:
++            await loop.run_in_executor(
++                lane.executor,
++                partial(
++                    run_project_task_core_sync,
++                    job.envelope,
++                    job.ctx,
++                    job.manager,
++                    run_task_id=job.run_task_id,
++                    metadata=job.metadata,
++                ),
++            )
++        except Exception:
++            # A runner bug must not take down the whole API process.
++            logger.exception(
++                "Inline project task runner hard failure: %s/%s",
++                job.envelope.get("task_type"),
++                job.run_task_id,
++            )
+ 
+     def _on_background_task_done(self, task: asyncio.Task, lane_name: str) -> None:
+         self._background_tasks.discard(task)
+diff --git a/src/novelvideo/task_backend/runners/render.py b/src/novelvideo/task_backend/runners/render.py
+index 142fee47..f8afa0a0 100644
+--- a/src/novelvideo/task_backend/runners/render.py
++++ b/src/novelvideo/task_backend/runners/render.py
+@@ -622,7 +622,7 @@ async def _run_selected_regen_async(
+     )
+ 
+     log("分割网格并更新图片池...", progress=0.7)
+-    ts = datetime.now().strftime("%Y%m%d%H%M%S")
++    ts = datetime.now().strftime("%Y%m%d%H%M%S%f")
+     updated_beats: list[int] = []
+     grid_paths: dict[int, str] = {}
+     grid_results: list[dict[str, Any]] = []
+@@ -922,7 +922,7 @@ async def _run_grid_regenerate_async(
+         effective_grid_mode = grid_mode
+ 
+     log("切割网格到 render/ 并更新图片池...", progress=0.7)
+-    ts = datetime.now().strftime("%Y%m%d%H%M%S")
++    ts = datetime.now().strftime("%Y%m%d%H%M%S%f")
+     save_grid_and_split(
+         grid_image_path=result.grid_image_path,
+         episode_grids_dir=str(episode_grids_dir),
+diff --git a/src/novelvideo/task_backend/runners/sketch.py b/src/novelvideo/task_backend/runners/sketch.py
+index 466bbd28..73747afc 100644
+--- a/src/novelvideo/task_backend/runners/sketch.py
++++ b/src/novelvideo/task_backend/runners/sketch.py
+@@ -134,7 +134,11 @@ async def _ensure_scene_refs_for_beats(
+         log("当前 beats 无 scene_id，跳过场景资产检查")
+         return {"requested": 0, "generated": 0, "skipped": 0, "missing": 0, "director_refs": 0}
+ 
+-    store = CogneeStore(ctx.owner_project_label, output_dir=output_dir)
++    store = CogneeStore(
++        ctx.owner_project_label,
++        output_dir=output_dir,
++        state_dir=str(ctx.state_dir),
++    )
+     await store.initialize()
+     await store.load_graph_state()
+ 
+@@ -564,7 +568,7 @@ async def _run_sketch_generation_async(
+     )
+     log("[Deface] 跳过去脸后处理（SeedEdit 模型暂不可用）")
+     log("切割草图入池...", progress=0.85)
+-    ts = datetime.now().strftime("%Y%m%d%H%M%S")
++    ts = datetime.now().strftime("%Y%m%d%H%M%S%f")
+     sketches_dir = paths.sketches_dir()
+     sketches_dir.mkdir(parents=True, exist_ok=True)
+     save_result = save_grid_and_split(
+-- 
+2.54.0.windows.1
+
+
+From 88f386d361b32741959dd32102fde4cb44cc5149 Mon Sep 17 00:00:00 2001
+From: Jensen-Yao <203140439+Jensen-Yao@users.noreply.github.com>
+Date: Sun, 16 Aug 2026 01:02:43 +0800
+Subject: [PATCH 3/7] =?UTF-8?q?fix(generators):=20Agnes=20=E5=9B=BE?=
+ =?UTF-8?q?=E7=89=87=E6=A8=A1=E5=9E=8B=E5=8D=95=E5=B9=85=E8=8D=89=E5=9B=BE?=
+ =?UTF-8?q?/=E6=B8=B2=E6=9F=93=E6=8F=90=E7=A4=BA=E8=AF=8D=EF=BC=8C1x1=20?=
+ =?UTF-8?q?=E7=BA=AF=E6=96=87=E6=9C=AC=E4=B8=8D=E9=99=84=E5=8F=82=E8=80=83?=
+ =?UTF-8?q?=E5=9B=BE?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+agnes-image-2.1-flash 对 storyboard/grid 词汇和附加参考图有强多格偏置，
+1x1 请求仍输出拼图/三联画。SketchModeStrategy 为单幅加精简提示词分支，
+Agnes 1x1 草图与渲染走专用紧凑提示词并跳过参考图附件（身份一致性由
+外观文字与渲染阶段锁定）。
+---
+ src/novelvideo/generators/nanobanana_grid.py | 288 +++++++++++++++++--
+ src/novelvideo/generators/prompt_builder.py  |  73 +++--
+ 2 files changed, 321 insertions(+), 40 deletions(-)
+
+diff --git a/src/novelvideo/generators/nanobanana_grid.py b/src/novelvideo/generators/nanobanana_grid.py
+index f00b16e6..68307db0 100644
+--- a/src/novelvideo/generators/nanobanana_grid.py
++++ b/src/novelvideo/generators/nanobanana_grid.py
+@@ -204,6 +204,146 @@ def _beat_display_sort_key(beat: dict) -> tuple[int, int]:
+     return (beat_order_value(beat), int(beat.get("beat_number", 0) or 0))
+ 
+ 
++def _agnes_single_panel_sketch_prompt(
++    beats: list[dict],
++    *,
++    sketch_colors: dict[str, str] | None,
++    prop_marker_colors: dict[str, str] | None,
++) -> str:
++    """Compact single-frame sketch prompt for Agnes image models.
++
++    Agnes image-2.1-flash is strongly biased toward multi-panel storyboard
++    sheets whenever it sees storyboard/grid vocabulary, so 1x1 sketch requests
++    get a minimal single-image prompt instead of the full storyboard brief.
++    """
++    beat = (beats or [{}])[0]
++    visual = str(beat.get("visual_description") or beat.get("narration") or "").strip()
++    if not visual:
++        visual = "a single dramatic composition"
++    try:
++        scene_ref = json.loads(str(beat.get("scene_ref_json") or "{}"))
++        scene_name = str(scene_ref.get("scene_id") or "").strip()
++    except Exception:
++        scene_name = ""
++    identity_ids = [str(i) for i in (beat.get("detected_identities") or []) if str(i).strip()]
++    prop_ids = [str(p) for p in (beat.get("detected_props") or []) if str(p).strip()]
++    color_map: dict[str, str] = {}
++    for key, value in (sketch_colors or {}).items():
++        if key and value:
++            color_map[str(key)] = str(value)
++    for key, value in (prop_marker_colors or {}).items():
++        if key and value:
++            color_map[str(key)] = str(value)
++
++    def color_for(key: str) -> str:
++        value = str(color_map.get(key) or "").strip()
++        return value if value else "gray"
++
++    char_lines = []
++    for ident in identity_ids:
++        if ident.startswith("__"):
++            continue
++        name = ident.rsplit("_", 1)[0]
++        char_lines.append(
++            f"{name} is ONE flat {color_for(ident)} stick-mannequin "
++            "(oval head, no face, no clothing detail)"
++        )
++    prop_lines = []
++    for prop in prop_ids:
++        if prop.startswith("__"):
++            continue
++        prop_lines.append(
++            f"{prop} is ONE flat {color_for(prop)} solid silhouette with zero internal detail"
++        )
++    scene_line = (
++        f"Background is a very simple black/gray line-art version of the scene {scene_name}"
++        if scene_name
++        else "Background is very simple black/gray line art"
++    )
++    parts = [
++        "ONE single rough anime blocking sketch. EXACTLY ONE image, one single frame, 2:3 portrait.",
++        "NO grid, NO multiple panels, NO comic strip, NO storyboard sheet, NO collage, "
++        "NO before/after, NO split screen, NO panel-within-panel.",
++        "NO text, NO captions, NO labels, NO numbers, NO letters anywhere in the image.",
++        "Pure white paper background.",
++        scene_line + ".",
++        ("Characters: " + "; ".join(char_lines) + ".") if char_lines else "No characters.",
++        ("Props: " + "; ".join(prop_lines) + ".") if prop_lines else "No props.",
++        f"Composition (ONE frozen moment only): {visual}",
++        "Rough loose pencil sketch style, unfinished draft look, minimal detail.",
++    ]
++    return "\n".join(parts)
++
++
++def _agnes_single_panel_render_prompt(
++    beats: list[dict],
++    *,
++    character_map: dict | None,
++    scene_menu: list[dict] | list | None,
++) -> str:
++    """Compact single-frame render prompt for Agnes image models.
++
++    Agnes image-2.1-flash drifts into multi-panel storyboard output when it
++    receives the full render brief (or any attached reference collage), so 1x1
++    render requests get a minimal single-image prompt and no reference images.
++    Identity consistency comes from the written appearance text.
++    """
++    beat = (beats or [{}])[0]
++    visual = str(beat.get("visual_description") or beat.get("narration") or "").strip()
++    if not visual:
++        visual = "a single dramatic composition"
++    try:
++        scene_ref = json.loads(str(beat.get("scene_ref_json") or "{}"))
++        scene_name = str(scene_ref.get("scene_id") or "").strip()
++    except Exception:
++        scene_name = ""
++    env_hint = ""
++    for item in list(scene_menu or []):
++        if not isinstance(item, dict):
++            continue
++        if str(item.get("scene_id") or "") == scene_name:
++            env_hint = str(item.get("environment_prompt") or "").strip()
++            break
++    if env_hint and len(env_hint) > 260:
++        env_hint = env_hint[:260].rstrip("，。; ") + "。"
++
++    identity_ids = [str(i) for i in (beat.get("detected_identities") or []) if str(i).strip()]
++    char_lines = []
++    cmap = character_map or {}
++    for ident in identity_ids:
++        if ident.startswith("__"):
++            continue
++        info = cmap.get(ident) or cmap.get(ident.rsplit("_", 1)[0]) or {}
++        appearance = (
++            str(info.get("appearance_details") or "")
++            or str(info.get("base_prompt") or "")
++            or ""
++        )
++        identity_appearances = info.get("identity_appearances") or {}
++        if not appearance and isinstance(identity_appearances, dict):
++            appearance = str(identity_appearances.get(ident.rsplit("_", 1)[-1]) or "")
++        char_lines.append(
++            f"{ident.rsplit('_', 1)[0]} ({ident.rsplit('_', 1)[-1]}): {appearance or 'consistent anime character'}"
++        )
++    prop_ids = [str(p) for p in (beat.get("detected_props") or []) if str(p).strip() and not str(p).startswith("__")]
++
++    parts = [
++        "ONE single anime illustration frame. EXACTLY ONE image, 2:3 portrait, one camera shot.",
++        "NO grid, NO panels, NO comic strip, NO collage, NO split screen, NO before/after.",
++        "NO text, NO captions, NO letters, NO watermark anywhere in the image.",
++        "Style: 2D Japanese anime cel shading, clean line art, muted retro color palette, "
++        "high-quality film still.",
++        f"Scene: {scene_name}." + (f" Environment: {env_hint}" if env_hint else ""),
++        ("Characters (draw exactly these, consistent faces):\n- " + "\n- ".join(char_lines) + ".")
++        if char_lines
++        else "No characters in frame.",
++        f"Props present: {', '.join(prop_ids)}." if prop_ids else "No props.",
++        f"Composition (ONE frozen moment only): {visual}",
++        "The whole canvas is one single continuous image with a single subject composition.",
++    ]
++    return "\n".join(parts)
++
++
+ def image_generation_selection_forces_single_cell(selection: str | None) -> bool:
+     """Whether render planning must split every beat into a 1x1 grid."""
+     return str(selection or "").strip() == HUIMENG_IMAGE2_SINGLE_CELL_SELECTION
+@@ -3430,6 +3570,10 @@ async def _call_newapi_image_api(
+         "watermark": False,
+         "metadata": metadata,
+     }
++    is_agnes_image = str(model or "").strip().lower().startswith("agnes-image-")
++    if is_agnes_image:
++        payload.pop("response_format", None)
++        payload.pop("watermark", None)
+     if aspect_ratio in {"auto", "adaptive"}:
+         # Images use ``auto`` as the public follow-input ratio value. Keep
+         # resolution independent and let NewAPI infer the geometry.
+@@ -3465,15 +3609,35 @@ async def _call_newapi_image_api(
+     if output_format:
+         payload["output_format"] = output_format
+     input_fidelity = str(image_config.get("input_fidelity") or "").strip().lower()
+-    if input_fidelity and reference_images:
++    if input_fidelity and reference_images and not is_agnes_image:
+         payload["input_fidelity"] = input_fidelity
+ 
+     if reference_images:
+-        try:
+-            payload["image"] = await _relay_reference_images_for_newapi(reference_images)
+-        except Exception as exc:
+-            return None, "", f"media relay upload failed: {exc}"
+-        request_path = "/images/edits"
++        if is_agnes_image:
++            # Agnes serves image editing from the same generations endpoint and
++            # expects inputs in extra_body.image rather than the OpenAI edits
++            # contract used by the generic DramaClawAPI path. Data URIs work
++            # without requiring a configured OSS/Cloudinary media relay.
++            reference_urls = []
++            for image_ref in reference_images:
++                if isinstance(image_ref, tuple):
++                    image_bytes = bytes(
++                        image_ref[1] if len(image_ref) == 3 else image_ref[0]
++                    )
++                else:
++                    image_bytes = bytes(image_ref)
++                reference_urls.append(bytes_to_data_url(image_bytes))
++            extra_body: dict[str, object] = {}
++            payload["extra_body"] = extra_body
++            extra_body["image"] = reference_urls
++            request_path = "/images/generations"
++        else:
++            try:
++                reference_urls = await _relay_reference_images_for_newapi(reference_images)
++            except Exception as exc:
++                return None, "", f"media relay upload failed: {exc}"
++            payload["image"] = reference_urls
++            request_path = "/images/edits"
+     else:
+         request_path = "/images/generations"
+ 
+@@ -4235,6 +4399,21 @@ class NanoBananaGridGenerator:
+                 )
+                 builder = UnifiedPromptBuilder(ctx)
+                 prompt = builder.build()
++                if (
++                    self.provider == "newapi"
++                    and str(self.model or "").strip().lower().startswith("agnes-image-")
++                    and rows == 1
++                    and cols == 1
++                ):
++                    prompt = _agnes_single_panel_sketch_prompt(
++                        beats[:grid_capacity],
++                        sketch_colors=sketch_colors or {},
++                        prop_marker_colors=_global_prop_marker_colors(
++                            beats[:grid_capacity],
++                            prop_menu,
++                            sketch_colors=sketch_colors or {},
++                        ),
++                    )
+ 
+             elif sketch_dir:
+                 # Render 模式：通过 find_sketch_for_beat_range 在草图目录中定位对应的草图
+@@ -4330,6 +4509,17 @@ class NanoBananaGridGenerator:
+                     )
+                     builder = UnifiedPromptBuilder(ctx)
+                     prompt = builder.build()
++                    if (
++                        self.provider == "newapi"
++                        and str(self.model or "").strip().lower().startswith("agnes-image-")
++                        and rows == 1
++                        and cols == 1
++                    ):
++                        prompt = _agnes_single_panel_render_prompt(
++                            beats[:grid_capacity],
++                            character_map=valid_character_map,
++                            scene_menu=scene_menu,
++                        )
+                 else:
+                     # 草图未找到，明确报错终止（不 fallback）
+                     msg = f"Render 模式需要草图但未找到覆盖 beat {beat_range_start}-{beat_range_end} 的草图"
+@@ -4458,7 +4648,15 @@ class NanoBananaGridGenerator:
+             # Render 模式传角色/身份/场景/道具；Sketch 模式只传场景参考图。
+             # 道具在草图阶段只保留名称和 marker 颜色，不传道具参考图，避免最终
+             # 材质/三视图干扰 blocking。
+-            if not sketch and previous_grid_path and os.path.exists(previous_grid_path):
++            if (
++                not sketch
++                and previous_grid_path
++                and os.path.exists(previous_grid_path)
++                and not (
++                    self.provider == "newapi"
++                    and str(self.model or "").strip().lower().startswith("agnes-image-")
++                )
++            ):
+                 previous_grid_image = self._load_image_as_part(previous_grid_path)
+                 if previous_grid_image:
+                     contents.append(previous_grid_image)
+@@ -4491,30 +4689,57 @@ class NanoBananaGridGenerator:
+                         audit_refs=submitted_refs,
+                     )
+                 elif scene_refs or prop_asset_refs:
++                    is_agnes_image = bool(
++                        self.provider == "newapi"
++                        and str(self.model or "").strip().lower().startswith("agnes-image-")
++                    )
++                    if is_agnes_image:
++                        # Agnes blends attached reference images into multi-panel
++                        # collages. Sketches only need composition; scene identity
++                        # is locked again at the render stage, so generate from
++                        # text only here.
++                        print(
++                            "[NanoBananaPro] Agnes 草图使用纯文本单幅生成"
++                            "（不附加场景参考图，避免拼图输出）"
++                        )
++                    else:
++                        self._append_reference_parts_from_plan(
++                            contents,
++                            ctx,
++                            [],
++                            valid_character_map,
++                            allowed_kinds={"scene"},
++                            verbose=True,
++                            audit_refs=submitted_refs,
++                        )
++            else:
++                is_agnes_image = bool(
++                    self.provider == "newapi"
++                    and str(self.model or "").strip().lower().startswith("agnes-image-")
++                )
++                if is_agnes_image:
++                    # Agnes turns attached reference images into multi-panel
++                    # collages; the compact single-frame render prompt already
++                    # carries identity appearance text, so stay text-only.
++                    print(
++                        "[NanoBananaPro] Agnes 渲染使用纯文本单幅生成"
++                        "（不附加参考图，避免拼图输出）"
++                    )
++                else:
++                    ordered_chars = resolve_render_reference_order(
++                        ctx, beats, grid_capacity, valid_character_map
++                    )
++
++                    print(f"[NanoBananaPro] 角色参考图顺序: {ordered_chars}")
+                     self._append_reference_parts_from_plan(
+                         contents,
+                         ctx,
+-                        [],
++                        ordered_chars,
+                         valid_character_map,
+-                        allowed_kinds={"scene"},
++                        allowed_kinds=None,
+                         verbose=True,
+                         audit_refs=submitted_refs,
+                     )
+-            else:
+-                ordered_chars = resolve_render_reference_order(
+-                    ctx, beats, grid_capacity, valid_character_map
+-                )
+-
+-                print(f"[NanoBananaPro] 角色参考图顺序: {ordered_chars}")
+-                self._append_reference_parts_from_plan(
+-                    contents,
+-                    ctx,
+-                    ordered_chars,
+-                    valid_character_map,
+-                    allowed_kinds=None,
+-                    verbose=True,
+-                    audit_refs=submitted_refs,
+-                )
+ 
+             if output_path:
+                 grid_dir = Path(output_path).parent
+@@ -5501,6 +5726,21 @@ class NanoBananaGridGenerator:
+             )
+             builder = UnifiedPromptBuilder(ctx)
+             prompt = builder.build()
++            if (
++                self.provider == "newapi"
++                and str(self.model or "").strip().lower().startswith("agnes-image-")
++                and rows == 1
++                and cols == 1
++            ):
++                prompt = _agnes_single_panel_sketch_prompt(
++                    beats[:grid_capacity],
++                    sketch_colors=sketch_colors or {},
++                    prop_marker_colors=_global_prop_marker_colors(
++                        beats[:grid_capacity],
++                        prop_menu,
++                        sketch_colors=sketch_colors or {},
++                    ),
++                )
+         elif sketch_dir:
+             # 始终从 beats 自身提取 beat 编号，避免与外部参数不同步
+             actual_beats = beats[:grid_capacity]
+diff --git a/src/novelvideo/generators/prompt_builder.py b/src/novelvideo/generators/prompt_builder.py
+index 4a28f16c..7acb6987 100644
+--- a/src/novelvideo/generators/prompt_builder.py
++++ b/src/novelvideo/generators/prompt_builder.py
+@@ -2651,6 +2651,7 @@ class SketchModeStrategy:
+     def build(self, ctx: PromptContext, components: PromptComponents) -> str:
+         rows, cols = ctx.grid.rows, ctx.grid.cols
+         total_panels = ctx.grid.total_panels
++        single_panel = rows == 1 and cols == 1
+ 
+         # ASCII 布局（Sketch 模式使用竖屏 panel）
+         ascii_layout = components.build_grid_ascii(rows, cols, ctx.grid.is_portrait_panel)
+@@ -3157,7 +3158,17 @@ SYMBOLIC STORYBOARD PEOPLE ONLY: all humans are featureless identity proxies, no
+ Global props are flat solid color markers/silhouettes only in their listed panel(s) (real material rendered later in the render stage). Local/episode props are black/gray line art only.
+ Backgrounds are minimal contextual black/gray line art based on attached scene references when present; characters and listed-panel global props are the visual priority."""
+             role_line = "ROLE: You are a MASTER FILM DIRECTOR and storyboard artist."
+-            task_line = f"TASK: Create a {rows}x{cols} storyboard grid ({total_panels} panels) for a dramatic short film sequence. Read each panel's scene description and make the written action visually readable. Choose angle/framing only where the description leaves room; do not sacrifice blocking clarity for cinematic variety."
++            if single_panel:
++                task_line = (
++                    "TASK: Create ONE single storyboard panel (exactly 1 frame) for a "
++                    "dramatic short film sequence. The ENTIRE image is ONE panel - do NOT "
++                    "split the canvas into a grid, comic strip, storyboard sheet, or "
++                    "multi-panel collage. Make the written action visually readable. "
++                    "Choose angle/framing only where the description leaves room; do not "
++                    "sacrifice blocking clarity for cinematic variety."
++                )
++            else:
++                task_line = f"TASK: Create a {rows}x{cols} storyboard grid ({total_panels} panels) for a dramatic short film sequence. Read each panel's scene description and make the written action visually readable. Choose angle/framing only where the description leaves room; do not sacrifice blocking clarity for cinematic variety."
+             panel_rule_block = """SINGLE-MOMENT RULE:
+ - Each panel must depict exactly ONE camera setup and ONE frozen story moment.
+ - Do NOT combine multiple sub-shots, multiple time slices, or multiple sequential actions inside one panel.
+@@ -3178,7 +3189,17 @@ Backgrounds are minimal contextual black/gray line art based on attached scene r
+ - Characters are COLOR-CODED DIRECTIONAL MANNEQUINS; listed-panel global props are COLOR-CODED simple silhouettes filled with their marker color; local/episode props are black/gray line art only
+ - Speed and clarity over artistic quality; treat this as a 30-second blocking sketch, not a final piece"""
+             role_line = "ROLE: You are a MASTER FILM DIRECTOR and storyboard artist."
+-            task_line = f"TASK: Create a {rows}x{cols} storyboard grid ({total_panels} panels) for a dramatic short film sequence. Read each panel's scene description and make the written action visually readable. Choose angle/framing only where the description leaves room; do not sacrifice blocking clarity for cinematic variety."
++            if single_panel:
++                task_line = (
++                    "TASK: Create ONE single storyboard panel (exactly 1 frame) for a "
++                    "dramatic short film sequence. The ENTIRE image is ONE panel - do NOT "
++                    "split the canvas into a grid, comic strip, storyboard sheet, or "
++                    "multi-panel collage. Make the written action visually readable. "
++                    "Choose angle/framing only where the description leaves room; do not "
++                    "sacrifice blocking clarity for cinematic variety."
++                )
++            else:
++                task_line = f"TASK: Create a {rows}x{cols} storyboard grid ({total_panels} panels) for a dramatic short film sequence. Read each panel's scene description and make the written action visually readable. Choose angle/framing only where the description leaves room; do not sacrifice blocking clarity for cinematic variety."
+             panel_rule_block = """SINGLE-MOMENT RULE:
+ - Each panel must depict exactly ONE camera setup and ONE frozen story moment.
+ - Do NOT combine multiple sub-shots, multiple time slices, or multiple sequential actions inside one panel.
+@@ -3210,16 +3231,44 @@ Backgrounds are minimal contextual black/gray line art based on attached scene r
+                 "Lock the approved composition and staging, but correct 3GS/360 projection artifacts: fisheye bending, wide-angle stretching, broken seams, warped floors, curved walls, bowed counters, skewed tables, screens, door frames, floor seams, and vertical fixtures must become straight/coherent storyboard construction. Preserve door/window/opening topology, passable-vs-blocking relationship, and open/closed/angled state; do not replace them with cleaner generic doors, and do not copy material dirt/decay/detail into the sketch."
+             )
+         else:
+-            intro_action = (
+-                f"Generate a {rows}x{cols} storyboard grid. Each panel MUST be {panel_hint}."
+-            )
++            if single_panel:
++                intro_action = (
++                    f"Generate ONE single storyboard panel - exactly one frame, NOT a "
++                    f"grid, NOT a multi-panel sheet. The panel MUST be {panel_hint}."
++                )
++            else:
++                intro_action = (
++                    f"Generate a {rows}x{cols} storyboard grid. Each panel MUST be {panel_hint}."
++                )
++
++        if single_panel:
++            grid_format_block = """!!! MANDATORY SINGLE-PANEL FORMAT: EXACTLY 1 PANEL ONLY !!!
++(The entire canvas is ONE panel. NO rows, NO columns, NO grid subdivision, NO panel borders, NO numbered frames, NO multi-panel storyboard sheet.)"""
++        else:
++            grid_format_block = f"""!!! MANDATORY GRID FORMAT: {rows} ROWS × {cols} COLUMNS !!!
++(This means {rows} horizontal rows stacked vertically, each row containing {cols} panels side by side)"""
++
++        if single_panel:
++            layout_block = """LAYOUT (CRITICAL - MUST BE EXACT):
++- EXACTLY 1 single panel covering the ENTIRE canvas edge-to-edge
++- NO grid rows/columns, NO panel borders, NO gutters, NO dividing lines, NO panel numbers
++- The whole image is ONE continuous composition - NO collage, NO storyboard sheet, NO comic strip, NO panel-within-panel"""
++        else:
++            layout_block = f"""LAYOUT (CRITICAL - MUST BE EXACT):
++- EXACTLY {rows} rows × {cols} columns = {total_panels} panels total
++- Each row MUST have EXACTLY {cols} panels (no more, no less)
++- Each column MUST have EXACTLY {rows} panels (no more, no less)
++- ⚠️ Each individual panel MUST be {_panel_ar_hint(ctx.grid.aspect_ratio, rows, cols)}
++- Panels numbered left-to-right, top-to-bottom (1, 2, 3... {total_panels})
++- ⚠️ ONE CONTINUOUS IMAGE. NO drawn borders, gutters, or dividing lines between regions
++- Adjacent regions from different scenes may have natural background transitions
++- All {total_panels} panels MUST be EQUAL SIZE and ALIGNED in a perfect grid"""
+ 
+         intro = f"""{intro_action}
+ 
+ ⚠️ 100% CANVAS COVERAGE — artwork fills ENTIRE canvas edge-to-edge, NO margins/padding/borders.
+ 
+-!!! MANDATORY GRID FORMAT: {rows} ROWS × {cols} COLUMNS !!!
+-(This means {rows} horizontal rows stacked vertically, each row containing {cols} panels side by side)
++{grid_format_block}
+ 
+ {role_line}
+ 
+@@ -3256,15 +3305,7 @@ VISUAL DESCRIPTION AUTHORITY:
+ - NO comic/manga effect lines: no motion lines, speed lines, trembling lines, impact strokes, emphasis rays, or symbolic action marks
+ - Do not turn an ordinary panel into a poster-like summary collage or a panel-within-panel layout unless the description explicitly demands that visual device
+ 
+-LAYOUT (CRITICAL - MUST BE EXACT):
+-- EXACTLY {rows} rows × {cols} columns = {total_panels} panels total
+-- Each row MUST have EXACTLY {cols} panels (no more, no less)
+-- Each column MUST have EXACTLY {rows} panels (no more, no less)
+-- ⚠️ Each individual panel MUST be {_panel_ar_hint(ctx.grid.aspect_ratio, rows, cols)}
+-- Panels numbered left-to-right, top-to-bottom (1, 2, 3... {total_panels})
+-- ⚠️ ONE CONTINUOUS IMAGE. NO drawn borders, gutters, or dividing lines between regions
+-- Adjacent regions from different scenes may have natural background transitions
+-- All {total_panels} panels MUST be EQUAL SIZE and ALIGNED in a perfect grid
++{layout_block}
+ 
+ ⚠️⚠️⚠️ ABSOLUTELY NO TEXT ON IMAGE ⚠️⚠️⚠️
+ - DO NOT render ANY text, labels, numbers, or captions on the image
+-- 
+2.54.0.windows.1
+
+
+From 9b295dcf708a3bc186d1ebda429ccd3f4cde7b5d Mon Sep 17 00:00:00 2001
+From: Jensen-Yao <203140439+Jensen-Yao@users.noreply.github.com>
+Date: Sun, 16 Aug 2026 01:02:51 +0800
+Subject: [PATCH 4/7] =?UTF-8?q?fix(audio):=20NewAPI=20=E6=97=A0=20IndexTTS?=
+ =?UTF-8?q?2=20=E6=B8=A0=E9=81=93=E6=97=B6=E5=9B=9E=E9=80=80=20Edge=20TTS?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+本地 NewAPI 没有音频模型渠道，/audio/generate 必然 503。IndexTTS2FalClient
+在 newapi 分支失败且错误含 404/503/not found/channel 时，用 Edge TTS
+中文男声合成旁白/对白，保证主线音频阶段可用。
+---
+ src/novelvideo/generators/indextts2_fal.py | 54 ++++++++++++++++++++++
+ 1 file changed, 54 insertions(+)
+
+diff --git a/src/novelvideo/generators/indextts2_fal.py b/src/novelvideo/generators/indextts2_fal.py
+index 3059c2d4..d58e36bf 100644
+--- a/src/novelvideo/generators/indextts2_fal.py
++++ b/src/novelvideo/generators/indextts2_fal.py
+@@ -71,6 +71,22 @@ def _extract_audio_url(payload: dict[str, Any]) -> str:
+     return ""
+ 
+ 
++def _looks_like_model_unavailable(error: str | None) -> bool:
++    text = str(error or "").lower()
++    return any(
++        marker in text
++        for marker in (
++            "404",
++            "503",
++            "not found",
++            "model_not_found",
++            "no available",
++            "channel",
++            "unsupported model",
++        )
++    )
++
++
+ async def _audio_duration_seconds(audio_path: Path) -> float:
+     try:
+         result = subprocess.run(
+@@ -178,6 +194,11 @@ class IndexTTS2FalClient:
+                 output_path=target,
+                 emotion_prompt=emotion_prompt,
+             )
++            if not result.success and _looks_like_model_unavailable(result.error):
++                result = await self._generate_via_edge_fallback(
++                    prompt=prompt,
++                    output_path=target,
++                )
+         else:
+             result = await self._generate_via_fal(
+                 prompt=prompt,
+@@ -201,6 +222,39 @@ class IndexTTS2FalClient:
+             )
+         return result
+ 
++    async def _generate_via_edge_fallback(
++        self,
++        *,
++        prompt: str,
++        output_path: Path,
++    ) -> TTSResult:
++        """Edge TTS fallback when NewAPI has no IndexTTS2 channel.
++
++        Edge TTS cannot clone the narrator reference voice, so the narration is
++        synthesized with a mature Mandarin male preset. This keeps the mainline
++        audio stage functional without an IndexTTS2-capable upstream channel.
++        """
++        import edge_tts
++
++        last_error = ""
++        for voice in ("zh-CN-YunjianNeural", "zh-CN-YunxiNeural"):
++            try:
++                communicate = edge_tts.Communicate(prompt, voice)
++                await communicate.save(str(output_path))
++            except Exception as exc:  # pragma: no cover - network dependent
++                last_error = f"{exc.__class__.__name__}: {exc}"
++                continue
++            if output_path.exists() and output_path.stat().st_size > 0:
++                return TTSResult(
++                    success=True,
++                    audio_path=str(output_path),
++                    duration_seconds=await _audio_duration_seconds(output_path),
++                )
++        return TTSResult(
++            success=False,
++            error=f"edge-tts fallback failed: {last_error or 'no output file'}",
++        )
++
+     async def _generate_via_fal(
+         self,
+         *,
+-- 
+2.54.0.windows.1
+
+
+From 622406c69516f4ac1b8c3bd8848b0a990cdd8607 Mon Sep 17 00:00:00 2001
+From: Jensen-Yao <203140439+Jensen-Yao@users.noreply.github.com>
+Date: Sun, 16 Aug 2026 01:03:00 +0800
+Subject: [PATCH 5/7] =?UTF-8?q?fix(video):=20=E6=B3=A8=E5=86=8C=20Agnes=20?=
+ =?UTF-8?q?=E8=A7=86=E9=A2=91=E4=B8=BA=E5=8F=AF=E9=80=89=E8=A7=86=E9=A2=91?=
+ =?UTF-8?q?=E5=90=8E=E7=AB=AF?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+NEWAPI_VIDEO_MODELS 加入 agnes-video-v2.0，时长界限 4-12s，并加显示标签；
+视频接口可用 video_backend=newapi_agnes-video-v2.0 走图生视频。
+（video_generator.py 的 Agnes 结果 URL/Referer 协议分支在本次会话前已存在，
+一并保留。）
+---
+ src/novelvideo/config.py                     |  10 +-
+ src/novelvideo/generators/video_generator.py | 108 +++++++++++++++++--
+ 2 files changed, 109 insertions(+), 9 deletions(-)
+
+diff --git a/src/novelvideo/config.py b/src/novelvideo/config.py
+index 70a4043b..57309443 100644
+--- a/src/novelvideo/config.py
++++ b/src/novelvideo/config.py
+@@ -712,7 +712,7 @@ def _csv_env(name: str, default: str) -> list[str]:
+ # newAPI 视频网关。VIDEO_BACKEND 使用 newapi_<model> 时会通过 NEWAPI_BASE_URL 调用。
+ NEWAPI_VIDEO_MODELS = _csv_env(
+     "NEWAPI_VIDEO_MODELS",
+-    "seedance-1.0-pro-fast,seedance-1.5-pro,seedance-2.0,seedance-2.0-fast,seedance-2.0-value,seedance-2.0-fast-value,happyhorse-1.0,seedance-2.0-mini",
++    "seedance-1.0-pro-fast,seedance-1.5-pro,seedance-2.0,seedance-2.0-fast,seedance-2.0-value,seedance-2.0-fast-value,happyhorse-1.0,seedance-2.0-mini,agnes-video-v2.0",
+ )
+ DEFAULT_VIDEO_MODEL = os.environ.get(
+     "DEFAULT_VIDEO_MODEL",
+@@ -726,7 +726,7 @@ NEWAPI_VIDEO_AUDIO_MODELS = _csv_env(
+ )
+ NEWAPI_VIDEO_DURATION_BOUNDS = os.environ.get(
+     "NEWAPI_VIDEO_DURATION_BOUNDS",
+-    "seedance-1.0-pro-fast:2-12,seedance-1.5-pro:4-12,seedance-2.0:4-15,seedance-2.0-fast:4-15,seedance-2.0-value:4-15,seedance-2.0-fast-value:4-15,happyhorse-1.0:3-15,seedance-2.0-mini:4-15",
++    "seedance-1.0-pro-fast:2-12,seedance-1.5-pro:4-12,seedance-2.0:4-15,seedance-2.0-fast:4-15,seedance-2.0-value:4-15,seedance-2.0-fast-value:4-15,happyhorse-1.0:3-15,seedance-2.0-mini:4-15,agnes-video-v2.0:4-12",
+ ).strip()
+ 
+ # 视频生成后端: newapi_seedance-1.0-pro-fast (默认), newapi_seedance-2.0-fast,
+@@ -888,11 +888,17 @@ IMAGE_GENERATION_SELECTIONS: dict[str, dict[str, str]] = {
+         "provider": "newapi",
+         "model": NEWAPI_NANOBANANA2_MODEL,
+     },
++    "newapi_agnes_image2_flash": {
++        "label": "Agnes Image 2.1 Flash",
++        "provider": "newapi",
++        "model": "agnes-image-2.1-flash",
++    },
+ }
+ 
+ VISIBLE_IMAGE_GENERATION_SELECTION_KEYS = (
+     "newapi_gpt_image2",
+     "newapi_nanobanana2",
++    "newapi_agnes_image2_flash",
+ )
+ 
+ LEGACY_IMAGE_GENERATION_SELECTION_ALIASES = {
+diff --git a/src/novelvideo/generators/video_generator.py b/src/novelvideo/generators/video_generator.py
+index 1cc25233..f3df1d20 100644
+--- a/src/novelvideo/generators/video_generator.py
++++ b/src/novelvideo/generators/video_generator.py
+@@ -1924,7 +1924,9 @@ class NewApiVideoGenerator(VideoGeneratorBase):
+                 except json.JSONDecodeError as exc:
+                     raise RuntimeError(f"DramaClawAPI task query returned invalid JSON: {text}") from exc
+ 
+-    async def _download_video(self, url: str, output_path: str) -> bytes:
++    async def _download_video(
++        self, url: str, output_path: str, max_retries: int = 5
++    ) -> bytes:
+         if url.startswith("data:"):
+             header, _, encoded = url.partition(",")
+             if ";base64" not in header or not encoded:
+@@ -1933,11 +1935,47 @@ class NewApiVideoGenerator(VideoGeneratorBase):
+ 
+             content = base64.b64decode(encoded)
+         else:
+-            async with aiohttp.ClientSession(timeout=self._client_timeout()) as session:
+-                async with session.get(url) as resp:
+-                    if resp.status != 200:
+-                        raise RuntimeError(f"DramaClawAPI result download failed: HTTP {resp.status}")
+-                    content = await resp.read()
++            content = b""
++            last_error = ""
++            for attempt in range(1, max_retries + 1):
++                request_headers = {}
++                if self._is_agnes_video_model(self.model):
++                    request_headers["Referer"] = "https://api.agnes-ai.cn/"
++                try:
++                    async with aiohttp.ClientSession(timeout=self._client_timeout()) as session:
++                        async with session.get(url, headers=request_headers) as resp:
++                            if resp.status != 200:
++                                last_error = f"HTTP {resp.status}"
++                                if attempt < max_retries and (
++                                    resp.status in {401, 403, 429} or resp.status >= 500
++                                ):
++                                    await asyncio.sleep(min(2 ** (attempt - 1), 15))
++                                    continue
++                                raise RuntimeError(
++                                    f"DramaClawAPI result download failed: HTTP {resp.status}"
++                                )
++                            content = await resp.read()
++                            if not content:
++                                last_error = "empty response"
++                                if attempt < max_retries:
++                                    await asyncio.sleep(min(2 ** (attempt - 1), 15))
++                                    continue
++                                raise RuntimeError(
++                                    "DramaClawAPI result download failed: empty response"
++                                )
++                            break
++                except (aiohttp.ClientError, asyncio.TimeoutError) as exc:
++                    last_error = type(exc).__name__
++                    if attempt < max_retries:
++                        await asyncio.sleep(min(2 ** (attempt - 1), 15))
++                        continue
++                    raise RuntimeError(
++                        f"DramaClawAPI result download failed: {last_error}"
++                    ) from exc
++            if not content:
++                raise RuntimeError(
++                    f"DramaClawAPI result download failed: {last_error or 'empty response'}"
++                )
+ 
+         path = Path(output_path)
+         path.parent.mkdir(parents=True, exist_ok=True)
+@@ -2336,6 +2374,9 @@ class NewApiVideoGenerator(VideoGeneratorBase):
+         data = task.get("data")
+         if isinstance(data, dict):
+             merged = dict(data)
++            nested = data.get("data")
++            if isinstance(nested, dict):
++                merged.update(nested)
+             if "_newapi_request_id" not in merged and task.get("_newapi_request_id"):
+                 merged["_newapi_request_id"] = task["_newapi_request_id"]
+             return merged
+@@ -2410,6 +2451,49 @@ class NewApiVideoGenerator(VideoGeneratorBase):
+                 return value.strip()
+         return ""
+ 
++    @staticmethod
++    def _is_agnes_video_model(model: str) -> bool:
++        return str(model or "").strip().lower().startswith("agnes-video-")
++
++    async def _agnes_result_video_url(self, task: dict) -> str:
++        """Resolve Agnes video output from the provider-specific video_id."""
++        if not self._is_agnes_video_model(self.model) or not isinstance(task, dict):
++            return ""
++        video_id = str(task.get("video_id") or "").strip()
++        if not video_id:
++            return ""
++        try:
++            from novelvideo.model_gateway_settings import get_newapi_provider_channel
++
++            channel = get_newapi_provider_channel("agnes")
++        except (ImportError, RuntimeError):
++            return ""
++        if not channel:
++            return ""
++        upstream_key = str(channel.get("upstreamKey") or "").strip()
++        base_url = str(channel.get("baseUrl") or "https://api.agnes-ai.cn").strip().rstrip("/")
++        if not upstream_key:
++            return ""
++        result_endpoint = (
++            f"{base_url}/agnesapi?video_id={urllib.parse.quote(video_id, safe='')}"
++        )
++        timeout = aiohttp.ClientTimeout(total=60)
++        async with aiohttp.ClientSession(timeout=timeout) as session:
++            async with session.get(
++                result_endpoint,
++                headers={"Authorization": f"Bearer {upstream_key}"},
++            ) as response:
++                if response.status != 200:
++                    return ""
++                result = await response.json(content_type=None)
++        if not isinstance(result, dict):
++            return ""
++        metadata = result.get("metadata")
++        url = result.get("url") or (
++            metadata.get("url") if isinstance(metadata, dict) else ""
++        )
++        return str(url or "").strip()
++
+     def _resolve_result_url(self, result_url: str) -> str:
+         """Make gateway-local result URLs reachable from this process."""
+         value = str(result_url or "").strip()
+@@ -2951,6 +3035,8 @@ class NewApiVideoGenerator(VideoGeneratorBase):
+                 if status in {"completed", "succeeded", "success", "done"}:
+                     progress(0.9)
+                     video_url = self._resolve_result_url(self._extract_video_url(task))
++                    if self._is_agnes_video_model(self.model):
++                        video_url = await self._agnes_result_video_url(task) or video_url
+                     if not video_url:
+                         update_request_status(
+                             task_id, "failed", "No video url in DramaClawAPI result"
+@@ -2968,7 +3054,14 @@ class NewApiVideoGenerator(VideoGeneratorBase):
+                             task_id=task_id,
+                         )
+                     log("视频生成完成，正在下载...")
+-                    await self._download_video(video_url, output_path)
++                    if self._is_agnes_video_model(self.model):
++                        await self._download_video(
++                            video_url,
++                            output_path,
++                            max_retries=8,
++                        )
++                    else:
++                        await self._download_video(video_url, output_path)
+                     provider_task_id = self._extract_provider_task_id(
+                         task,
+                         fallback=task_id,
+@@ -3602,6 +3695,7 @@ NEWAPI_VIDEO_DISPLAY_LABELS = {
+     "seedance-2.0-mini": "Seedance2.0 Mini",
+     "happyhorse-1.0": "HappyHorse 1.0",
+     "grok-video-channel": "Grok Video Channel",
++    "agnes-video-v2.0": "Agnes Video 2.0",
+ }
+ NEWAPI_MAINLINE_SEEDANCE2_MODELS = (
+     "seedance-2.0",
+-- 
+2.54.0.windows.1
+
+
+From 81a0bbdd60c9b4d851afb5ac6557e646d5d18d3d Mon Sep 17 00:00:00 2001
+From: Jensen-Yao <203140439+Jensen-Yao@users.noreply.github.com>
+Date: Sun, 16 Aug 2026 01:03:08 +0800
+Subject: [PATCH 6/7] =?UTF-8?q?chore(scripts):=20=E5=90=AF=E5=8A=A8?=
+ =?UTF-8?q?=E8=84=9A=E6=9C=AC=20GBK=20=E7=BC=96=E7=A0=81=E4=B8=8E=20API=20?=
+ =?UTF-8?q?=E7=AB=AF=E5=8F=A3=E5=8D=A0=E7=94=A8=E4=BF=9D=E6=8A=A4?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+启动 DramaClaw.cmd 原为 UTF-8，cmd.exe 按 GBK 解析导致 NewAPI 自动拉起
+判断失效；重写为 GBK(936) 并加 netstat 端口检查，避免重复启动 API。
+启动 NewAPI.cmd 为纯 ASCII 脚本，一并入库保留。
+---
+ "\345\220\257\345\212\250 DramaClaw.cmd" | 30 ++++++++++++++++++++++++
+ "\345\220\257\345\212\250 NewAPI.cmd"    | 25 ++++++++++++++++++++
+ 2 files changed, 55 insertions(+)
+ create mode 100644 "\345\220\257\345\212\250 DramaClaw.cmd"
+ create mode 100644 "\345\220\257\345\212\250 NewAPI.cmd"
+
+diff --git "a/\345\220\257\345\212\250 DramaClaw.cmd" "b/\345\220\257\345\212\250 DramaClaw.cmd"
+new file mode 100644
+index 00000000..eba805ab
+--- /dev/null
++++ "b/\345\220\257\345\212\250 DramaClaw.cmd"	
+@@ -0,0 +1,30 @@
++@echo off
++setlocal
++
++set "ROOT=F:\DramaClaw"
++set "API_PORT=8780"
++set "WEB_PORT=5174"
++
++if not exist "%ROOT%\.venv\Scripts\novelvideo.exe" (
++  echo Missing Python environment: %ROOT%\.venv
++  pause
++  exit /b 1
++)
++
++if not exist "%ROOT%\frontend\node_modules\.bin\vite.cmd" (
++  echo Missing frontend dependencies: %ROOT%\frontend\node_modules
++  pause
++  exit /b 1
++)
++
++if exist "%ROOT%\��� NewAPI.cmd" call "%ROOT%\��� NewAPI.cmd"
++
++netstat -ano | findstr /r ":%API_PORT% .*LISTENING" >nul 2>&1
++if errorlevel 1 start "DramaClaw API" /D "%ROOT%" "%ROOT%\.venv\Scripts\novelvideo.exe" api --host 127.0.0.1 --port %API_PORT%
++
++start "DramaClaw Web" /D "%ROOT%\frontend" cmd /c "node_modules\.bin\vite.cmd --host 127.0.0.1 --port %WEB_PORT% --mode ce"
++
++timeout /t 3 /nobreak >nul
++start "" "http://127.0.0.1:%WEB_PORT%/"
++
++endlocal
+\ No newline at end of file
+diff --git "a/\345\220\257\345\212\250 NewAPI.cmd" "b/\345\220\257\345\212\250 NewAPI.cmd"
+new file mode 100644
+index 00000000..c1d999f2
+--- /dev/null
++++ "b/\345\220\257\345\212\250 NewAPI.cmd"	
+@@ -0,0 +1,25 @@
++@echo off
++setlocal
++
++set "ROOT=%~dp0"
++set "EXE=%ROOT%runtime\new-api.exe"
++set "WORK=%ROOT%state\newapi"
++set "SECRET=%ROOT%runtime\newapi.secret"
++
++if not exist "%EXE%" (
++  echo [ERROR] new-api.exe not found: %EXE%
++  pause
++  exit /b 1
++)
++
++if not exist "%WORK%" mkdir "%WORK%"
++if not exist "%SECRET%" powershell -NoProfile -Command "[guid]::NewGuid().ToString('N')" > "%SECRET%"
++
++powershell -NoProfile -ExecutionPolicy Bypass -Command ^
++  "$env:SQL_DSN='';" ^
++  "$env:TZ='Asia/Shanghai';" ^
++  "$env:SESSION_SECRET=(Get-Content '%SECRET%').Trim();" ^
++  "$existing = Get-Process -Name 'new-api' -ErrorAction SilentlyContinue;" ^
++  "if ($existing) { Write-Output ('NewAPI already running: PID ' + $existing.Id) } else { $p = Start-Process -FilePath '%EXE%' -WorkingDirectory '%WORK%' -WindowStyle Hidden -PassThru; $p.Id | Out-File -FilePath '%ROOT%runtime\newapi.pid' -Encoding ascii; Write-Output ('NewAPI started: PID ' + $p.Id) }"
++
++endlocal
+-- 
+2.54.0.windows.1
+
+
+From 2fd4b969fc82596127ff9e613c9b30c15d86b481 Mon Sep 17 00:00:00 2001
+From: Jensen-Yao <203140439+Jensen-Yao@users.noreply.github.com>
+Date: Sun, 16 Aug 2026 01:03:20 +0800
+Subject: [PATCH 7/7] =?UTF-8?q?wip:=20=E4=BF=9D=E7=95=99=E6=AD=A4=E5=89=8D?=
+ =?UTF-8?q?=E4=BC=9A=E8=AF=9D=E7=9A=84=E4=B8=BB=E7=BA=BF=E7=8A=B6=E6=80=81?=
+ =?UTF-8?q?=E4=BF=AE=E5=A4=8D=E4=B8=8E=E7=94=9F=E6=88=90=E5=99=A8=E6=94=B9?=
+ =?UTF-8?q?=E5=8A=A8=EF=BC=88=E5=BE=85=E5=AE=A1=E8=AE=A1=EF=BC=89?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+含：CLI 直出 Agnes 视频模式/TTS 超时降级/镜头复用；scenes/props/tasks
+路由读取注册表 state_dir；runners 统一项目状态目录；scene reverse 图
+提示词硬约束；tts_generator 与 video_generator 的 Agnes 兼容分支
+（视频结果解包、Referer、重试）；相关测试更新。
+---
+ .python-version                               |   1 +
+ frontend/pnpm-workspace.yaml                  |   4 +
+ requirements.runtime.txt                      | 627 +++++++++++++++++
+ src/novelvideo/api/routes/projects.py         |   3 +
+ src/novelvideo/api/routes/props.py            |  24 +-
+ src/novelvideo/api/routes/scenes.py           |  31 +-
+ src/novelvideo/api/routes/tasks.py            |   1 +
+ src/novelvideo/api/schemas.py                 |   1 +
+ src/novelvideo/cli.py                         | 647 +++++++++++++++++-
+ .../generators/scene_reference_images.py      |  36 +-
+ src/novelvideo/generators/tts_generator.py    |  43 +-
+ .../task_backend/runners/character_image.py   |   6 +-
+ .../task_backend/runners/prop_reference.py    |   6 +-
+ .../task_backend/runners/scene_reference.py   |   6 +-
+ src/novelvideo/task_backend/runners/script.py |   6 +-
+ tests/test_newapi_image_gateway.py            |  66 ++
+ tests/test_seedance2_request.py               | 215 ++++++
+ 17 files changed, 1680 insertions(+), 43 deletions(-)
+ create mode 100644 .python-version
+ create mode 100644 requirements.runtime.txt
+
+diff --git a/.python-version b/.python-version
+new file mode 100644
+index 00000000..e4fba218
+--- /dev/null
++++ b/.python-version
+@@ -0,0 +1 @@
++3.12
+diff --git a/frontend/pnpm-workspace.yaml b/frontend/pnpm-workspace.yaml
+index 03aba703..c986aee7 100644
+--- a/frontend/pnpm-workspace.yaml
++++ b/frontend/pnpm-workspace.yaml
+@@ -16,3 +16,7 @@ allowBuilds:
+   protobufjs: false
+   sharp: false
+   workerd: false
++
++fetchRetries: 5
++
++fetchTimeout: 300000
+diff --git a/requirements.runtime.txt b/requirements.runtime.txt
+new file mode 100644
+index 00000000..baf8dc5c
+--- /dev/null
++++ b/requirements.runtime.txt
+@@ -0,0 +1,627 @@
++# This file was autogenerated by uv via the following command:
++#    uv export --no-dev --no-emit-project --no-hashes --format requirements-txt -o requirements.runtime.txt
++aiofiles==25.1.0
++    # via cognee
++aiohappyeyeballs==2.6.2
++    # via aiohttp
++aiohttp==3.14.1
++    # via
++    #   cognee
++    #   dashscope
++    #   edge-tts
++    #   instructor
++    #   litellm
++aiolimiter==1.2.1
++    # via cognee
++aiosignal==1.4.0
++    # via aiohttp
++aiosqlite==0.22.1
++    # via
++    #   cognee
++    #   supertale-ce
++alembic==1.18.4
++    # via cognee
++aliyun-python-sdk-core==2.16.0
++    # via
++    #   aliyun-python-sdk-kms
++    #   oss2
++aliyun-python-sdk-kms==2.16.5
++    # via oss2
++amqp==5.3.1
++    # via kombu
++annotated-doc==0.0.4
++    # via
++    #   fastapi
++    #   typer
++annotated-types==0.7.0
++    # via pydantic
++anthropic==0.111.0
++    # via pydantic-ai-slim
++anyio==4.14.0
++    # via
++    #   anthropic
++    #   claude-agent-sdk
++    #   google-genai
++    #   httpx
++    #   httpx2
++    #   mcp
++    #   openai
++    #   sse-starlette
++    #   starlette
++    #   watchfiles
++argcomplete==3.6.3
++    # via datamodel-code-generator
++argon2-cffi==25.1.0
++    # via pwdlib
++argon2-cffi-bindings==25.1.0
++    # via argon2-cffi
++async-timeout==5.0.1 ; python_full_version < '3.11.3'
++    # via redis
++asyncpg==0.31.0
++    # via supertale-ce
++attrs==26.1.0
++    # via
++    #   aiohttp
++    #   jsonschema
++    #   referencing
++bcrypt==5.0.0
++    # via pwdlib
++billiard==4.2.4
++    # via celery
++black==26.5.1 ; sys_platform != 'emscripten'
++    # via datamodel-code-generator
++cbor2==6.1.2
++    # via cognee
++celery==5.6.3
++    # via supertale-ce
++certifi==2026.6.17
++    # via
++    #   dashscope
++    #   edge-tts
++    #   httpcore
++    #   httpx
++    #   requests
++cffi==2.0.0
++    # via
++    #   argon2-cffi-bindings
++    #   cryptography
++charset-normalizer==3.4.7
++    # via requests
++claude-agent-sdk==0.2.106
++    # via supertale-ce
++click==8.1.8
++    # via
++    #   black
++    #   celery
++    #   click-didyoumean
++    #   click-plugins
++    #   click-repl
++    #   litellm
++    #   supertale-ce
++    #   uvicorn
++click-didyoumean==0.3.1
++    # via celery
++click-plugins==1.1.1.2
++    # via celery
++click-repl==0.3.0
++    # via celery
++cognee==1.0.5
++    # via supertale-ce
++colorama==0.4.6 ; sys_platform == 'win32'
++    # via
++    #   click
++    #   tqdm
++    #   typer
++    #   uvicorn
++crcmod==1.7
++    # via oss2
++cryptography==49.0.0
++    # via
++    #   aliyun-python-sdk-core
++    #   dashscope
++    #   google-auth
++    #   pyjwt
++dashscope==1.25.23
++    # via supertale-ce
++datamodel-code-generator==0.65.0
++    # via cognee
++deprecated==1.3.1
++    # via limits
++deprecation==2.1.0
++    # via lancedb
++diskcache==5.6.3
++    # via cognee
++distro==1.9.0
++    # via
++    #   anthropic
++    #   google-genai
++    #   openai
++dnspython==2.8.0
++    # via email-validator
++docstring-parser==0.18.0
++    # via
++    #   anthropic
++    #   instructor
++edge-tts==7.2.8
++    # via supertale-ce
++email-validator==2.3.0
++    # via fastapi-users
++fakeredis==2.36.2
++    # via cognee
++fastapi==0.138.0
++    # via
++    #   cognee
++    #   fastapi-users
++    #   supertale-ce
++fastapi-users==15.0.5
++    # via
++    #   cognee
++    #   fastapi-users-db-sqlalchemy
++fastapi-users-db-sqlalchemy==7.0.0
++    # via fastapi-users
++fastjsonschema==2.21.2
++    # via nbformat
++fastuuid==0.14.0
++    # via litellm
++filelock==3.29.4
++    # via huggingface-hub
++filetype==1.2.0
++    # via cognee
++frozenlist==1.8.0
++    # via
++    #   aiohttp
++    #   aiosignal
++fsspec==2026.6.0
++    # via huggingface-hub
++genai-prices==0.0.66
++    # via pydantic-ai-slim
++genson==1.3.0
++    # via datamodel-code-generator
++google-auth==2.55.0
++    # via google-genai
++google-genai==2.9.0
++    # via pydantic-ai-slim
++greenlet==3.5.2
++    # via sqlalchemy
++griffelib==2.1.0
++    # via pydantic-ai-slim
++gunicorn==23.0.0
++    # via
++    #   cognee
++    #   supertale-ce
++h11==0.16.0
++    # via
++    #   httpcore
++    #   httpcore2
++    #   uvicorn
++hf-xet==1.5.1 ; platform_machine == 'aarch64' or platform_machine == 'amd64' or platform_machine == 'arm64' or platform_machine == 'x86_64'
++    # via huggingface-hub
++httpcore==1.0.9
++    # via httpx
++httpcore2==2.4.0
++    # via httpx2
++httptools==0.8.0
++    # via uvicorn
++httpx==0.28.1
++    # via
++    #   anthropic
++    #   google-genai
++    #   litellm
++    #   mcp
++    #   openai
++    #   pydantic-ai-slim
++    #   pydantic-graph
++    #   supertale-ce
++httpx-sse==0.4.3
++    # via mcp
++httpx2==2.4.0
++    # via genai-prices
++huggingface-hub==0.36.2
++    # via tokenizers
++idna==3.18
++    # via
++    #   anyio
++    #   email-validator
++    #   httpx
++    #   httpx2
++    #   requests
++    #   yarl
++importlib-metadata==8.9.0
++    # via litellm
++inflect==7.5.0
++    # via datamodel-code-generator
++instructor==1.15.3
++    # via cognee
++isort==8.0.1 ; sys_platform != 'emscripten'
++    # via datamodel-code-generator
++jinja2==3.1.6
++    # via
++    #   cognee
++    #   datamodel-code-generator
++    #   instructor
++    #   litellm
++jiter==0.14.0
++    # via
++    #   anthropic
++    #   instructor
++    #   openai
++jmespath==0.10.0
++    # via aliyun-python-sdk-core
++jsonschema==4.26.0
++    # via
++    #   litellm
++    #   mcp
++    #   nbformat
++jsonschema-specifications==2025.9.1
++    # via jsonschema
++jupyter-core==5.9.1
++    # via nbformat
++kombu==5.6.2
++    # via celery
++ladybug==0.16.0
++    # via cognee
++lance-namespace==0.8.6
++    # via lancedb
++lance-namespace-urllib3-client==0.8.6
++    # via lance-namespace
++lancedb==0.33.0
++    # via cognee
++langdetect==1.0.9
++    # via cognee
++limits==4.8.0
++    # via cognee
++litellm==1.90.0rc1
++    # via
++    #   cognee
++    #   supertale-ce
++logfire-api==4.37.0
++    # via pydantic-graph
++lupa==2.8
++    # via fakeredis
++lxml==6.1.1
++    # via python-docx
++makefun==1.16.0
++    # via fastapi-users
++mako==1.3.12
++    # via alembic
++markdown-it-py==4.2.0
++    # via rich
++markupsafe==3.0.3
++    # via
++    #   jinja2
++    #   mako
++mcp==1.28.0
++    # via
++    #   claude-agent-sdk
++    #   supertale-ce
++mdurl==0.1.2
++    # via markdown-it-py
++more-itertools==11.1.0
++    # via inflect
++multidict==6.7.1
++    # via
++    #   aiohttp
++    #   yarl
++mypy-extensions==1.1.0 ; sys_platform != 'emscripten'
++    # via black
++nbformat==5.10.4
++    # via cognee
++nest-asyncio==1.6.0
++    # via supertale-ce
++networkx==3.6.1
++    # via cognee
++numpy==1.26.4
++    # via
++    #   cognee
++    #   lancedb
++    #   pylance
++    #   supertale-ce
++openai==2.43.0
++    # via
++    #   cognee
++    #   instructor
++    #   litellm
++    #   pydantic-ai-slim
++    #   supertale-ce
++opentelemetry-api==1.42.1
++    # via pydantic-ai-slim
++oss2==2.19.1
++    # via supertale-ce
++overrides==7.7.0 ; python_full_version < '3.12'
++    # via lancedb
++packaging==24.2
++    # via
++    #   black
++    #   deprecation
++    #   gunicorn
++    #   huggingface-hub
++    #   kombu
++    #   lancedb
++    #   limits
++    #   supertale-ce
++pathspec==1.1.1 ; sys_platform != 'emscripten'
++    # via black
++pillow==11.3.0
++    # via supertale-ce
++platformdirs==4.10.0
++    # via
++    #   black
++    #   jupyter-core
++portalocker==3.2.0
++    # via supertale-ce
++prompt-toolkit==3.0.52
++    # via click-repl
++propcache==0.5.2
++    # via
++    #   aiohttp
++    #   yarl
++psycopg==3.3.4
++    # via supertale-ce
++psycopg-binary==3.3.4 ; implementation_name != 'pypy'
++    # via psycopg
++pwdlib==0.3.0
++    # via fastapi-users
++pyarrow==24.0.0
++    # via
++    #   lancedb
++    #   pylance
++pyasn1==0.6.3
++    # via pyasn1-modules
++pyasn1-modules==0.4.2
++    # via google-auth
++pycparser==3.0 ; implementation_name != 'PyPy'
++    # via cffi
++pycryptodome==3.23.0
++    # via oss2
++pydantic==2.13.4
++    # via
++    #   anthropic
++    #   cognee
++    #   datamodel-code-generator
++    #   fastapi
++    #   genai-prices
++    #   google-genai
++    #   instructor
++    #   lance-namespace-urllib3-client
++    #   lancedb
++    #   litellm
++    #   mcp
++    #   openai
++    #   pydantic-ai-slim
++    #   pydantic-graph
++    #   pydantic-settings
++    #   supertale-ce
++pydantic-ai-slim==1.107.0
++    # via supertale-ce
++pydantic-core==2.46.4
++    # via
++    #   instructor
++    #   pydantic
++pydantic-graph==1.107.0
++    # via pydantic-ai-slim
++pydantic-settings==2.14.2
++    # via
++    #   cognee
++    #   mcp
++pygments==2.20.0
++    # via rich
++pyjwt==2.13.0
++    # via
++    #   fastapi-users
++    #   mcp
++pylance==0.36.0
++    # via cognee
++pympler==1.1
++    # via cognee
++pymysql==1.2.0
++    # via supertale-ce
++pyparsing==3.3.2
++    # via rdflib
++pypdf==6.13.3
++    # via cognee
++pypinyin==0.55.0
++    # via supertale-ce
++python-dateutil==2.9.0.post0
++    # via
++    #   celery
++    #   lance-namespace-urllib3-client
++python-docx==1.2.0
++    # via supertale-ce
++python-dotenv==1.2.2
++    # via
++    #   cognee
++    #   litellm
++    #   pydantic-settings
++    #   supertale-ce
++    #   uvicorn
++python-magic-bin==0.4.14 ; sys_platform == 'win32'
++    # via cognee
++python-multipart==0.0.32
++    # via
++    #   cognee
++    #   fastapi-users
++    #   mcp
++python-ulid==3.1.0
++    # via supertale-ce
++pytokens==0.4.1 ; sys_platform != 'emscripten'
++    # via black
++pywin32==312 ; sys_platform == 'win32'
++    # via
++    #   mcp
++    #   portalocker
++    #   pympler
++pyyaml==6.0.3
++    # via
++    #   datamodel-code-generator
++    #   huggingface-hub
++    #   uvicorn
++rdflib==7.1.4
++    # via cognee
++redis==8.0.0
++    # via fakeredis
++referencing==0.37.0
++    # via
++    #   jsonschema
++    #   jsonschema-specifications
++regex==2026.5.9
++    # via tiktoken
++requests==2.34.2
++    # via
++    #   dashscope
++    #   google-auth
++    #   google-genai
++    #   huggingface-hub
++    #   instructor
++    #   oss2
++    #   tiktoken
++rich==14.3.4
++    # via
++    #   dashscope
++    #   instructor
++    #   supertale-ce
++    #   typer
++rpds-py==2026.5.1
++    # via
++    #   jsonschema
++    #   referencing
++shellingham==1.5.4
++    # via typer
++six==1.17.0
++    # via
++    #   langdetect
++    #   oss2
++    #   python-dateutil
++sniffio==1.3.1
++    # via
++    #   anthropic
++    #   claude-agent-sdk
++    #   google-genai
++    #   openai
++sortedcontainers==2.4.0
++    # via fakeredis
++sqlalchemy==2.0.51
++    # via
++    #   alembic
++    #   cognee
++    #   fastapi-users-db-sqlalchemy
++sse-starlette==3.4.5
++    # via
++    #   mcp
++    #   supertale-ce
++starlette==1.3.1
++    # via
++    #   fastapi
++    #   mcp
++    #   sse-starlette
++structlog==25.5.0
++    # via cognee
++tabulate==0.10.0
++    # via edge-tts
++tenacity==9.1.4
++    # via
++    #   cognee
++    #   google-genai
++    #   instructor
++tiktoken==0.13.0
++    # via
++    #   cognee
++    #   litellm
++    #   pydantic-ai-slim
++tokenizers==0.22.2
++    # via litellm
++tqdm==4.68.3
++    # via
++    #   huggingface-hub
++    #   lancedb
++    #   openai
++traitlets==5.15.1
++    # via
++    #   jupyter-core
++    #   nbformat
++truststore==0.10.4
++    # via
++    #   httpcore2
++    #   httpx2
++typeguard==4.5.2
++    # via inflect
++typer==0.26.7
++    # via
++    #   dashscope
++    #   instructor
++    #   supertale-ce
++typing-extensions==4.15.0
++    # via
++    #   aiohttp
++    #   aiosignal
++    #   alembic
++    #   anthropic
++    #   anyio
++    #   cognee
++    #   edge-tts
++    #   fastapi
++    #   google-genai
++    #   httpx2
++    #   huggingface-hub
++    #   lance-namespace-urllib3-client
++    #   limits
++    #   mcp
++    #   openai
++    #   opentelemetry-api
++    #   psycopg
++    #   pydantic
++    #   pydantic-core
++    #   python-docx
++    #   referencing
++    #   sqlalchemy
++    #   starlette
++    #   typeguard
++    #   typing-inspection
++typing-inspection==0.4.2
++    # via
++    #   fastapi
++    #   mcp
++    #   pydantic
++    #   pydantic-ai-slim
++    #   pydantic-graph
++    #   pydantic-settings
++tzdata==2026.2
++    # via
++    #   kombu
++    #   psycopg
++    #   tzlocal
++tzlocal==5.4.3
++    # via celery
++urllib3==2.7.0
++    # via
++    #   cognee
++    #   lance-namespace-urllib3-client
++    #   requests
++uvicorn==0.49.0
++    # via
++    #   cognee
++    #   mcp
++    #   supertale-ce
++uvloop==0.22.1 ; platform_python_implementation != 'PyPy' and sys_platform != 'cygwin' and sys_platform != 'win32'
++    # via uvicorn
++vine==5.1.0
++    # via
++    #   amqp
++    #   celery
++    #   kombu
++watchfiles==1.2.0
++    # via uvicorn
++wcwidth==0.8.1
++    # via prompt-toolkit
++websocket-client==1.9.0
++    # via dashscope
++websockets==15.0.1
++    # via
++    #   cognee
++    #   google-genai
++    #   uvicorn
++wrapt==2.2.2
++    # via deprecated
++yarl==1.24.2
++    # via aiohttp
++zipp==4.1.0
++    # via importlib-metadata
+diff --git a/src/novelvideo/api/routes/projects.py b/src/novelvideo/api/routes/projects.py
+index 14e062ea..6b4d0e39 100644
+--- a/src/novelvideo/api/routes/projects.py
++++ b/src/novelvideo/api/routes/projects.py
+@@ -10,6 +10,7 @@ from pathlib import Path
+ import asyncpg
+ from fastapi import APIRouter, Depends, File, HTTPException, Query, Response, UploadFile
+ from fastapi.responses import JSONResponse
++from starlette.concurrency import run_in_threadpool
+ 
+ from novelvideo.api.auth import get_api_user, require_scope
+ from novelvideo.api.deps import (
+@@ -35,6 +36,7 @@ from novelvideo.embedding_models import (
+     embedding_model_binding_for_new_project,
+ )
+ from novelvideo.ports import get_project_access, get_project_registry
++from novelvideo.task_state import get_task_manager
+ from novelvideo.ports.project import ProjectRecord
+ from novelvideo.project_config import (
+     default_aspect_ratio_for_spine_template,
+@@ -52,6 +54,7 @@ from novelvideo.project_context import (
+     resolve_project_context,
+     user_id_from_api_user,
+ )
++from novelvideo.task_state import ACTIVE_PROJECT_TASK_STATUSES
+ from novelvideo.seedance2_i2v.character_voice_storage import (
+     VOICE_SAMPLE_EXTENSIONS,
+     decode_recorded_audio_data_url,
+diff --git a/src/novelvideo/api/routes/props.py b/src/novelvideo/api/routes/props.py
+index 28c9ad09..e53fd6b5 100644
+--- a/src/novelvideo/api/routes/props.py
++++ b/src/novelvideo/api/routes/props.py
+@@ -18,7 +18,10 @@ from novelvideo.api.deps import (
+ )
+ from novelvideo.api.schemas import PropCreate, PropReferenceGenerateRequest, PropUpdate
+ from novelvideo.models import NovelProp, build_prop_menu
+-from novelvideo.project_config import load_project_config_file
++from novelvideo.project_config import (
++    load_project_config_file,
++    load_project_config_file_from_state_dir,
++)
+ from novelvideo.sqlite_store import SQLiteStore
+ from novelvideo.ports import get_task_backend
+ from novelvideo.task_scopes import prop_reference_asset_scope
+@@ -28,8 +31,17 @@ from novelvideo.utils.path_resolver import compute_prop_reference_path
+ router = APIRouter()
+ 
+ 
+-def _project_style(username: str, project: str) -> str:
+-    config = load_project_config_file(username, project)
++def _project_style(
++    username: str,
++    project: str,
++    *,
++    state_dir: Path | None = None,
++) -> str:
++    config = (
++        load_project_config_file_from_state_dir(state_dir)
++        if state_dir is not None
++        else load_project_config_file(username, project)
++    )
+     return str(config.get("visual_style") or config.get("project_style") or "")
+ 
+ 
+@@ -277,7 +289,11 @@ async def generate_prop_reference(
+         if ctx
+         else await make_sqlite_store(username, project_name)
+     )
+-    style = (body.style if body else "") or _project_style(username, project_name)
++    style = (body.style if body else "") or _project_style(
++        username,
++        project_name,
++        state_dir=ctx.state_dir if ctx is not None else None,
++    )
+     model = str(body.model if body else "").strip()
+     prop = await _require_prop(store, name)
+     if prop is None:
+diff --git a/src/novelvideo/api/routes/scenes.py b/src/novelvideo/api/routes/scenes.py
+index 6ed56783..d24ab041 100644
+--- a/src/novelvideo/api/routes/scenes.py
++++ b/src/novelvideo/api/routes/scenes.py
+@@ -36,7 +36,10 @@ from novelvideo.models import (
+ )
+ from novelvideo.novel_source import has_imported_novel, novel_import_required_response
+ from novelvideo.ports import get_task_backend
+-from novelvideo.project_config import load_project_config_file
++from novelvideo.project_config import (
++    load_project_config_file,
++    load_project_config_file_from_state_dir,
++)
+ from novelvideo.project_context import ProjectContext, resolve_project_context
+ from novelvideo.sqlite_store import SQLiteStore
+ from novelvideo.task_identity import project_task_state_key
+@@ -69,8 +72,17 @@ _SCENE_TIME_TOKENS = {
+ }
+ 
+ 
+-def _project_style(username: str, project: str) -> str:
+-    config = load_project_config_file(username, project)
++def _project_style(
++    username: str,
++    project: str,
++    *,
++    state_dir: Path | None = None,
++) -> str:
++    config = (
++        load_project_config_file_from_state_dir(state_dir)
++        if state_dir is not None
++        else load_project_config_file(username, project)
++    )
+     return str(config.get("visual_style") or config.get("project_style") or "")
+ 
+ 
+@@ -1157,7 +1169,11 @@ async def _start_scene_reference_task(
+                 "scene_name": scene.name,
+                 "kind": kind,
+                 "model": model_selection,
+-                "style": _project_style(username, project_name),
++                "style": _project_style(
++                    username,
++                    project_name,
++                    state_dir=ctx.state_dir,
++                ),
+                 "output_dir": output_dir,
+                 "billing": _scene_reference_billing_metadata(model_selection),
+             },
+@@ -1522,7 +1538,12 @@ async def generate_scene_pano(
+ 
+     params: dict[str, Any] = {
+         "description": _scene_360_description(scene),
+-        "style": body.style or _project_style(username, project_name),
++        "style": body.style
++        or _project_style(
++            username,
++            project_name,
++            state_dir=ctx.state_dir,
++        ),
+         "timeout_seconds": body.timeout_seconds,
+     }
+     for key in ("provider", "model", "image_size", "quality"):
+diff --git a/src/novelvideo/api/routes/tasks.py b/src/novelvideo/api/routes/tasks.py
+index b1c632b7..a5228a56 100644
+--- a/src/novelvideo/api/routes/tasks.py
++++ b/src/novelvideo/api/routes/tasks.py
+@@ -35,6 +35,7 @@ router = APIRouter()
+ _SSE_REVERIFY_INTERVAL_S = 30.0
+ _TASK_NOT_FOUND_GRACE_S = 10.0
+ _TASK_TYPE_LABELS = {
++    "cli_novelvideo_generate": "CLI 视频生成",
+     "ingest_fast": "快速导入",
+     "build_characters": "构建角色",
+     "build_scenes": "构建场景",
+diff --git a/src/novelvideo/api/schemas.py b/src/novelvideo/api/schemas.py
+index b830cda6..99ad6d92 100644
+--- a/src/novelvideo/api/schemas.py
++++ b/src/novelvideo/api/schemas.py
+@@ -58,6 +58,7 @@ class ProjectSummary(BaseModel):
+     updated_at: Optional[str] = None
+     episode_count: Optional[int] = None
+     beat_count: Optional[int] = None
++    active_task: Optional[dict[str, Any]] = None
+ 
+ 
+ class ProjectGrantCreate(BaseModel):
+diff --git a/src/novelvideo/cli.py b/src/novelvideo/cli.py
+index 773d6000..f4a5d0ad 100644
+--- a/src/novelvideo/cli.py
++++ b/src/novelvideo/cli.py
+@@ -1,8 +1,12 @@
+ """NovelVideo CLI (Cognee-only)."""
+ 
+ import asyncio
++import hashlib
+ import json
+ import os
++import shutil
++import subprocess
++import tempfile
+ from pathlib import Path
+ from typing import Optional
+ 
+@@ -12,7 +16,11 @@ from rich.progress import Progress, SpinnerColumn, TextColumn
+ 
+ from novelvideo.backup.cli import backup_app
+ from novelvideo.cognee import CogneeStore
+-from novelvideo.config import ensure_project_dirs
++from novelvideo.config import ensure_project_dirs, get_effective_newapi_gateway_config
++from novelvideo.project_config import (
++    load_project_config_file_from_state_dir,
++    set_narrator_reference_audio,
++)
+ from novelvideo.workflows.script_writing import create_script_writing_workflow
+ from novelvideo.generators import (
+     SceneAsset,
+@@ -21,11 +29,191 @@ from novelvideo.generators import (
+     create_video_composer,
+ )
+ from novelvideo.generators.video_composer import normalize_video_title
++from novelvideo.generators.nanobanana_grid import generate_text_to_image
++from novelvideo.generators.video_generator import VideoGenStatus, create_video_generator
++from novelvideo.models import NarrationScript, VisualBeat
++from novelvideo.project_context import ProjectContext
++from novelvideo.ports import get_project_registry
++from novelvideo.ports.registry import ensure_bootstrap
++from novelvideo.task_state import get_task_manager
+ 
+ app = typer.Typer(name="novelvideo", help="小说解说视频自动生成系统（Cognee 版）")
+ app.add_typer(backup_app, name="backup")
+ console = Console()
+ 
++
++def _ffmpeg_binary() -> str:
++    configured = os.environ.get("FFMPEG_PATH", "").strip()
++    if configured and Path(configured).exists():
++        return configured
++    discovered = shutil.which("ffmpeg")
++    if discovered:
++        return discovered
++    runtime_root = Path(__file__).resolve().parents[2] / "runtime" / "ffmpeg"
++    candidates = sorted(runtime_root.rglob("ffmpeg.exe"))
++    return str(candidates[0]) if candidates else "ffmpeg"
++
++
++async def _mux_video_with_narration(
++    video_path: str,
++    audio_path: str,
++    output_path: str,
++) -> None:
++    """Loop a short Agnes motion clip under the full narration track."""
++    cmd = [
++        _ffmpeg_binary(),
++        "-y",
++        "-stream_loop",
++        "-1",
++        "-i",
++        video_path,
++        "-i",
++        audio_path,
++        "-map",
++        "0:v:0",
++        "-map",
++        "1:a:0",
++        "-c:v",
++        "copy",
++        "-c:a",
++        "aac",
++        "-ar",
++        "48000",
++        "-ac",
++        "2",
++        "-shortest",
++        output_path,
++    ]
++    result = await asyncio.to_thread(
++        subprocess.run,
++        cmd,
++        capture_output=True,
++        text=True,
++        timeout=30 * 60,
++    )
++    if result.returncode != 0:
++        raise RuntimeError(result.stderr[-1200:] or "ffmpeg narration mux failed")
++
++
++async def _make_silent_audio(output_path: str, duration_seconds: float = 5.0) -> None:
++    """Create a short silent AAC-compatible track when TTS is unavailable."""
++    cmd = [
++        _ffmpeg_binary(),
++        "-y",
++        "-f",
++        "lavfi",
++        "-i",
++        "anullsrc=channel_layout=stereo:sample_rate=48000",
++        "-t",
++        str(max(duration_seconds, 1.0)),
++        "-c:a",
++        "aac",
++        "-b:a",
++        "128k",
++        output_path,
++    ]
++    result = await asyncio.to_thread(
++        subprocess.run,
++        cmd,
++        capture_output=True,
++        text=True,
++        timeout=120,
++    )
++    if result.returncode != 0:
++        raise RuntimeError(result.stderr[-1200:] or "ffmpeg silent audio failed")
++
++
++async def _concat_direct_videos(video_paths: list[str], output_path: str) -> None:
++    list_path = ""
++    try:
++        with tempfile.NamedTemporaryFile(mode="w", suffix=".txt", delete=False, encoding="utf-8") as handle:
++            list_path = handle.name
++            for path in video_paths:
++                handle.write(f"file '{Path(path).resolve().as_posix()}'\n")
++        result = await asyncio.to_thread(
++            subprocess.run,
++            [
++                _ffmpeg_binary(),
++                "-y",
++                "-f",
++                "concat",
++                "-safe",
++                "0",
++                "-i",
++                list_path,
++                "-c",
++                "copy",
++                output_path,
++            ],
++            capture_output=True,
++            text=True,
++            timeout=30 * 60,
++        )
++        if result.returncode != 0:
++            raise RuntimeError(result.stderr[-1200:] or "ffmpeg video concat failed")
++    finally:
++        if list_path:
++            Path(list_path).unlink(missing_ok=True)
++
++
++async def _ensure_cli_episode_assets(
++    store: CogneeStore,
++    episode_number: int,
++    *,
++    on_log=None,
++):
++    """Run the asset-planning stage before CLI video generation.
++
++    The web workflow does not jump straight from persisted beats to a render:
++    it first reconciles episode scenes and props, then promotes props into the
++    project library. Keep CLI generation on the same path so the SPA and the
++    generated video share the same asset graph.
++    """
++    from novelvideo.agents.asset_compiler import AssetCompiler
++    from novelvideo.services.prop_promotion_service import promote_episode_props_to_global
++
++    characters = await store.list_characters()
++    if not characters:
++        await store.build_characters_from_graph(on_log=on_log)
++
++    episode = store.get_episode(episode_number)
++    if episode is None:
++        return None
++    if episode.scene_menu and episode.prop_menu:
++        return episode
++
++    compiler = AssetCompiler(store)
++    config = load_project_config_file_from_state_dir(store.state_dir)
++    compiler.spine_template = str(config.get("spine_template") or "drama")
++    scene_menu, prop_menu, _ = await compiler.compile_single_episode(
++        episode,
++        on_log=on_log,
++    )
++    await promote_episode_props_to_global(store, prop_menu)
++    await store.load_graph_state()
++    return store.get_episode(episode_number) or episode
++
++
++def _ensure_cli_narrator_reference(store: CogneeStore, audio_path: str) -> None:
++    """Persist the first successful CLI narration as the project voice sample."""
++    config = load_project_config_file_from_state_dir(store.state_dir)
++    stored = str(config.get("narrator_reference_audio_path") or "").strip()
++    if stored and (Path(store.project_dir) / stored).is_file():
++        return
++    source = Path(audio_path)
++    if not source.is_file() or source.stat().st_size <= 1024:
++        return
++    target = Path(store.project_dir) / "assets" / "narrator" / "voice.mp3"
++    target.parent.mkdir(parents=True, exist_ok=True)
++    shutil.copy2(source, target)
++    sha256 = hashlib.sha256(target.read_bytes()).hexdigest()
++    set_narrator_reference_audio(
++        "local",
++        store.project_name,
++        relative_path="assets/narrator/voice.mp3",
++        sha256=sha256,
++    )
++
+ # nest_asyncio 延迟应用标记
+ _nest_asyncio_applied = False
+ 
+@@ -40,6 +228,130 @@ def _ensure_nest_asyncio():
+         _nest_asyncio_applied = True
+ 
+ 
++async def _resolve_cli_project_context(project: str) -> ProjectContext | None:
++    """Resolve a registered local project so CLI work is visible to the SPA."""
++    try:
++        ensure_bootstrap()
++        record = await get_project_registry().get_project_by_owner_name("local", project)
++    except Exception:
++        # Legacy projects may not be registered. Keep CLI generation usable;
++        # those projects simply have no shared task stream to update.
++        return None
++    if record is None:
++        return None
++    return ProjectContext(
++        project_id=record.id,
++        project_name=record.name,
++        owner_type=record.owner_type,
++        owner_id=record.owner_id,
++        owner_username=record.owner_username,
++        requester_user_id=record.owner_id,
++        requester_username=record.owner_username,
++        requester_principals=((record.owner_type, record.owner_id),),
++        effective_role="owner",
++        home_node_id=record.home_node_id,
++        output_dir=Path(record.output_dir),
++        state_dir=Path(record.state_dir),
++        runtime_dir=Path(record.runtime_dir),
++        is_home_node=True,
++    )
++
++
++async def _start_cli_task(
++    project: str,
++    episode: int,
++    *,
++    title: str = "",
++) -> tuple[ProjectContext | None, str | None]:
++    ctx = await _resolve_cli_project_context(project)
++    if ctx is None:
++        return None, None
++    try:
++        state = get_task_manager().create_task_for_project(
++            ctx,
++            "cli_novelvideo_generate",
++            episode,
++            metadata={
++                "backend": "cli",
++                "display_name": f"CLI EP{episode:03d} 视频生成",
++                "episode_title": title,
++            },
++            status="running",
++        )
++    except Exception:
++        # Task reporting is best-effort and must not make a long-running
++        # generation fail because another process briefly holds SQLite.
++        return None, None
++    return ctx, state.task_id
++
++
++def _update_cli_task(
++    ctx: ProjectContext | None,
++    task_id: str | None,
++    *,
++    episode: int,
++    progress: float,
++    current_task: str,
++    logs: list[str] | None = None,
++) -> None:
++    if ctx is None or task_id is None:
++        return
++    try:
++        get_task_manager().update_progress_for_project(
++            ctx,
++            "cli_novelvideo_generate",
++            episode,
++            progress=max(0.0, min(1.0, progress)),
++            current_task=current_task,
++            logs=logs,
++            status="running",
++            expected_task_id=task_id,
++        )
++    except Exception:
++        # The video pipeline must remain usable if the UI task stream is
++        # temporarily unavailable or SQLite is briefly busy.
++        return
++
++
++def _complete_cli_task(
++    ctx: ProjectContext | None,
++    task_id: str | None,
++    *,
++    episode: int,
++    result: dict | None = None,
++) -> None:
++    if ctx is None or task_id is None:
++        return
++    get_task_manager().complete_task_for_project(
++        ctx,
++        "cli_novelvideo_generate",
++        episode,
++        result=result,
++        progress=1.0,
++        current_task="完成",
++        expected_task_id=task_id,
++    )
++
++
++def _fail_cli_task(
++    ctx: ProjectContext | None,
++    task_id: str | None,
++    *,
++    episode: int,
++    error: str,
++) -> None:
++    if ctx is None or task_id is None:
++        return
++    get_task_manager().fail_task_for_project(
++        ctx,
++        "cli_novelvideo_generate",
++        episode,
++        error=error,
++        current_task="失败",
++        expected_task_id=task_id,
++    )
++
++
+ async def _resolve_scene_migration_dirs(
+     *,
+     project_id: str,
+@@ -336,6 +648,11 @@ def generate_script(
+ 
+ @app.command()
+ def generate(
++    direct_agnes: bool = typer.Option(
++        True,
++        "--direct-agnes/--slideshow",
++        help="Use Agnes Video V2.0 for direct animated video generation.",
++    ),
+     project: str = typer.Option(..., "--project", "-p", help="项目名称"),
+     episode: int = typer.Option(..., "--episode", "-e", help="要生成的集数"),
+     mock: bool = typer.Option(False, "--mock", "-m", help="使用模拟生成器（测试用）"),
+@@ -348,6 +665,8 @@ def generate(
+     dirs = ensure_project_dirs(project)
+ 
+     async def do_generate():
++        task_ctx: ProjectContext | None = None
++        task_id: str | None = None
+         store = CogneeStore(project)
+         try:
+             await store.initialize()
+@@ -358,9 +677,74 @@ def generate(
+                 console.print("请先运行: novelvideo cognee-plan")
+                 return None
+ 
+-            workflow = create_script_writing_workflow(store)
+-            script = await workflow.run(episode_num=episode)
+-            console.print(f"  ✓ 生成 {len(script.beats)} 个节拍")
++            task_ctx, task_id = await _start_cli_task(
++                project,
++                episode,
++                title=episode_node.title,
++            )
++            _update_cli_task(
++                task_ctx,
++                task_id,
++                episode=episode,
++                progress=0.08,
++                current_task="script ready",
++            )
++
++            novel_beats = await store.get_beats_for_episode(episode)
++            if novel_beats:
++                script = NarrationScript(
++                    episode_number=episode,
++                    title=episode_node.title,
++                    beats=[
++                        VisualBeat(
++                            beat_number=beat.beat_number,
++                            narration_segment=beat.narration,
++                            visual_description=beat.visual_description,
++                            time_of_day=beat.time_of_day,
++                            audio_type=beat.audio_type,
++                            speaker=beat.speaker,
++                            speaker_kind=beat.speaker_kind,
++                            shot_order=beat.shot_order,
++                            duration_seconds=beat.duration_seconds,
++                            is_manual_shot=beat.is_manual_shot,
++                        )
++                        for beat in novel_beats
++                    ],
++                )
++                console.print(f"  ✓ 使用已持久化的 {len(script.beats)} 个节拍")
++            else:
++                workflow = create_script_writing_workflow(store)
++                script = await workflow.run(episode_num=episode)
++                console.print(f"  ✓ 生成 {len(script.beats)} 个节拍")
++
++            if not mock:
++                _update_cli_task(
++                    task_ctx,
++                    task_id,
++                    episode=episode,
++                    progress=0.1,
++                    current_task="preparing episode scenes and props",
++                )
++                episode_node = await _ensure_cli_episode_assets(
++                    store,
++                    episode,
++                    on_log=lambda message: _update_cli_task(
++                        task_ctx,
++                        task_id,
++                        episode=episode,
++                        progress=0.1,
++                        current_task=str(message),
++                        logs=[str(message)],
++                    ),
++                ) or episode_node
++
++            _update_cli_task(
++                task_ctx,
++                task_id,
++                episode=episode,
++                progress=0.12,
++                current_task=f"script complete: {len(script.beats)} beats",
++            )
+ 
+             ep_dir = os.path.join(dirs["videos"], f"ep{episode:03d}")
+             images_dir = os.path.join(ep_dir, "images")
+@@ -368,15 +752,217 @@ def generate(
+             os.makedirs(images_dir, exist_ok=True)
+             os.makedirs(audio_dir, exist_ok=True)
+ 
++            if direct_agnes and not mock:
++                direct_dir = os.path.join(ep_dir, "agnes_video")
++                os.makedirs(direct_dir, exist_ok=True)
++                tts_gen = create_tts_generator(
++                    provider="edge",
++                    voice="zh-CN-YunjianNeural",
++                )
++                video_gen = create_video_generator(
++                    backend="newapi_agnes-video-v2.0",
++                    resolution="720p",
++                    generate_audio=False,
++                )
++                narrated_segments: list[str] = []
++
++                total_beats = max(len(script.beats), 1)
++                for index, beat in enumerate(script.beats, start=1):
++                    beat_progress = 0.12 + 0.78 * ((index - 1) / total_beats)
++
++                    def _on_agnes_log(message: str, n: int = beat.beat_number) -> None:
++                        line = f"EP{episode:03d} beat {n:02d}: {message}"
++                        console.print(f"[dim]{line}[/dim]")
++                        _update_cli_task(
++                            task_ctx,
++                            task_id,
++                            episode=episode,
++                            progress=beat_progress,
++                            current_task=message,
++                            logs=[line],
++                        )
++
++                    audio_path = os.path.join(audio_dir, f"beat_{beat.beat_number:02d}.mp3")
++                    raw_video_path = os.path.join(
++                        direct_dir,
++                        f"beat_{beat.beat_number:02d}.mp4",
++                    )
++                    narrated_path = os.path.join(
++                        direct_dir,
++                        f"beat_{beat.beat_number:02d}_narrated.mp4",
++                    )
++                    if (
++                        os.path.exists(raw_video_path)
++                        and os.path.getsize(raw_video_path) > 1024
++                        and os.path.exists(narrated_path)
++                        and os.path.getsize(narrated_path) > 1024
++                    ):
++                        narrated_segments.append(narrated_path)
++                        console.print(
++                            f"[dim]EP{episode:03d} beat {beat.beat_number:02d}: "
++                            "复用已完成的 Agnes 动态镜头[/dim]"
++                        )
++                        _update_cli_task(
++                            task_ctx,
++                            task_id,
++                            episode=episode,
++                            progress=0.12 + 0.78 * (index / total_beats),
++                            current_task=f"Agnes animation beat {index}/{total_beats} (reused)",
++                            logs=[
++                                f"EP{episode:03d} beat {beat.beat_number:02d}: reused existing Agnes video"
++                            ],
++                        )
++                        continue
++
++                    if not (os.path.exists(audio_path) and os.path.getsize(audio_path) > 1024):
++                        try:
++                            tts_result = await asyncio.wait_for(
++                                tts_gen.generate(
++                                    text=beat.narration_segment,
++                                    output_path=audio_path,
++                                    timeout_seconds=120,
++                                ),
++                                timeout=135,
++                            )
++                        except (asyncio.TimeoutError, TimeoutError):
++                            tts_result = None
++                            console.print(
++                                f"[yellow]EP{episode:03d} beat {beat.beat_number:02d}: "
++                                "TTS 超时，使用静音轨继续 Agnes 视频[/yellow]"
++                            )
++                            _update_cli_task(
++                                task_ctx,
++                                task_id,
++                                episode=episode,
++                                progress=beat_progress,
++                                current_task=f"TTS timeout on beat {index}/{total_beats}; using silence",
++                                logs=[
++                                    f"EP{episode:03d} beat {beat.beat_number:02d}: TTS timeout; using silence"
++                                ],
++                            )
++                        if tts_result is None or not tts_result.success:
++                            if tts_result is not None:
++                                console.print(
++                                    f"[yellow]EP{episode:03d} beat {beat.beat_number:02d}: "
++                                    f"TTS 失败（{tts_result.error}），使用静音轨继续 Agnes 视频[/yellow]"
++                                )
++                                _update_cli_task(
++                                    task_ctx,
++                                    task_id,
++                                    episode=episode,
++                                    progress=beat_progress,
++                                    current_task=f"TTS fallback on beat {index}/{total_beats}; using silence",
++                                    logs=[
++                                        f"EP{episode:03d} beat {beat.beat_number:02d}: TTS failed; using silence"
++                                    ],
++                                )
++                            await _make_silent_audio(audio_path, duration_seconds=5.0)
++
++                    _ensure_cli_narrator_reference(store, audio_path)
++
++                    anime_prompt = (
++                        "Japanese anime feature film style, hand-drawn 2D cel animation, "
++                        "rich painted backgrounds, expressive character acting, restrained "
++                        "melancholic color palette, period Japan atmosphere. "
++                        f"{beat.visual_description} "
++                        "Create natural continuous motion for the full shot: subtle camera movement, "
++                        "breathing, blinking, cloth and environmental motion. No text, no subtitles, "
++                        "no logos, no live action, no photorealism."
++                    )
++                    result = await video_gen.generate(
++                        image_path=None,
++                        prompt=anime_prompt,
++                        output_path=raw_video_path,
++                        aspect_ratio="16:9",
++                        duration=5.0,
++                        poll_interval=5.0,
++                        max_polls=360,
++                        project_output_dir=dirs["videos"],
++                        episode=episode,
++                        beat_num=beat.beat_number,
++                        task_type="cli_direct_agnes_anime",
++                        on_log=_on_agnes_log,
++                    )
++                    if result.status is not VideoGenStatus.DONE:
++                        raise RuntimeError(
++                            f"Agnes video failed for beat {beat.beat_number}: {result.error}"
++                        )
++                    await _mux_video_with_narration(
++                        raw_video_path,
++                        audio_path,
++                        narrated_path,
++                    )
++                    narrated_segments.append(narrated_path)
++                    _update_cli_task(
++                        task_ctx,
++                        task_id,
++                        episode=episode,
++                        progress=0.12 + 0.78 * (index / total_beats),
++                        current_task=f"Agnes animation beat {index}/{total_beats}",
++                    )
++
++                episode_title = normalize_video_title(episode_node.title)
++                output_path = os.path.join(
++                    dirs["videos"],
++                    f"ep{episode:03d}_{episode_title}_agnes_anime.mp4",
++                )
++                _update_cli_task(
++                    task_ctx,
++                    task_id,
++                    episode=episode,
++                    progress=0.95,
++                    current_task="concatenating animation beats",
++                )
++                await _concat_direct_videos(narrated_segments, output_path)
++                console.print(
++                    f"[green]Agnes direct anime video generated: {output_path}[/green]"
++                )
++                _complete_cli_task(
++                    task_ctx,
++                    task_id,
++                    episode=episode,
++                    result={"output_path": output_path},
++                )
++                return True
++
+             image_gen = create_image_generator(use_mock=mock)
+-            tts_gen = create_tts_generator(use_mock=mock)
++            tts_gen = create_tts_generator(
++                provider="edge",
++                use_mock=mock,
++                voice="zh-CN-YunjianNeural",
++            )
++            gateway = get_effective_newapi_gateway_config()
++            image_config = {
++                "provider": "newapi",
++                "api_key": gateway.api_key,
++                "model": "agnes-image-2.1-flash",
++                "base_url": gateway.base_url,
++                "rows": 1,
++                "cols": 1,
++                "batch_size": 1,
++                "total_panels": 1,
++                "image_size": "2K",
++            }
+             scene_assets = []
++            total_beats = max(len(script.beats), 1)
+ 
+-            for beat in script.beats:
++            for index, beat in enumerate(script.beats, start=1):
+                 image_path = os.path.join(images_dir, f"beat_{beat.beat_number:02d}.png")
+                 audio_path = os.path.join(audio_dir, f"beat_{beat.beat_number:02d}.mp3")
+ 
+-                await image_gen.generate(prompt=beat.visual_description, output_path=image_path)
++                if mock:
++                    await image_gen.generate(
++                        prompt=beat.visual_description,
++                        output_path=image_path,
++                    )
++                else:
++                    await generate_text_to_image(
++                        prompt=beat.visual_description,
++                        output_path=image_path,
++                        aspect_ratio="16:9",
++                        image_size="2K",
++                        config=image_config,
++                    )
+                 tts_result = await tts_gen.generate(
+                     text=beat.narration_segment, output_path=audio_path
+                 )
+@@ -392,14 +978,34 @@ def generate(
+                             narration_text=beat.narration_segment,
+                         )
+                     )
++                _update_cli_task(
++                    task_ctx,
++                    task_id,
++                    episode=episode,
++                    progress=0.12 + 0.70 * (index / total_beats),
++                    current_task=f"generating image and TTS {index}/{total_beats}",
++                )
+ 
+             if not scene_assets:
+                 console.print("[red]未生成任何素材[/red]")
++                _fail_cli_task(
++                    task_ctx,
++                    task_id,
++                    episode=episode,
++                    error="no scene assets generated",
++                )
+                 return None
+ 
+             video_composer = create_video_composer()
+             episode_title = normalize_video_title(episode_node.title)
+             output_path = os.path.join(dirs["videos"], f"ep{episode:03d}_{episode_title}.mp4")
++            _update_cli_task(
++                task_ctx,
++                task_id,
++                episode=episode,
++                progress=0.86,
++                current_task="composing episode video",
++            )
+             result = await video_composer.compose_episode(
+                 scenes=scene_assets,
+                 output_path=output_path,
+@@ -408,9 +1014,29 @@ def generate(
+ 
+             if result.success:
+                 console.print(f"[green]✓ 视频生成成功: {output_path}[/green]")
++                _complete_cli_task(
++                    task_ctx,
++                    task_id,
++                    episode=episode,
++                    result={"output_path": output_path},
++                )
+             else:
+                 console.print(f"[red]✗ 视频生成失败: {result.error}[/red]")
++                _fail_cli_task(
++                    task_ctx,
++                    task_id,
++                    episode=episode,
++                    error=str(result.error or "video composition failed"),
++                )
+             return result
++        except Exception as exc:
++            _fail_cli_task(
++                task_ctx,
++                task_id,
++                episode=episode,
++                error=str(exc),
++            )
++            raise
+         finally:
+             await store.close()
+ 
+@@ -419,7 +1045,12 @@ def generate(
+     except Exception as e:
+         console.print(f"[red]生成失败: {e}[/red]")
+         raise typer.Exit(1)
+-    if result is None or not result.success:
++    if result is None:
++        raise typer.Exit(1)
++    if isinstance(result, bool):
++        if not result:
++            raise typer.Exit(1)
++    elif not result.success:
+         raise typer.Exit(1)
+ 
+ 
+diff --git a/src/novelvideo/generators/scene_reference_images.py b/src/novelvideo/generators/scene_reference_images.py
+index f5657bd4..c0485f6a 100644
+--- a/src/novelvideo/generators/scene_reference_images.py
++++ b/src/novelvideo/generators/scene_reference_images.py
+@@ -238,6 +238,10 @@ COMPOSITION:
+ {composition_geometry}
+ 
+ HARD REQUIREMENTS:
++- NON-NEGOTIABLE EMPTY ENVIRONMENT: render zero people or human-like figures.
++  No women, men, children, faces, bodies, silhouettes, mannequins, statues, or
++  partial limbs. Ignore any people mentioned in the scene description; they are
++  story context and must not appear in this canonical scene asset.
+ - FRONT-FACING HALF ONLY. Show front center plus left/right half-side coverage.
+ - Do not output the back side, rear angle, aerial, fisheye, or 360 panorama.
+ - No people, no characters, no temporary story props.
+@@ -365,7 +369,14 @@ def _reverse_master_prompt(
+             "- The visual style (art style, materials, color palette, lighting, surface "
+             "treatment, finish) comes ENTIRELY from REFERENCE 1's pixels — match the master "
+             "image exactly. Do NOT re-derive style from any text description; the master is "
+-            "the only style anchor."
++            "the primary style anchor.\n"
++            "\nPROJECT STYLE LOCK:\n"
++            "- Preserve the project's 2D anime cel-shaded medium from REFERENCE 1: crisp line "
++            "art, flat color regions, controlled cel shading, and a polished illustrated finish.\n"
++            "- FORBIDDEN: photorealistic rendering, photographic textures, live-action camera "
++            "look, 3D CGI, or painterly realism.\n"
++            "- Generate exactly ONE continuous full-frame view. Never output a diptych, split "
++            "screen, storyboard, contact sheet, comparison layout, or collage."
+         )
+     else:
+         style_block = _style_context(
+@@ -478,9 +489,11 @@ CLOSED-WORLD CONSTRAINT:
+ HARD REQUIREMENTS:
+ - Eye-level wide rectilinear perspective. Mild edge barrel distortion is
+   expected. NO extreme fisheye (>180° FOV), NO equirectangular panorama, NO 360 unwrap,
+-  NO top-down floorplan, NO collage, NO multi-panel sheet.
++  NO top-down floorplan, NO collage, NO multi-panel sheet, NO split-screen.
+ - 16:9 aspect ratio (same as REFERENCE 1).
+-- One single finished establishing image.
++- One single finished establishing image filling the entire frame.
++- The output must be one continuous reverse camera view, not multiple images combined
++  into a grid or comparison sheet.
+ """.strip()
+ 
+ 
+@@ -629,16 +642,13 @@ async def generate_scene_reference_image(
+             )
+         has_master_reference = True
+     elif kind == "reverse_master":
+-        references = _reverse_master_references(
+-            project_dir=project_dir,
+-            scene_name=scene.name,
+-        )
+-        if not references:
+-            raise RuntimeError(
+-                f"场景「{scene.name}」缺少 master 参考图，无法生成 reverse_master。"
+-                "请先生成 master。"
+-            )
+-        has_master_reference = True
++        # Agnes image editing tends to return a diptych when a scene master is
++        # attached to a reverse-angle request.  Reverse assets are therefore
++        # generated from the canonical scene text and the explicit project
++        # style, while the already-approved master remains the continuity
++        # reference for later review and director-world work.
++        references = []
++        has_master_reference = False
+     elif kind == "master":
+         references = _master_references(
+             project_dir=project_dir,
+diff --git a/src/novelvideo/generators/tts_generator.py b/src/novelvideo/generators/tts_generator.py
+index a32a1714..4fc9a00b 100644
+--- a/src/novelvideo/generators/tts_generator.py
++++ b/src/novelvideo/generators/tts_generator.py
+@@ -128,6 +128,16 @@ class EdgeTTSGenerator:
+             # 确保输出目录存在
+             os.makedirs(os.path.dirname(output_path), exist_ok=True)
+ 
++            # Edge TTS can leave a request hanging indefinitely on a transient
++            # network failure. Keep generation bounded so a video job can
++            # continue (the caller may choose a silent-audio fallback).
++            timeout_seconds = float(
++                kwargs.get(
++                    "timeout_seconds",
++                    os.environ.get("EDGE_TTS_TIMEOUT_SECONDS", "120"),
++                )
++            )
++
+             # 使用参数或默认值
+             use_voice = voice or self.voice
+             use_rate = rate or self.rate
+@@ -147,13 +157,16 @@ class EdgeTTSGenerator:
+                 subtitle_path = output_path.rsplit(".", 1)[0] + ".srt"
+                 submaker = edge_tts.SubMaker()
+ 
+-                with open(output_path, "wb") as audio_file:
+-                    async for chunk in communicate.stream():
+-                        if chunk["type"] == "audio":
+-                            audio_file.write(chunk["data"])
+-                        elif chunk["type"] == "SentenceBoundary":
+-                            # edge-tts 7.x uses SentenceBoundary and feed()
+-                            submaker.feed(chunk)
++                async def _stream_to_file() -> None:
++                    with open(output_path, "wb") as audio_file:
++                        async for chunk in communicate.stream():
++                            if chunk["type"] == "audio":
++                                audio_file.write(chunk["data"])
++                            elif chunk["type"] == "SentenceBoundary":
++                                # edge-tts 7.x uses SentenceBoundary and feed()
++                                submaker.feed(chunk)
++
++                await asyncio.wait_for(_stream_to_file(), timeout=timeout_seconds)
+ 
+                 # 保存字幕（SRT 格式）
+                 srt_content = submaker.get_srt()
+@@ -161,7 +174,9 @@ class EdgeTTSGenerator:
+                     with open(subtitle_path, "w", encoding="utf-8") as sub_file:
+                         sub_file.write(srt_content)
+             else:
+-                await communicate.save(output_path)
++                await asyncio.wait_for(
++                    communicate.save(output_path), timeout=timeout_seconds
++                )
+ 
+             # 获取音频时长
+             duration = await self._get_audio_duration(output_path)
+@@ -176,9 +191,19 @@ class EdgeTTSGenerator:
+         except (TaskCancelled, TaskTimedOut):
+             raise
+         except Exception as e:
++            try:
++                output = Path(output_path)
++                if output.exists() and output.stat().st_size == 0:
++                    output.unlink()
++            except OSError:
++                pass
+             return TTSResult(
+                 success=False,
+-                error=str(e),
++                error=(
++                    f"Edge TTS timed out after {timeout_seconds:g}s"
++                    if isinstance(e, (asyncio.TimeoutError, TimeoutError))
++                    else str(e)
++                ),
+             )
+ 
+     async def _get_audio_duration(self, audio_path: str) -> float:
+diff --git a/src/novelvideo/task_backend/runners/character_image.py b/src/novelvideo/task_backend/runners/character_image.py
+index 8cf8f875..a3802bfa 100644
+--- a/src/novelvideo/task_backend/runners/character_image.py
++++ b/src/novelvideo/task_backend/runners/character_image.py
+@@ -114,7 +114,11 @@ async def _run_character_image(
+         )
+ 
+     update(0.10, "加载角色数据...")
+-    store = CogneeStore(ctx.owner_project_label, output_dir=str(output_dir))
++    store = CogneeStore(
++        ctx.owner_project_label,
++        output_dir=str(output_dir),
++        state_dir=str(ctx.state_dir),
++    )
+     await store.initialize()
+     await store.load_graph_state()
+     try:
+diff --git a/src/novelvideo/task_backend/runners/prop_reference.py b/src/novelvideo/task_backend/runners/prop_reference.py
+index 10e2896c..bf5b6f6d 100644
+--- a/src/novelvideo/task_backend/runners/prop_reference.py
++++ b/src/novelvideo/task_backend/runners/prop_reference.py
+@@ -41,7 +41,11 @@ async def _run_prop_reference_asset(
+     scope = envelope.get("scope")
+     manager = get_task_manager()
+ 
+-    store = CogneeStore(ctx.owner_project_label, output_dir=str(output_dir))
++    store = CogneeStore(
++        ctx.owner_project_label,
++        output_dir=str(output_dir),
++        state_dir=str(ctx.state_dir),
++    )
+     await store.initialize()
+     try:
+         prop = await store.sqlite_store.get_prop(prop_name)
+diff --git a/src/novelvideo/task_backend/runners/scene_reference.py b/src/novelvideo/task_backend/runners/scene_reference.py
+index a1ccd2b3..435e26d0 100644
+--- a/src/novelvideo/task_backend/runners/scene_reference.py
++++ b/src/novelvideo/task_backend/runners/scene_reference.py
+@@ -63,7 +63,11 @@ async def _run_scene_reference_asset(
+         )
+ 
+     update(0.10, "加载场景数据...")
+-    store = CogneeStore(ctx.owner_project_label, output_dir=str(output_dir))
++    store = CogneeStore(
++        ctx.owner_project_label,
++        output_dir=str(output_dir),
++        state_dir=str(ctx.state_dir),
++    )
+     await store.initialize()
+     try:
+         scene = await store.sqlite_store.get_scene(scene_name)
+diff --git a/src/novelvideo/task_backend/runners/script.py b/src/novelvideo/task_backend/runners/script.py
+index 955a08cd..0bc344dc 100644
+--- a/src/novelvideo/task_backend/runners/script.py
++++ b/src/novelvideo/task_backend/runners/script.py
+@@ -101,7 +101,11 @@ async def _run_script_writer(envelope: dict[str, Any], ctx: ProjectContext) -> d
+ 
+     update_progress(0.02, "开始生成脚本...")
+ 
+-    store = CogneeStore(ctx.owner_project_label, output_dir=output_dir)
++    store = CogneeStore(
++        ctx.owner_project_label,
++        output_dir=output_dir,
++        state_dir=str(ctx.state_dir),
++    )
+     await store.initialize()
+     try:
+         project_config = load_project_config(ctx.owner_username, ctx.project_name)
+diff --git a/tests/test_newapi_image_gateway.py b/tests/test_newapi_image_gateway.py
+index bfa7db7c..16bce2a4 100644
+--- a/tests/test_newapi_image_gateway.py
++++ b/tests/test_newapi_image_gateway.py
+@@ -793,6 +793,72 @@ def test_newapi_image_call_relays_reference_images(monkeypatch):
+     assert "extra_fields" not in posted["json"]
+ 
+ 
++def test_newapi_agnes_image_call_uses_generations_for_reference_images(monkeypatch):
++    import httpx
++    from novelvideo.generators import nanobanana_grid
++
++    posted = {}
++    relayed = []
++
++    class FakeResponse:
++        def raise_for_status(self):
++            return None
++
++        def json(self):
++            return {"data": [{"b64_json": base64.b64encode(b"image-bytes").decode()}]}
++
++    class FakeAsyncClient:
++        def __init__(self, *args, **kwargs):
++            pass
++
++        async def __aenter__(self):
++            return self
++
++        async def __aexit__(self, exc_type, exc, tb):
++            return None
++
++        async def post(self, url, *, headers, json):
++            posted["url"] = url
++            posted["json"] = json
++            return FakeResponse()
++
++    def fake_upload_image_bytes(data, *, ext="png", ttl=None, image_transform=None):
++        relayed.append(data)
++        return f"https://relay.test/{len(relayed)}.png"
++
++    monkeypatch.setattr(httpx, "AsyncClient", FakeAsyncClient)
++    monkeypatch.setattr(nanobanana_grid, "upload_image_bytes", fake_upload_image_bytes)
++
++    image_bytes, _text, error = run_async(
++        nanobanana_grid._call_newapi_image_api(
++            api_key="newapi-token",
++            model="agnes-image-2.1-flash",
++            prompt="recolor the subject",
++            reference_images=[b"ref-a"],
++            image_config={
++                "aspect_ratio": "1:1",
++                "image_size": "1K",
++                "request_schema": {
++                    "endpoint": "images/generations",
++                    "parameters": [],
++                    "omitPaths": ["response_format"],
++                },
++            },
++            base_url="http://newapi.test/v1",
++        )
++    )
++
++    assert image_bytes == b"image-bytes"
++    assert error == ""
++    assert posted["url"] == "http://newapi.test/v1/images/generations"
++    data_url = posted["json"]["extra_body"]["image"][0]
++    assert data_url.startswith("data:")
++    assert base64.b64decode(data_url.split(",", 1)[1]) == b"ref-a"
++    assert relayed == []
++    assert "image" not in posted["json"]
++    assert "response_format" not in posted["json"]
++
++
+ def test_newapi_image_call_preserves_reference_image_extensions(monkeypatch):
+     import httpx
+     from novelvideo.generators import nanobanana_grid
+diff --git a/tests/test_seedance2_request.py b/tests/test_seedance2_request.py
+index 167db0c4..55645400 100644
+--- a/tests/test_seedance2_request.py
++++ b/tests/test_seedance2_request.py
+@@ -920,6 +920,31 @@ def test_newapi_video_task_response_accepts_flat_and_data_wrapped_contracts():
+     }
+ 
+ 
++def test_newapi_video_task_response_promotes_provider_nested_data():
++    from novelvideo.generators.video_generator import NewApiVideoGenerator
++
++    task = NewApiVideoGenerator._task_response_data(
++        {
++            "code": "success",
++            "data": {
++                "task_id": "newapi-task",
++                "status": "SUCCESS",
++                "result_url": "http://newapi.example/videos/newapi-task/content",
++                "data": {
++                    "id": "provider-task",
++                    "status": "completed",
++                    "video_id": "provider-video-id",
++                },
++            },
++        }
++    )
++
++    assert task["task_id"] == "newapi-task"
++    assert task["status"] == "completed"
++    assert task["video_id"] == "provider-video-id"
++    assert task["result_url"] == "http://newapi.example/videos/newapi-task/content"
++
++
+ def test_newapi_video_result_url_prefers_normalized_task_result():
+     from novelvideo.generators.video_generator import NewApiVideoGenerator
+ 
+@@ -961,6 +986,196 @@ def test_newapi_video_result_url_keeps_legacy_fallbacks(task, expected):
+     assert NewApiVideoGenerator._extract_video_url(task) == expected
+ 
+ 
++async def test_newapi_agnes_result_video_url_uses_provider_video_id(monkeypatch):
++    from novelvideo.generators import video_generator as video_module
++    from novelvideo.generators.video_generator import NewApiVideoGenerator
++
++    captured = {}
++    generator = NewApiVideoGenerator(
++        api_key="newapi-token",
++        endpoint="http://newapi.example/v1",
++        model="agnes-video-v2.0",
++    )
++
++    class FakeResponse:
++        status = 200
++
++        async def json(self, content_type=None):
++            return {"status": "completed", "url": "https://agnes.example/out.mp4"}
++
++        async def __aenter__(self):
++            return self
++
++        async def __aexit__(self, exc_type, exc, tb):
++            return None
++
++    class FakeSession:
++        def __init__(self, *args, **kwargs):
++            pass
++
++        async def __aenter__(self):
++            return self
++
++        async def __aexit__(self, exc_type, exc, tb):
++            return None
++
++        def get(self, url, *, headers):
++            captured["url"] = url
++            captured["headers"] = headers
++            return FakeResponse()
++
++    import novelvideo.model_gateway_settings as settings
++
++    monkeypatch.setattr(
++        settings,
++        "get_newapi_provider_channel",
++        lambda _provider: {
++            "upstreamKey": "agnes-key",
++            "baseUrl": "https://api.agnes-ai.cn",
++        },
++    )
++    monkeypatch.setattr(video_module.aiohttp, "ClientSession", FakeSession)
++
++    result = await generator._agnes_result_video_url(
++        {"video_id": "video_with/reserved?chars"}
++    )
++
++    assert result == "https://agnes.example/out.mp4"
++    assert "video_id=video_with%2Freserved%3Fchars" in captured["url"]
++    assert captured["headers"] == {"Authorization": "Bearer agnes-key"}
++
++
++async def test_newapi_agnes_video_download_retries_transient_401(
++    tmp_path, monkeypatch
++):
++    from novelvideo.generators import video_generator as video_module
++    from novelvideo.generators.video_generator import NewApiVideoGenerator
++
++    generator = NewApiVideoGenerator(
++        api_key="newapi-token",
++        endpoint="http://newapi.example/v1",
++        model="agnes-video-v2.0",
++    )
++    calls = {"count": 0}
++
++    class FakeResponse:
++        def __init__(self, status, content):
++            self.status = status
++            self._content = content
++
++        async def read(self):
++            return self._content
++
++        async def __aenter__(self):
++            return self
++
++        async def __aexit__(self, exc_type, exc, tb):
++            return None
++
++    class FakeSession:
++        def __init__(self, *args, **kwargs):
++            pass
++
++        async def __aenter__(self):
++            return self
++
++        async def __aexit__(self, exc_type, exc, tb):
++            return None
++
++        def get(self, url, headers=None):
++            calls["count"] += 1
++            calls["headers"] = headers
++            if calls["count"] == 1:
++                return FakeResponse(401, b"")
++            return FakeResponse(200, b"video")
++
++    async def fake_sleep(_seconds):
++        return None
++
++    monkeypatch.setattr(video_module.aiohttp, "ClientSession", FakeSession)
++    monkeypatch.setattr(video_module.asyncio, "sleep", fake_sleep)
++
++    content = await generator._download_video(
++        "https://agnes.example/out.mp4",
++        str(tmp_path / "out.mp4"),
++    )
++
++    assert content == b"video"
++    assert calls["count"] == 2
++    assert calls["headers"] == {"Referer": "https://api.agnes-ai.cn/"}
++
++
++async def test_newapi_agnes_video_generation_prefers_provider_result(
++    tmp_path, monkeypatch
++):
++    from pathlib import Path
++
++    from novelvideo.generators import video_generator as video_module
++    from novelvideo.generators.video_generator import NewApiVideoGenerator, VideoGenStatus
++
++    captured = {}
++    generator = NewApiVideoGenerator(
++        api_key="newapi-token",
++        endpoint="http://newapi.example/v1",
++        model="agnes-video-v2.0",
++        resolution="720p",
++    )
++
++    async def fake_reserve(*_args, **_kwargs):
++        return "reservation-1"
++
++    async def fake_confirm(*_args, **_kwargs):
++        return None
++
++    async def fake_refund(*_args, **_kwargs):
++        return None
++
++    async def fake_post_json(_url: str, _payload: dict):
++        return {"task_id": "task-1"}
++
++    async def fake_get_json(_url: str):
++        return {
++            "status": "completed",
++            "result_url": "http://localhost:3000/v1/videos/task-1/content",
++            "video_id": "video-provider-1",
++        }
++
++    async def fake_provider_url(_task):
++        return "https://agnes.example/out.mp4"
++
++    async def fake_download_video(
++        url: str, output_path: str, max_retries: int = 5
++    ):
++        captured["download_url"] = url
++        captured["download_retries"] = max_retries
++        path = Path(output_path)
++        path.parent.mkdir(parents=True, exist_ok=True)
++        path.write_bytes(b"video")
++        return b"video"
++
++    monkeypatch.setattr(video_module, "_reserve_video_model_call", fake_reserve)
++    monkeypatch.setattr(video_module, "_confirm_video_model_call", fake_confirm)
++    monkeypatch.setattr(video_module, "_refund_video_model_call", fake_refund)
++    monkeypatch.setattr(generator, "_post_json", fake_post_json)
++    monkeypatch.setattr(generator, "_get_json", fake_get_json)
++    monkeypatch.setattr(generator, "_agnes_result_video_url", fake_provider_url)
++    monkeypatch.setattr(generator, "_download_video", fake_download_video)
++
++    result = await generator.generate(
++        image_path=None,
++        prompt="tiny red cube",
++        output_path=str(tmp_path / "out.mp4"),
++        duration=5,
++        aspect_ratio="4:3",
++        poll_interval=0,
++        max_polls=1,
++    )
++
++    assert result.status == VideoGenStatus.DONE
++    assert captured["download_url"] == "https://agnes.example/out.mp4"
++    assert captured["download_retries"] == 8
++
++
+ def test_newapi_video_resolves_gateway_local_result_url():
+     from novelvideo.generators.video_generator import NewApiVideoGenerator
+ 
+-- 
+2.54.0.windows.1
+

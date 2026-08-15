@@ -1,0 +1,95 @@
+{
+  "version": "0.1",
+  "metadata": {
+    "title": "Invisible Audit Region Smoke Test",
+    "style_profile": "paper_white",
+    "notes": [
+      "Exercises logical module review regions that do not render visible frames."
+    ]
+  },
+  "page": {
+    "width": 4.4,
+    "height": 2.2,
+    "units": "in",
+    "origin": "top-left",
+    "background": "#FFFFFF"
+  },
+  "nodes": [
+    {
+      "id": "residual_chain",
+      "type": "audit_region",
+      "x": 0.35,
+      "y": 0.45,
+      "w": 3.20,
+      "h": 1.10,
+      "label": "Residual chain"
+    },
+    {
+      "id": "m",
+      "type": "rounded_process",
+      "container_id": "residual_chain",
+      "x": 0.60,
+      "y": 0.72,
+      "w": 0.42,
+      "h": 0.72,
+      "text": "M",
+      "style": {"fill": "#CFE8C8", "line": "#CFE8C8"}
+    },
+    {
+      "id": "add",
+      "type": "operator_node",
+      "container_id": "residual_chain",
+      "x": 1.32,
+      "y": 0.96,
+      "w": 0.24,
+      "h": 0.24,
+      "symbol": "+"
+    },
+    {
+      "id": "bn",
+      "type": "rounded_process",
+      "container_id": "residual_chain",
+      "x": 1.88,
+      "y": 0.66,
+      "w": 0.48,
+      "h": 0.84,
+      "text": "BN",
+      "style": {"fill": "#F2B37E", "line": "#F2B37E"}
+    },
+    {
+      "id": "r",
+      "type": "rounded_process",
+      "container_id": "residual_chain",
+      "x": 2.54,
+      "y": 0.66,
+      "w": 0.48,
+      "h": 0.84,
+      "text": "R",
+      "style": {"fill": "#F8E29A", "line": "#F8E29A"}
+    }
+  ],
+  "edges": [
+    {
+      "id": "m_to_add",
+      "type": "arrow_connector",
+      "from": "m:right",
+      "to": "add:left",
+      "route": "horizontal"
+    },
+    {
+      "id": "add_to_bn",
+      "type": "arrow_connector",
+      "from": "add:right",
+      "to": "bn:left@0.50",
+      "route": "horizontal"
+    },
+    {
+      "id": "bn_to_r",
+      "type": "arrow_connector",
+      "from": "bn:right",
+      "to": "r:left",
+      "route": "horizontal"
+    }
+  ],
+  "assets": []
+}

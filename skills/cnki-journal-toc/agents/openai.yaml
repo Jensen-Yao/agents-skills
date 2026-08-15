@@ -1,0 +1,4 @@
+interface:
+  display_name: "CNKI Journal TOC"
+  short_description: "Browse CNKI journal issues"
+  default_prompt: "Use $cnki-journal-toc to list papers in 计算机学报 2025 issue 01."

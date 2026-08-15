@@ -1,0 +1,7 @@
+interface:
+  display_name: "VisioMaster"
+  short_description: "将流程图、架构图、论文框图重建为可编辑 Visio 文件"
+  default_prompt: "Use $visiomaster to rebuild a diagram image into editable Visio, SVG, and PNG outputs."
+
+policy:
+  allow_implicit_invocation: true

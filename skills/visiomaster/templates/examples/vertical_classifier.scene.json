@@ -1,0 +1,100 @@
+{
+  "version": "0.1",
+  "metadata": {
+    "title": "Vertical Classifier Smoke Test",
+    "style_profile": "paper_white",
+    "notes": [
+      "Exercises vertical AvgPool-to-Linear classifier arrows and boundary fanout."
+    ]
+  },
+  "page": {
+    "width": 4.8,
+    "height": 4.8,
+    "units": "in",
+    "origin": "top-left",
+    "background": "#FFFFFF"
+  },
+  "nodes": [
+    {
+      "id": "classifier",
+      "type": "group_container",
+      "x": 0.78,
+      "y": 0.40,
+      "w": 1.86,
+      "h": 3.95,
+      "text": "Classifier",
+      "shape": "capsule",
+      "max_rounding_in": 0.32,
+      "title_align": 1,
+      "z": 0
+    },
+    {
+      "id": "classifier_in",
+      "type": "boundary_port",
+      "container_id": "classifier",
+      "side": "left",
+      "shape": "none",
+      "x": 0.76,
+      "y": 2.45,
+      "w": 0.04,
+      "h": 0.04
+    },
+    {
+      "id": "head",
+      "type": "classifier_head",
+      "container_id": "classifier",
+      "x": 0.98,
+      "y": 1.54,
+      "w": 1.46,
+      "h": 1.62,
+      "blocks": [
+        {
+          "text": "Avgpool",
+          "style": {
+            "fill": "#CFE8C8",
+            "line": "#CFE8C8"
+          }
+        },
+        {
+          "text": "Linear",
+          "style": {
+            "fill": "#9ED6E6",
+            "line": "#9ED6E6"
+          }
+        }
+      ],
+      "orientation": "vertical",
+      "vertical_block_gap_in": 0.22,
+      "internal_arrow_size": "tiny",
+      "output_mode": "boundary",
+      "style": {
+        "font_size_pt": 16,
+        "rounding_in": 0.10
+      }
+    },
+    {
+      "id": "classifier_outputs",
+      "type": "boundary_fanout",
+      "container_id": "classifier",
+      "side": "right",
+      "x": 2.64,
+      "y": 1.18,
+      "w": 0.50,
+      "h": 2.40,
+      "branch_positions": [0.0, 0.32, 0.64, 0.96],
+      "labels": ["N", "S", "V", "F"],
+      "z": 20
+    }
+  ],
+  "edges": [
+    {
+      "id": "input_to_classifier",
+      "type": "arrow_connector",
+      "from_point": [0.24, 2.47],
+      "to": "classifier_in:center",
+      "route": "straight",
+      "allow_cross_container": true
+    }
+  ],
+  "assets": []
+}

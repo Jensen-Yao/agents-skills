@@ -1,0 +1,14 @@
+{
+  "name": "sci-zotero",
+  "version": "1.0.0",
+  "description": "Zotero library management and citation synchronization for scientific writing workflows.",
+  "triggers": [
+    "sync zotero library",
+    "add citation",
+    "check pdfs",
+    "fetch pdfs",
+    "search zotero"
+  ],
+  "author": "Shuo Zhao",
+  "script_path": "./zotero.py"
+}

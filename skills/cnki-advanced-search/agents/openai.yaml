@@ -1,0 +1,4 @@
+interface:
+  display_name: "CNKI Advanced Search"
+  short_description: "Filter CNKI searches by fields"
+  default_prompt: "Use $cnki-advanced-search to find CSSCI papers about AI from 2020 to 2025."

@@ -1,0 +1,11 @@
+* text=auto eol=lf
+
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.vsdx binary
+*.svg text eol=lf
+*.json text eol=lf
+*.md text eol=lf
+*.py text eol=lf

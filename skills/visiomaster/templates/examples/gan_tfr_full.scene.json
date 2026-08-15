@@ -1,0 +1,414 @@
+{
+  "version": "0.1",
+  "metadata": {
+    "title": "GAN TFR canonical reconstruction template",
+    "created_by": "visiomaster.template",
+    "style_profile": "paper_white",
+    "fidelity": "exact",
+    "source_aspect_ratio": 1.565217391304348,
+    "region_strategy": "module_first",
+    "notes": [
+      "Canonical editable GAN/TFR scene for first-pass reconstruction.",
+      "Uses tfr_panel, loss_region, math_text, smooth loop_arrow, and bundled backprop grammar."
+    ]
+  },
+  "page": {
+    "width": 900,
+    "height": 575,
+    "units": "px",
+    "origin": "top-left",
+    "target_width_in": 10.8,
+    "background": "#FFFFFF"
+  },
+  "nodes": [
+    {
+      "id": "page_background",
+      "type": "page_background",
+      "x": 0,
+      "y": 0,
+      "w": 900,
+      "h": 575,
+      "z": -100
+    },
+    {
+      "id": "latent",
+      "type": "text_block",
+      "x": 353,
+      "y": 6,
+      "w": 186,
+      "h": 34,
+      "text": "Latent Vector z",
+      "style": {
+        "fill": "#E4E4E4",
+        "line": "none",
+        "font_size_pt": 18
+      }
+    },
+    {
+      "id": "generator",
+      "type": "rounded_process",
+      "x": 353,
+      "y": 80,
+      "w": 186,
+      "h": 84,
+      "text": "Generator\n(G)",
+      "style": {
+        "fill": "#F0C2D5",
+        "line": "none",
+        "font_size_pt": 20,
+        "rounding_in": 0.08
+      }
+    },
+    {
+      "id": "real_panel",
+      "type": "tfr_panel",
+      "x": 107,
+      "y": 238,
+      "w": 168,
+      "h": 177,
+      "title": "Real\nTFR",
+      "input_label": "Input",
+      "rows": 4,
+      "cols": 5,
+      "grid_y": 306,
+      "input_y": 389,
+      "style": {
+        "fill": "#F7C7DD",
+        "line": "none",
+        "title_font_size_pt": 20,
+        "input_font_size_pt": 18,
+        "rounding_in": 0.08
+      }
+    },
+    {
+      "id": "generated_panel",
+      "type": "tfr_panel",
+      "x": 630,
+      "y": 238,
+      "w": 168,
+      "h": 177,
+      "title": "Generated",
+      "subtitle": "Reconstructed TFR",
+      "input_label": "Input",
+      "rows": 4,
+      "cols": 5,
+      "grid_y": 306,
+      "input_y": 389,
+      "style": {
+        "fill": "#C4D8FA",
+        "line": "none",
+        "title_font_size_pt": 20,
+        "subtitle_font_size_pt": 14,
+        "input_font_size_pt": 18,
+        "rounding_in": 0.08
+      }
+    },
+    {
+      "id": "discriminator",
+      "type": "rounded_process",
+      "x": 353,
+      "y": 281,
+      "w": 186,
+      "h": 86,
+      "text": "Discriminator\n(D)",
+      "style": {
+        "fill": "#C2D7F9",
+        "line": "none",
+        "font_size_pt": 20,
+        "rounding_in": 0.08
+      }
+    },
+    {
+      "id": "adv_loss_region",
+      "type": "loss_region",
+      "x": 305,
+      "y": 184,
+      "w": 286,
+      "h": 90,
+      "title": "Forward Reconstruction →\nDiscriminator Evaluation",
+      "formulas": [
+        "Adversarial Loss L_adv",
+        "Gradient Penalty GP"
+      ],
+      "style": {
+        "line": "#6F6F6F",
+        "line_dash": "dash",
+        "line_weight_pt": 1.15,
+        "font_size_pt": 12,
+        "title_font_size_pt": 14,
+        "title_position": "inside"
+      }
+    },
+    {
+      "id": "left_loss_text",
+      "type": "math_text",
+      "x": 247,
+      "y": 424,
+      "w": 180,
+      "h": 58,
+      "text": "Reconstruction Loss L_rec\nAdversarial Loss L_adv\nGradient Penalty GP",
+      "style": {
+        "font_size_pt": 11
+      }
+    },
+    {
+      "id": "right_loss_text",
+      "type": "math_text",
+      "x": 511,
+      "y": 424,
+      "w": 195,
+      "h": 58,
+      "text": "Reconstruction Loss L_rec\nAdversarial Loss L_adv\nGradient Penalty GP",
+      "style": {
+        "font_size_pt": 11
+      }
+    },
+    {
+      "id": "disc_backprop_bus",
+      "type": "merge_bus",
+      "x": 443,
+      "y": 488,
+      "w": 40,
+      "h": 1,
+      "orientation": "horizontal",
+      "side": "top",
+      "port_positions": [0, 0.5, 1],
+      "style": {
+        "line": "#6F6F6F",
+        "line_dash": "dash",
+        "line_weight_pt": 1.15
+      }
+    },
+    {
+      "id": "backprop_label",
+      "type": "text_block",
+      "x": 350,
+      "y": 492,
+      "w": 220,
+      "h": 28,
+      "text": "Loss Backpropagation",
+      "style": {
+        "fill": "none",
+        "line": "none",
+        "font_size_pt": 16
+      }
+    },
+    {
+      "id": "alternating_label",
+      "type": "text_block",
+      "x": 308,
+      "y": 540,
+      "w": 300,
+      "h": 30,
+      "text": "Alternating Updates (G & D)",
+      "style": {
+        "fill": "none",
+        "line": "none",
+        "font_size_pt": 18
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "outer_left_loop_to_latent",
+      "type": "loop_arrow",
+      "semantic_role": "outer_update_loop",
+      "label_id": "alternating_label",
+      "from_point": [296, 536],
+      "points": [[201, 502], [124, 453], [70, 392], [42, 325], [45, 256], [75, 189], [133, 130], [213, 83], [310, 51]],
+      "end_tangent_point": [336, 36],
+      "to_point": [358, 23],
+      "curve_mode": "smooth",
+      "style": {
+        "line": "#6F6F6F",
+        "line_weight_pt": 1.45,
+        "arrow_size": "medium"
+      }
+    },
+    {
+      "id": "outer_right_loop_to_latent",
+      "type": "loop_arrow",
+      "semantic_role": "outer_update_loop",
+      "label_id": "alternating_label",
+      "from_point": [604, 536],
+      "points": [[699, 502], [776, 453], [830, 392], [857, 325], [855, 256], [825, 189], [767, 130], [687, 83], [590, 51]],
+      "end_tangent_point": [560, 36],
+      "to_point": [538, 23],
+      "curve_mode": "smooth",
+      "style": {
+        "line": "#6F6F6F",
+        "line_weight_pt": 1.45,
+        "arrow_size": "medium"
+      }
+    },
+    {
+      "id": "latent_to_generator",
+      "type": "lane_arrow",
+      "from": "latent:bottom@0.5",
+      "to": "generator:top@0.5",
+      "route": "vertical",
+      "lane_axis": "vertical",
+      "style": {
+        "line": "#6F6F6F",
+        "line_weight_pt": 1.45,
+        "arrow_size": "medium"
+      }
+    },
+    {
+      "id": "real_to_generator",
+      "type": "arrow_connector",
+      "from": "real_panel:top@0.5",
+      "to": "generator:left@0.5",
+      "route": "vh",
+      "style": {
+        "line": "#6F6F6F",
+        "line_weight_pt": 1.45,
+        "arrow_size": "medium"
+      },
+      "allow_direct_cross_container": true
+    },
+    {
+      "id": "generator_to_generated",
+      "type": "arrow_connector",
+      "from": "generator:right@0.5",
+      "to": "generated_panel:top@0.5",
+      "route": "hv",
+      "style": {
+        "line": "#6F6F6F",
+        "line_weight_pt": 1.45,
+        "arrow_size": "medium"
+      },
+      "allow_direct_cross_container": true
+    },
+    {
+      "id": "real_to_discriminator",
+      "type": "arrow_connector",
+      "from": "real_panel:right@0.5",
+      "to": "discriminator:left@0.5",
+      "route": "horizontal",
+      "style": {
+        "line": "#6F6F6F",
+        "line_weight_pt": 1.45,
+        "arrow_size": "medium"
+      },
+      "allow_direct_cross_container": true
+    },
+    {
+      "id": "generated_to_discriminator",
+      "type": "arrow_connector",
+      "from": "generated_panel:left@0.5",
+      "to": "discriminator:right@0.5",
+      "route": "horizontal",
+      "style": {
+        "line": "#6F6F6F",
+        "line_weight_pt": 1.45,
+        "arrow_size": "medium"
+      },
+      "allow_direct_cross_container": true
+    },
+    {
+      "id": "adv_loss_to_disc_left",
+      "type": "dashed_feedback_path",
+      "from_point": [419.96, 274],
+      "to": "discriminator:top@0.36",
+      "route": "vertical",
+      "style": {
+        "line": "#6F6F6F",
+        "line_weight_pt": 1.15,
+        "line_dash": "dash",
+        "arrow_size": "small"
+      },
+      "allow_cross_container": true,
+      "allow_direct_cross_container": true
+    },
+    {
+      "id": "adv_loss_to_disc_right",
+      "type": "dashed_feedback_path",
+      "from_point": [472.04, 274],
+      "to": "discriminator:top@0.64",
+      "route": "vertical",
+      "style": {
+        "line": "#6F6F6F",
+        "line_weight_pt": 1.15,
+        "line_dash": "dash",
+        "arrow_size": "small"
+      },
+      "allow_cross_container": true,
+      "allow_direct_cross_container": true
+    },
+    {
+      "id": "left_backprop_to_bus",
+      "type": "dashed_feedback_path",
+      "from": "real_panel:bottom@0.5",
+      "points": [[191, 488]],
+      "to_point": [443, 488],
+      "style": {
+        "line": "#6F6F6F",
+        "line_weight_pt": 1.15,
+        "line_dash": "dash",
+        "end_arrow": "none"
+      },
+      "allow_direct_cross_container": true
+    },
+    {
+      "id": "right_backprop_to_bus",
+      "type": "dashed_feedback_path",
+      "from": "generated_panel:bottom@0.5",
+      "points": [[714, 488]],
+      "to_point": [483, 488],
+      "style": {
+        "line": "#6F6F6F",
+        "line_weight_pt": 1.15,
+        "line_dash": "dash",
+        "end_arrow": "none"
+      },
+      "allow_direct_cross_container": true
+    },
+    {
+      "id": "disc_backprop_arrow_0",
+      "type": "dashed_feedback_path",
+      "bundle_id": "disc_backprop_bundle",
+      "from_point": [443, 488],
+      "to": "discriminator:bottom@0.48",
+      "route": "vertical",
+      "style": {
+        "line": "#6F6F6F",
+        "line_weight_pt": 1.15,
+        "line_dash": "dash",
+        "arrow_size": "small"
+      },
+      "allow_direct_cross_container": true
+    },
+    {
+      "id": "disc_backprop_arrow_1",
+      "type": "dashed_feedback_path",
+      "bundle_id": "disc_backprop_bundle",
+      "from_point": [463, 488],
+      "to": "discriminator:bottom@0.59",
+      "route": "vertical",
+      "style": {
+        "line": "#6F6F6F",
+        "line_weight_pt": 1.15,
+        "line_dash": "dash",
+        "arrow_size": "small"
+      },
+      "allow_direct_cross_container": true
+    },
+    {
+      "id": "disc_backprop_arrow_2",
+      "type": "dashed_feedback_path",
+      "bundle_id": "disc_backprop_bundle",
+      "from_point": [483, 488],
+      "to": "discriminator:bottom@0.70",
+      "route": "vertical",
+      "style": {
+        "line": "#6F6F6F",
+        "line_weight_pt": 1.15,
+        "line_dash": "dash",
+        "arrow_size": "small"
+      },
+      "allow_direct_cross_container": true
+    }
+  ],
+  "assets": []
+}

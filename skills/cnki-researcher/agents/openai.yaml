@@ -1,0 +1,4 @@
+interface:
+  display_name: "CNKI Researcher"
+  short_description: "Coordinate CNKI research workflows"
+  default_prompt: "Use $cnki-researcher to search CNKI papers and check journal indexing."

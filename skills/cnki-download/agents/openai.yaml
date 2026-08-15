@@ -1,0 +1,4 @@
+interface:
+  display_name: "CNKI Download"
+  short_description: "Download CNKI PDF or CAJ files"
+  default_prompt: "Use $cnki-download to download the current CNKI paper as a PDF."

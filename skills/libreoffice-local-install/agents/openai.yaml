@@ -1,0 +1,4 @@
+interface:
+  display_name: "Local LibreOffice"
+  short_description: "Use the existing LibreOffice CLI installation"
+  default_prompt: "Use $libreoffice-local-install to convert a document with the installed LibreOffice CLI."

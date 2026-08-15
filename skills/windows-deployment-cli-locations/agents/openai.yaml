@@ -1,0 +1,4 @@
+interface:
+  display_name: "Windows Deployment CLI Locations"
+  short_description: "Locate and invoke locally installed deployment CLIs"
+  default_prompt: "Use $windows-deployment-cli-locations to locate and invoke the installed deployment CLI without downloading another copy."

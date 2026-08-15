@@ -1,0 +1,4 @@
+interface:
+  display_name: "CNKI Export"
+  short_description: "Export CNKI citations to Zotero"
+  default_prompt: "Use $cnki-export to push selected CNKI search results to Zotero."

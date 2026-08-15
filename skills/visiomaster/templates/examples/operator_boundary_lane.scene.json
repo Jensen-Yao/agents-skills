@@ -1,0 +1,144 @@
+{
+  "version": "0.1",
+  "metadata": {
+    "title": "Operator and Boundary Lane Smoke Test",
+    "style_profile": "paper_white",
+    "notes": [
+      "Exercises centered operator symbols and side-ratio endpoints for horizontal frame-to-component arrows."
+    ]
+  },
+  "page": {
+    "width": 5.3,
+    "height": 2.7,
+    "units": "in",
+    "origin": "top-left",
+    "background": "#FFFFFF"
+  },
+  "nodes": [
+    {
+      "id": "module_frame",
+      "type": "group_container",
+      "x": 0.20,
+      "y": 0.25,
+      "w": 3.70,
+      "h": 2.20,
+      "shape": "rounded",
+      "corner_radius_in": 0.28,
+      "z": 0
+    },
+    {
+      "id": "bn",
+      "type": "rounded_process",
+      "container_id": "module_frame",
+      "x": 0.55,
+      "y": 0.62,
+      "w": 0.54,
+      "h": 1.48,
+      "text": "B\nN",
+      "style": {
+        "fill": "#F2B37E",
+        "line": "#F2B37E",
+        "font_size_pt": 24,
+        "rounding_in": 0.07
+      }
+    },
+    {
+      "id": "r",
+      "type": "rounded_process",
+      "container_id": "module_frame",
+      "x": 1.18,
+      "y": 0.62,
+      "w": 0.54,
+      "h": 1.48,
+      "text": "R",
+      "style": {
+        "fill": "#F8E29A",
+        "line": "#F8E29A",
+        "font_size_pt": 26,
+        "rounding_in": 0.07
+      }
+    },
+    {
+      "id": "multiply",
+      "type": "operator_node",
+      "container_id": "module_frame",
+      "x": 2.02,
+      "y": 1.21,
+      "w": 0.30,
+      "h": 0.30,
+      "symbol": "⊗",
+      "style": {
+        "line": "#4B5563",
+        "line_weight_pt": 1.2,
+        "symbol_font_size_pt": 16
+      }
+    },
+    {
+      "id": "vector",
+      "type": "grid_matrix",
+      "container_id": "module_frame",
+      "x": 2.72,
+      "y": 0.58,
+      "w": 0.30,
+      "h": 1.54,
+      "rows": 8,
+      "cols": 1,
+      "colored_cells": [
+        {"row": 3, "col": 0, "fill": "#555555"},
+        {"row": 4, "col": 0, "fill": "#555555"}
+      ],
+      "style": {
+        "cell_fill": "#FFFFFF",
+        "grid_line": "#111111",
+        "grid_line_weight_pt": 0.8
+      }
+    },
+    {
+      "id": "module_out",
+      "type": "boundary_port",
+      "container_id": "module_frame",
+      "side": "right",
+      "shape": "none",
+      "x": 3.88,
+      "y": 1.34,
+      "w": 0.04,
+      "h": 0.04
+    },
+    {
+      "id": "features",
+      "type": "feature_map_grid",
+      "x": 4.35,
+      "y": 0.68,
+      "w": 0.58,
+      "h": 1.18,
+      "rows": 6,
+      "cols": 4,
+      "column_shades": [0.0, 0.25, 0.55, 0.0]
+    }
+  ],
+  "edges": [
+    {
+      "id": "r_to_multiply",
+      "type": "arrow_connector",
+      "from": "r:right",
+      "to": "multiply:left",
+      "route": "straight"
+    },
+    {
+      "id": "multiply_to_vector",
+      "type": "arrow_connector",
+      "from": "multiply:right",
+      "to": "vector:left@0.50",
+      "route": "straight"
+    },
+    {
+      "id": "boundary_to_features",
+      "type": "boundary_arrow",
+      "from": "module_out:center",
+      "to": "features:left@0.58",
+      "route": "horizontal",
+      "allow_cross_container": true
+    }
+  ],
+  "assets": []
+}

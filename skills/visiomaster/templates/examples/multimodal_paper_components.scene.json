@@ -1,0 +1,151 @@
+{
+  "version": "0.1",
+  "metadata": {
+    "title": "Multimodal Paper Components Smoke Example",
+    "style_profile": "paper_white",
+    "fidelity": "draft"
+  },
+  "page": {
+    "width": 9.0,
+    "height": 4.2,
+    "units": "in",
+    "origin": "top-left"
+  },
+  "nodes": [
+    {
+      "id": "lane_region",
+      "type": "group_container",
+      "x": 0.3,
+      "y": 0.3,
+      "w": 3.2,
+      "h": 3.6,
+      "text": "Modality lanes",
+      "shape": "rounded"
+    },
+    {
+      "id": "quality_region",
+      "type": "group_container",
+      "x": 3.8,
+      "y": 0.3,
+      "w": 2.2,
+      "h": 3.6,
+      "text": "Quality head",
+      "shape": "rounded"
+    },
+    {
+      "id": "encoding_region",
+      "type": "group_container",
+      "x": 6.2,
+      "y": 0.3,
+      "w": 2.5,
+      "h": 3.6,
+      "text": "Encoder",
+      "shape": "rounded"
+    },
+    {
+      "id": "availability",
+      "type": "modality_spine",
+      "x": 1.35,
+      "y": 0.9,
+      "w": 0.28,
+      "h": 2.35,
+      "container_id": "lane_region",
+      "ports": [
+        {"position": 0.12, "text": "P_RGB"},
+        {"position": 0.50, "text": "P_IR"},
+        {"position": 0.88, "text": "P_SAR"}
+      ]
+    },
+    {
+      "id": "impact",
+      "type": "cuboid_node",
+      "x": 2.15,
+      "y": 2.35,
+      "w": 0.9,
+      "h": 0.45,
+      "text": "cm",
+      "container_id": "lane_region"
+    },
+    {
+      "id": "quality_head",
+      "type": "trapezoid_node",
+      "x": 4.45,
+      "y": 1.25,
+      "w": 0.9,
+      "h": 1.35,
+      "text": "Quality\nHead",
+      "orientation": "right",
+      "container_id": "quality_region",
+      "style": {
+        "fill": "#D9D9D9"
+      }
+    },
+    {
+      "id": "encoder_left",
+      "type": "polygon_node",
+      "x": 6.55,
+      "y": 1.25,
+      "w": 0.65,
+      "h": 1.45,
+      "points": [[0, 0], [1, 0.5], [0, 1]],
+      "container_id": "encoding_region",
+      "style": {
+        "fill": "#B8C9EA"
+      }
+    },
+    {
+      "id": "encoder_right",
+      "type": "polygon_node",
+      "x": 7.25,
+      "y": 1.25,
+      "w": 0.65,
+      "h": 1.45,
+      "points": [[1, 0], [0, 0.5], [1, 1]],
+      "container_id": "encoding_region",
+      "style": {
+        "fill": "#F9DF8B"
+      }
+    },
+    {
+      "id": "generator",
+      "type": "rounded_process",
+      "x": 7.95,
+      "y": 1.35,
+      "w": 0.55,
+      "h": 1.25,
+      "text": "CVG",
+      "container_id": "encoding_region",
+      "style": {
+        "fill": "#C8F4F2"
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "lane_to_quality",
+      "type": "arrow_connector",
+      "from": "availability:right@0.5",
+      "to": "quality_head:left@0.5",
+      "route": "horizontal",
+      "allow_cross_container": true,
+      "allow_direct_cross_container": true
+    },
+    {
+      "id": "quality_to_encoder",
+      "type": "arrow_connector",
+      "from": "quality_head:right@0.5",
+      "to": "encoder_left:left@0.5",
+      "route": "horizontal",
+      "allow_cross_container": true,
+      "allow_direct_cross_container": true
+    },
+    {
+      "id": "encoder_to_generator",
+      "type": "arrow_connector",
+      "from": "encoder_right:right@0.5",
+      "to": "generator:left@0.5",
+      "route": "horizontal"
+    }
+  ],
+  "assets": []
+}

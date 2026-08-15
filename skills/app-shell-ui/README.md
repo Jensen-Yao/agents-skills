@@ -1,0 +1,421 @@
+<div align="center">
+  <p>
+    <img src="assets/readme-banner.png" alt="app-shell-ui：桌面工具风应用外壳 Skill" width="100%">
+  </p>
+  <p>
+    <b>App Shell UI · 桌面工具风应用外壳 Skill</b><br>
+    可复用的前端视觉语言：左导航 + 右内容 · 浅/深双主题 · Token 驱动 · 克制图标
+  </p>
+  <p>
+    <a href="LICENSE"><img alt="License" src="https://img.shields.io/badge/license-Apache--2.0-2ea44f"></a>
+    <a href="#安装"><img alt="Install" src="https://img.shields.io/badge/install-Codex%20%7C%20Claude%20Code%20%7C%20Grok-111827"></a>
+    <a href="#技能索引"><img alt="Skills" src="https://img.shields.io/badge/skills-1-0ea5e9"></a>
+    <a href="#共享设计原则"><img alt="Style" src="https://img.shields.io/badge/style-macOS%20utility%20shell-1f6feb"></a>
+    <a href="README_EN.md"><img alt="Language" src="https://img.shields.io/badge/language-中文%20%7C%20English-1f6feb"></a>
+  </p>
+  <p>
+    <a href="#安装">立即安装</a>
+    · <a href="#快速开始">快速开始</a>
+    · <a href="#技能索引">技能索引</a>
+    · <a href="#共享设计原则">设计原则</a>
+    · <a href="#目录结构">目录结构</a>
+    · <a href="#更新">更新</a>
+    · <a href="README_EN.md">English</a>
+  </p>
+</div>
+
+---
+
+* 本仓库维护 **App Shell UI** skill：让 AI agent 按统一规范生成「系统设置 / Clash Verge / 桌面客户端」一类界面，而不是落地页或密运营后台。
+* 业务内容会变（水果市集、游戏论坛、AI 工作台…），**壳不换**：侧栏、画布、卡片、单主色、浅深主题、并列等高。
+* 面向 **Codex / Claude Code / Grok** 等能加载 `SKILL.md` 的 agent；请**整目录安装**，不要只复制一个 `SKILL.md`。
+* 源码许可为 **Apache License 2.0**。
+
+## 案例展示
+
+同一外壳，四种业务。可运行 Demo 在 [`demos/`](demos/)，截图在 [`assets/showcase/`](assets/showcase/)。
+
+> **生成方式：无提示词，仅限定主题生成。**  
+> 不额外规定版式细节，只给出主题（终端工具 / 渗透工具 / 学习工具台 / 聊天软件），由 `app-shell-ui` skill 约束壳层与风格后直接生成。
+
+### Codex 写前端对比：学习工具台
+
+同一主题「学习工具台」——**左：未使用 skill**；**右：使用 `app-shell-ui` skill**。
+
+<table>
+  <tr>
+    <td width="50%" align="center" valign="top">
+      <p><b>左 · <a href="demos/learning-before.html">未使用 skill</a></b></p>
+      <a href="demos/learning-before.html"><img src="assets/showcase/learning-before.png" alt="未使用 skill" width="100%"></a>
+      <p><sub>彩色卡片堆叠 · 通用 Web 仪表盘 · 无统一壳层</sub></p>
+    </td>
+    <td width="50%" align="center" valign="top">
+      <p><b>右 · <a href="demos/learning.html">使用 skill</a></b></p>
+      <a href="demos/learning.html"><img src="assets/showcase/learning-after.png" alt="使用 app-shell-ui skill" width="100%"></a>
+      <p><sub>桌面工具壳 · 侧栏导航 · Token / 克制配色</sub></p>
+    </td>
+  </tr>
+</table>
+
+### 四主题案例
+
+<table>
+  <tr>
+    <td width="50%" valign="top">
+      <p align="center"><b>终端工具 · TermDock</b></p>
+      <p align="center"><a href="demos/terminal.html"><img src="assets/showcase/terminal.png" alt="终端工具案例" width="100%"></a></p>
+      <p align="center"><sub>深色 · SSH 多会话 · 主机状态并列栏</sub></p>
+    </td>
+    <td width="50%" valign="top">
+      <p align="center"><b>渗透工具 · PulseScope</b></p>
+      <p align="center"><a href="demos/pentest.html"><img src="assets/showcase/pentest.png" alt="渗透工具案例" width="100%"></a></p>
+      <p align="center"><sub>深色 · 漏洞队列 · 授权范围提示（仅 UI 演示）</sub></p>
+    </td>
+  </tr>
+  <tr>
+    <td width="50%" valign="top">
+      <p align="center"><b>学习工具台 · StudyBench</b></p>
+      <p align="center"><a href="demos/learning.html"><img src="assets/showcase/learning.png" alt="学习工具台案例" width="100%"></a></p>
+      <p align="center"><sub>浅色 · 路径卡片 · 复习队列 + 快速笔记等高</sub></p>
+    </td>
+    <td width="50%" valign="top">
+      <p align="center"><b>聊天软件 · LinkPane</b></p>
+      <p align="center"><a href="demos/chat.html"><img src="assets/showcase/chat.png" alt="聊天软件案例" width="100%"></a></p>
+      <p align="center"><sub>浅色 · 会话列表 + 对话区三栏信息流</sub></p>
+    </td>
+  </tr>
+</table>
+
+## Top 50 组件来源与筛选
+
+本次新增的 Top 50 React 组件来自本机源项目：
+
+```text
+/Users/yg2224/Desktop/project/UI-合集
+```
+
+它们不是临时拼出的 50 个示例，而是多路 AI 产出候选后，统一做源码审计、实时预览和加权评审的结果。按生成记录，本次共有 3 个模型、每个模型 100 个候选，共 **300 个原始候选**。当前工作区中可独立渲染并纳入评分的候选共 **200 个**：
+
+| 模型 | 原始候选数 | 当前状态 | 实现形态 / 结果 |
+| --- | ---: | --- | --- |
+| GPT-5.6 | 100 | 保留并纳入审计 | named studies / shared templates，参与统一评分 |
+| MiniMax M3 | 100 | 保留并纳入审计 | dedicated React renderers，最终 Top 50 的实现来源 |
+| GLM 5.2 | 100 | 已删除 / 当前工作区缺失 | 未进入现有评分和 Top 50 |
+
+因此，最终 Top 50 是从仍存留的 GPT-5.6 100 个和 MiniMax M3 100 个候选中筛选出来的；`GLM 5.2` 的 100 个候选按当前工作区状态已无法复核，不计入排名。源项目中的 `claude/` 和 `trea/` 目录保留了审计背景，但没有可独立渲染的候选目录，因此没有被伪造为排名数据。最终 Top 50 是按以下 5 个维度加权筛选：Visual Quality（25%）、Distinctiveness（10%）、Product Utility（25%）、Interaction & A11y（15%）、Engineering Quality（25%）。
+
+筛选完成后，排名靠前的 50 个组件被拆成独立 `.tsx` 文件，保留交互和无障碍行为，再同步到本 skill：
+
+```text
+assets/top50-react/components/items/   50 个可复制组件
+assets/top50-react/top50.json          机器可读排名清单
+references/top50-components.md         按需读取索引
+scripts/sync_top50_assets.py           可重复同步脚本
+```
+
+相关审计资料和完整评分表见源项目的 `UI-合集/final/docs/`；GitHub 仓库只保留可复用的 Top 50 产物，不把原始候选和构建产物全部塞进 skill。
+
+本地预览 Demo：
+
+```bash
+cd demos
+python3 -m http.server 8040
+# 打开 http://127.0.0.1:8040/terminal.html
+#      http://127.0.0.1:8040/pentest.html
+#      http://127.0.0.1:8040/learning.html
+#      http://127.0.0.1:8040/learning-program.html
+#      http://127.0.0.1:8040/chat.html
+```
+
+## 快速开始
+
+安装完成后，直接把任务描述交给 agent。下面提示词可复制使用：
+
+| 想做什么 | 直接这样说 |
+| --- | --- |
+| 做一页桌面工具风 Demo | `用 app-shell-ui 做一个浅色 + 深色主题的设置页，左导航右列表开关。` |
+| 控制台 / 卡片网格 | `用 app-shell-ui 控制台布局：统计卡 + 卡片网格 + 底部双栏等高。` |
+| AI 工作台空态 | `用 app-shell-ui 工作台型：侧栏会话 + 居中新会话标题 + 大输入卡。` |
+| 论坛 / 列表站 | `用 app-shell-ui 做游戏指南论坛：少 emoji，文字 + 线框图标，双主题。` |
+| 复用 Top 50 组件 | `用 app-shell-ui，从 Top 50 参考库取一个可交互的命令面板 / 看板 / AI 对话组件。` |
+| 只改视觉、不改业务 | `按 app-shell-ui 重画这个页面，保持信息架构，统一 Token 和浅深色。` |
+| 并列栏对齐 | `双栏列表和提问卡底边对齐，按 app-shell-ui 的 equal-height 规则。` |
+| 明确点名 skill | `使用 /app-shell-ui` 或 `使用 app-shell-ui skill` |
+
+不确定时直接描述产品类型即可；agent 会按 skill 选型布局模板（设置 / 控制台 / 工作台 / 三栏）。
+
+## 主要贡献者
+
+* **yg2224**：`app-shell-ui` 维护者 · [GitHub](https://github.com/yg2224)
+
+## 它能做什么
+
+| 能力 | 说明 |
+| --- | --- |
+| 布局模板 | 设置型 · 控制台型 · 工作台型 · IM/三栏型 |
+| 双主题 | `data-theme=light\|dark`，Token 成对交付，主题切换可持久化 |
+| 组件配方 | 侧栏、页头、卡片、列表行、开关、Pill、Composer、虚线添加区 |
+| 硬性约束 | 单主色、少 emoji、浅边框分层、并列栏等高、禁止 invert 伪深色 |
+| 交付清单 | 浅色 + 深色各过一遍的自检表 |
+
+**不是**：营销落地页、Material 厚阴影后台、彩虹图标仪表盘。
+
+## 安装
+
+`app-shell-ui` 是一个围绕 `SKILL.md` 组织的可复用技能包。`references/` 是规则细节，`assets/` 是可复制资源，**安装时必须一并保留**。
+
+### 克隆（通用）
+
+```bash
+# HTTPS
+git clone https://github.com/yg2224/app-shell-ui.git
+
+# 或 SSH
+git clone git@github.com:yg2224/app-shell-ui.git
+```
+
+### Codex 安装方式
+
+```bash
+mkdir -p ~/.codex/skills
+git clone https://github.com/yg2224/app-shell-ui.git ~/.codex/skills/app-shell-ui
+```
+
+或把仓库地址交给 Codex：
+
+```text
+请从该仓库安装 skill：
+https://github.com/yg2224/app-shell-ui.git
+
+安装到 ~/.codex/skills/app-shell-ui，保留完整目录（SKILL.md + references/ + assets/），不要只复制 SKILL.md。
+```
+
+### Claude Code 安装方式
+
+推荐保留稳定 clone，再用 subagent 或 slash command 指向真实 `SKILL.md`，这样 `references/` 仍可被读取。
+
+```bash
+mkdir -p ~/ai-skills
+cd ~/ai-skills
+git clone https://github.com/yg2224/app-shell-ui.git
+```
+
+**Subagent wrapper：**
+
+```bash
+mkdir -p ~/.claude/agents
+cat > ~/.claude/agents/app-shell-ui.md <<'EOF'
+---
+name: app-shell-ui
+description: Use for macOS-style desktop utility UI shells, light/dark themes, sidebar layouts, and restrained frontend demos.
+---
+
+When invoked, first read `~/ai-skills/app-shell-ui/SKILL.md` and follow it as the governing workflow.
+Read supporting files from `~/ai-skills/app-shell-ui/references/` only when needed.
+Do not replace this skill with a generic flashy landing-page UI.
+EOF
+```
+
+**Slash command wrapper：**
+
+```bash
+mkdir -p ~/.claude/commands
+cat > ~/.claude/commands/app-shell-ui.md <<'EOF'
+Read `~/ai-skills/app-shell-ui/SKILL.md` first and follow it strictly.
+Read supporting files from `~/ai-skills/app-shell-ui/references/` when needed.
+
+$ARGUMENTS
+EOF
+```
+
+使用示例：
+
+```text
+/app-shell-ui 做一个游戏指南论坛首页，双主题，并列栏等高。
+```
+
+后续更新：
+
+```bash
+cd ~/ai-skills/app-shell-ui && git pull
+```
+
+### Grok 安装方式
+
+Grok 从 `~/.grok/skills/<name>/` 加载 skill：
+
+```bash
+# 方式 A：直接克隆到 skills 目录
+git clone https://github.com/yg2224/app-shell-ui.git ~/.grok/skills/app-shell-ui
+
+# 方式 B：已有 clone，同步进去（排除 .git）
+rsync -a --delete \
+  --exclude .git \
+  /path/to/app-shell-ui/ \
+  ~/.grok/skills/app-shell-ui/
+```
+
+安装后新开 Grok 会话，触发：
+
+```text
+/app-shell-ui
+```
+
+或：
+
+```text
+用 app-shell-ui 做一页 macOS 风格的浅深色设置界面。
+```
+
+### 其他 agent
+
+1. 将**完整目录**复制到该 agent 的 skills / prompt library。
+2. 保留 `SKILL.md`、`references/*.md` 与需要的 `assets/` 资源。
+3. 如目标平台有 frontmatter 要求，可微调但不删除 `name` / `description`。
+
+## 目录结构
+
+```text
+app-shell-ui/
+├── LICENSE                   # Apache License 2.0
+├── README.md                 # 本说明（给人看）
+├── README_EN.md              # English overview
+├── SKILL.md                  # 主指令（给 agent 加载）
+├── demos/                    # 四个案例 Demo（HTML）
+│   ├── _shell.css
+│   ├── terminal.html         # 终端工具
+│   ├── pentest.html          # 渗透工具台
+│   ├── learning-before.html  # 学习工具台 · 未使用 skill（对比）
+│   ├── learning.html         # 学习工具台 · 使用 skill
+│   ├── learning-program.html  # StudyFlow · 可交互学习程序
+│   └── chat.html             # 聊天软件
+├── assets/
+│   ├── readme-banner.png     # README 展示横幅
+│   ├── readme-banner.svg
+│   ├── readme-preview.jpg
+│   ├── top50-react/           # 50 个可复制的 React UI 与完整 gallery registry
+│   └── showcase/             # 案例截图
+│       ├── learning-compare.png  # 前后对比（等尺寸）
+│       ├── learning-before.png
+│       ├── learning-after.png
+│       ├── terminal.png
+│       ├── pentest.png
+│       ├── learning.png
+│       └── chat.png
+├── references/
+│   ├── tokens.md
+│   ├── components.md
+│   ├── layouts.md
+│   └── top50-components.md    # 50 个组件的索引与按需读取指南
+└── scripts/
+    └── sync_top50_assets.py    # 从 standalone gallery 刷新 Top 50 资源
+```
+
+关键规则：**整夹安装**。只丢一个 `SKILL.md` 会丢失 Token / 布局 / 组件细则和 Top 50 资源。
+
+## 技能索引
+
+| 技能 | 状态 | 用途 | 触发词 | 入口 |
+| --- | --- | --- | --- | --- |
+| [`app-shell-ui`](SKILL.md) | Stable | 桌面工具风应用外壳：布局、双主题、组件、自检 | `app-shell-ui`、`/app-shell-ui`、桌面工具风、系统设置感、应用外壳、浅色/深色主题、sidebar shell | [SKILL.md](SKILL.md) |
+
+### 参考文件
+
+| 文件 | 用途 |
+| --- | --- |
+| [references/tokens.md](references/tokens.md) | 颜色 / 字阶 / 圆角 / 浅深 Token 与切换脚本 |
+| [references/components.md](references/components.md) | 侧栏、卡片、列表、开关、Composer 等配方 |
+| [references/layouts.md](references/layouts.md) | 设置/控制台/工作台/三栏、**单页容量预算** + **equal-height 双栏** |
+| [references/top50-components.md](references/top50-components.md) | 50 个 React UI 的排名、export、分类与复制路径 |
+
+## 共享设计原则
+
+本 skill 遵守以下原则：
+
+1. **壳稳定、业务可换**：同一外壳可套聊天、设置、库存、论坛，不换视觉系统。
+2. **显式胜过隐式**：Token、圆角、选中态、主题 API 写清，不靠「看起来高级」。
+3. **双主题一等公民**：默认同时交付 light + dark，禁止 `filter: invert()`。
+4. **内容区克制**：线框图标 + 文字 + status pill；列表/卡片默认不刷 emoji。
+5. **输出优先**：交付可运行的 HTML/React/CSS 变量实现，而不是空泛审美描述。
+6. **并列要对齐**：并排卡片/面板底边等高（`stretch` + flex surface）。
+7. **单页优先**：桌面端默认一页完成主要任务，不让常规内容把整页推成长页面；长列表才使用有边界的内部滚动。
+8. **自检闭环**：浅色与深色各过交付清单再收工。
+
+## 你可以直接这样问（更多例子）
+
+```text
+用 app-shell-ui 做一个 macOS 窗口壳的 AI 后端设置页，左导航 + 开关列表。
+```
+
+```text
+按 app-shell-ui 规范给现有页面加 data-theme 深浅切换，Token 用 CSS 变量。
+```
+
+```text
+首页底部「动态列表 | 快速提问」两列等高，输入框随高度拉伸。
+```
+
+```text
+控制台型：Banner + 四格统计 + 三列卡片，少 emoji，单主色 #007AFF。
+```
+
+```text
+用 app-shell-ui 做一页学习工具台：内容装满当前桌面视口但不需要整页下滑，次要信息放进折叠或标签页。
+```
+
+## 更新
+
+```bash
+cd /path/to/app-shell-ui
+git pull
+
+# 若安装到 Codex
+rsync -a --delete --exclude .git ./ ~/.codex/skills/app-shell-ui/
+
+# 若安装到 Claude Code 稳定 clone
+# cd ~/ai-skills/app-shell-ui && git pull
+
+# 若安装到 Grok
+rsync -a --delete --exclude .git ./ ~/.grok/skills/app-shell-ui/
+```
+
+Codex / Claude Code / Grok 建议**新开会话**后再触发 skill，避免旧上下文。
+
+## 状态标签
+
+| 标签 | 含义 |
+| --- | --- |
+| `Draft` | 规则已写，案例未充分验证 |
+| `Beta` | 已在示例页验证，边界仍可能调整 |
+| `Stable` | 已在真实 Demo（设置/控制台/论坛等）验证，规则相对稳定 |
+
+当前 `app-shell-ui` 标记为 **Stable**。
+
+
+## 友情链接
+
+* [linux.do](https://linux.do/) — 新的理想型社区
+
+## 许可
+
+本项目采用 [Apache License 2.0](LICENSE)。
+
+```text
+Copyright 2026 yg2224
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+```
+
+你可以使用、修改、分发本 skill（含商用），但需保留版权与协议声明；修改后的文件建议注明变更。完整条款见 [LICENSE](LICENSE)。
+
+Issue 与 PR 请提交到 [yg2224/app-shell-ui](https://github.com/yg2224/app-shell-ui)。

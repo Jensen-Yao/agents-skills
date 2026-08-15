@@ -1,0 +1,4 @@
+interface:
+  display_name: "CNKI Paper Detail"
+  short_description: "Extract CNKI paper metadata"
+  default_prompt: "Use $cnki-paper-detail to extract the abstract and keywords for the current CNKI paper."

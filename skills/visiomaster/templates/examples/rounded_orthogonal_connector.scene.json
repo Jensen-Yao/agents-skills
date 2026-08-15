@@ -1,0 +1,215 @@
+{
+  "version": "0.1",
+  "metadata": {
+    "title": "Rounded orthogonal connector example",
+    "style_profile": "paper_white",
+    "fidelity": "exact",
+    "replica_review_mode": "strict_replica",
+    "replica_stage": "layout_topology",
+    "source_aspect_ratio": 1.6,
+    "source_visual_inventory": {
+      "analysis_basis": "visual_llm_source_image",
+      "language_profile": "English paper-flow labels",
+      "do_not_translate": true,
+      "unknown_text_policy": "mark_unreadable_do_not_invent",
+      "scene_authoring_mode": "fresh_from_source_inventory",
+      "regions": [
+        {
+          "id": "global_overview",
+          "crop_type": "global",
+          "source_bbox_px": [0, 0, 800, 500],
+          "required_labels": ["Branch", "Avoid", "Output"],
+          "required_edge_motifs": ["rounded orthogonal connector around the middle module"],
+          "box_style_facts": ["white page background", "light filled rounded process boxes"],
+          "line_style_facts": ["single solid connector with one final arrowhead"]
+        },
+        {
+          "id": "input_branch",
+          "crop_type": "input",
+          "source_bbox_px": [100, 160, 290, 270],
+          "required_labels": ["Branch"],
+          "required_component_motifs": ["left rounded process box"],
+          "box_style_facts": ["rounded rectangle with light fill"],
+          "line_style_facts": ["connector starts from the right edge midpoint"]
+        },
+        {
+          "id": "core_avoidance",
+          "crop_type": "core",
+          "source_bbox_px": [330, 160, 530, 280],
+          "required_labels": ["Avoid"],
+          "required_component_motifs": ["middle rounded module avoided by the route"],
+          "box_style_facts": ["rounded rectangle with light fill"],
+          "line_style_facts": ["connector bends around this box instead of crossing it"]
+        },
+        {
+          "id": "output_module",
+          "crop_type": "output",
+          "source_bbox_px": [580, 280, 770, 390],
+          "required_labels": ["Output"],
+          "required_component_motifs": ["right rounded process box"],
+          "box_style_facts": ["rounded rectangle with light fill"],
+          "line_style_facts": ["final arrowhead lands on the left edge midpoint"]
+        },
+        {
+          "id": "arrow_lane",
+          "crop_type": "arrow-dense",
+          "source_bbox_px": [270, 175, 625, 370],
+          "required_edge_motifs": ["rounded 90-degree bend", "final arrowhead only"],
+          "box_style_facts": ["route keeps clearance around middle module"],
+          "line_style_facts": ["horizontal and vertical lanes stay straight while only corners are rounded"]
+        },
+        {
+          "id": "label_check",
+          "crop_type": "small-text",
+          "source_bbox_px": [100, 160, 770, 390],
+          "required_labels": ["Branch", "Avoid", "Output"],
+          "required_component_motifs": ["unwrapped labels inside process boxes"],
+          "box_style_facts": ["labels remain centered in rounded boxes"],
+          "line_style_facts": ["connector does not overlap labels"]
+        }
+      ]
+    },
+    "region_plan": [
+      {
+        "id": "global_overview",
+        "crop_type": "global",
+        "source_bbox_px": [0, 0, 800, 500],
+        "target_bbox": [0, 0, 800, 500],
+        "review_focus": "rounded orthogonal connector route and endpoint fidelity"
+      },
+      {
+        "id": "input_branch",
+        "crop_type": "input",
+        "source_bbox_px": [100, 160, 290, 270],
+        "target_bbox": [100, 160, 290, 270],
+        "review_focus": "source branch block and connector origin"
+      },
+      {
+        "id": "core_avoidance",
+        "crop_type": "core",
+        "source_bbox_px": [330, 160, 530, 280],
+        "target_bbox": [330, 160, 530, 280],
+        "review_focus": "middle module remains avoided by route"
+      },
+      {
+        "id": "output_module",
+        "crop_type": "output",
+        "source_bbox_px": [580, 280, 770, 390],
+        "target_bbox": [580, 280, 770, 390],
+        "review_focus": "output block and final arrowhead endpoint"
+      },
+      {
+        "id": "arrow_lane",
+        "crop_type": "arrow-dense",
+        "source_bbox_px": [270, 175, 625, 370],
+        "target_bbox": [270, 175, 625, 370],
+        "review_focus": "90-degree bends are rounded without smoothing the straight lanes"
+      },
+      {
+        "id": "label_check",
+        "crop_type": "small-text",
+        "source_bbox_px": [100, 160, 770, 390],
+        "target_bbox": [100, 160, 770, 390],
+        "review_focus": "labels remain unwrapped and untranslated"
+      }
+    ],
+    "arrow_plan": [
+      {
+        "id": "A001",
+        "from": "branch_bus:right@0.50",
+        "to": "output:left@0.50",
+        "from_visual_object": "Branch bus",
+        "from_anchor_description": "right edge midpoint",
+        "to_visual_object": "Output module",
+        "to_anchor_description": "left edge midpoint",
+        "route_shape": "rounded_orthogonal",
+        "line_style": "solid",
+        "arrowhead": "end_triangle",
+        "semantic_intent": "data_flow",
+        "source_bbox_px": [300, 180, 690, 360],
+        "must_not_cross": ["middle_module"],
+        "relative_position_facts": "horizontal lane, rounded down-up bend around middle module",
+        "direction": "left_to_right",
+        "certainty": "certain"
+      }
+    ]
+  },
+  "page": {
+    "width": 800,
+    "height": 500,
+    "units": "px",
+    "origin": "top-left",
+    "target_width_in": 8,
+    "background": "#FFFFFF"
+  },
+  "assets": [],
+  "nodes": [
+    {
+      "id": "page_background",
+      "type": "page_background",
+      "x": 0,
+      "y": 0,
+      "w": 800,
+      "h": 500,
+      "z": -100
+    },
+    {
+      "id": "branch_bus",
+      "type": "rounded_process",
+      "x": 120,
+      "y": 180,
+      "w": 150,
+      "h": 70,
+      "text": "Branch",
+      "style": {
+        "fill": "#F8FAFC",
+        "line": "#475569"
+      }
+    },
+    {
+      "id": "middle_module",
+      "type": "rounded_process",
+      "x": 370,
+      "y": 175,
+      "w": 130,
+      "h": 80,
+      "text": "Avoid",
+      "style": {
+        "fill": "#EEF2FF",
+        "line": "#64748B"
+      }
+    },
+    {
+      "id": "output",
+      "type": "rounded_process",
+      "x": 600,
+      "y": 300,
+      "w": 150,
+      "h": 70,
+      "text": "Output",
+      "style": {
+        "fill": "#F8FAFC",
+        "line": "#475569"
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "branch_to_output",
+      "type": "rounded_orthogonal_connector",
+      "arrow_plan_id": "A001",
+      "from": "branch_bus:right@0.50",
+      "points": [[335, 215], [335, 335]],
+      "to": "output:left@0.50",
+      "route": "rounded_orthogonal",
+      "orthogonalize_points": true,
+      "corner_radius_px": 14,
+      "style": {
+        "line": "#334155",
+        "line_weight_pt": 1.3,
+        "end_arrow": "triangle",
+        "arrow_size": "small"
+      }
+    }
+  ]
+}

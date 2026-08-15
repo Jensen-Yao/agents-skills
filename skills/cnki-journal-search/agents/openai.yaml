@@ -1,0 +1,4 @@
+interface:
+  display_name: "CNKI Journal Search"
+  short_description: "Find CNKI journals and metrics"
+  default_prompt: "Use $cnki-journal-search to find the journal 计算机学报 on CNKI."

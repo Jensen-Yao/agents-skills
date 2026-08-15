@@ -1,0 +1,4 @@
+interface:
+  display_name: "CNKI Parse Results"
+  short_description: "Extract structured CNKI result rows"
+  default_prompt: "Use $cnki-parse-results to extract structured data from the current CNKI results page."

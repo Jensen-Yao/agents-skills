@@ -1,0 +1,4 @@
+interface:
+  display_name: "CNKI Journal Index"
+  short_description: "Check journal indexing status"
+  default_prompt: "Use $cnki-journal-index to check whether 计算机学报 is indexed as a core journal."

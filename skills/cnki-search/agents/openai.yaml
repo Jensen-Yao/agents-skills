@@ -1,0 +1,4 @@
+interface:
+  display_name: "CNKI Search"
+  short_description: "Search CNKI papers by keyword"
+  default_prompt: "Use $cnki-search to find CNKI papers about deep learning."

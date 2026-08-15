@@ -1,0 +1,4 @@
+interface:
+  display_name: "中文图表标注"
+  short_description: "Python、Java、C++ 图表默认使用中文标题、坐标轴和图例"
+  default_prompt: "Use $chinese-plot-labels when writing Python, Java, or C++ code that generates charts or image outputs."

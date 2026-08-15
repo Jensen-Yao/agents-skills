@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="320" viewBox="0 0 1200 320" role="img" aria-label="Visiomaster paid reconstruction service">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0f172a"/>
+      <stop offset="0.56" stop-color="#164e63"/>
+      <stop offset="1" stop-color="#1f2937"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#38bdf8"/>
+      <stop offset="1" stop-color="#22c55e"/>
+    </linearGradient>
+    <filter id="softShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="14" stdDeviation="18" flood-color="#020617" flood-opacity="0.28"/>
+    </filter>
+  </defs>
+  <rect width="1200" height="320" rx="28" fill="url(#bg)"/>
+  <path d="M0 252 C170 205 250 286 410 240 C560 196 645 245 790 205 C950 160 1045 194 1200 142 L1200 320 L0 320 Z" fill="#ffffff" opacity="0.06"/>
+  <circle cx="1045" cy="88" r="108" fill="#38bdf8" opacity="0.11"/>
+  <circle cx="1125" cy="228" r="86" fill="#22c55e" opacity="0.10"/>
+
+  <g transform="translate(72 58)">
+    <rect x="0" y="0" width="135" height="34" rx="17" fill="#e0f2fe" opacity="0.95"/>
+    <text x="67.5" y="23" text-anchor="middle" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="700" fill="#075985">PAID SERVICE</text>
+
+    <text x="0" y="78" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="42" font-weight="800" fill="#ffffff">不想配置环境？直接体验复刻效果</text>
+    <text x="0" y="124" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="24" font-weight="500" fill="#dbeafe">上传参考图，按 Visiomaster 流程重建为可编辑 Visio 图纸</text>
+
+    <g transform="translate(0 162)">
+      <rect x="0" y="0" width="178" height="42" rx="21" fill="#ffffff" opacity="0.12"/>
+      <text x="89" y="27" text-anchor="middle" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="17" font-weight="700" fill="#f8fafc">流程图复刻</text>
+      <rect x="194" y="0" width="198" height="42" rx="21" fill="#ffffff" opacity="0.12"/>
+      <text x="293" y="27" text-anchor="middle" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="17" font-weight="700" fill="#f8fafc">论文模块图</text>
+      <rect x="408" y="0" width="218" height="42" rx="21" fill="#ffffff" opacity="0.12"/>
+      <text x="517" y="27" text-anchor="middle" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="17" font-weight="700" fill="#f8fafc">AI 生成框图</text>
+    </g>
+  </g>
+
+  <g transform="translate(790 66)" filter="url(#softShadow)">
+    <rect x="0" y="0" width="330" height="188" rx="24" fill="#ffffff"/>
+    <text x="32" y="44" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="700" fill="#0f172a">交付内容</text>
+    <text x="32" y="82" font-family="Consolas, Menlo, monospace" font-size="20" font-weight="700" fill="#0369a1">.vsdx  .svg  .png</text>
+    <text x="32" y="118" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="16" fill="#475569">按图片复杂度评估报价</text>
+    <rect x="32" y="136" width="198" height="42" rx="21" fill="url(#accent)"/>
+    <text x="131" y="164" text-anchor="middle" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="17" font-weight="800" fill="#ffffff">在线咨询体验</text>
+  </g>
+</svg>

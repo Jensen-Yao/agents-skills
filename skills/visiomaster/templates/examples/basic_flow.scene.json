@@ -1,0 +1,93 @@
+{
+  "version": "0.1",
+  "metadata": {
+    "title": "Basic Flow Example",
+    "created_by": "visiomaster.template",
+    "notes": [
+      "Coordinates use top-left page origin in inches.",
+      "This file is meant to be copied and adapted."
+    ]
+  },
+  "page": {
+    "width": 13.333,
+    "height": 7.5,
+    "units": "in",
+    "origin": "top-left",
+    "background": "#FFFFFF"
+  },
+  "nodes": [
+    {
+      "id": "start",
+      "type": "terminator",
+      "x": 0.9,
+      "y": 2.7,
+      "w": 1.7,
+      "h": 0.8,
+      "text": "Start"
+    },
+    {
+      "id": "ingest",
+      "type": "rounded_process",
+      "x": 3.0,
+      "y": 2.55,
+      "w": 2.2,
+      "h": 1.1,
+      "text": "Collect Inputs"
+    },
+    {
+      "id": "decision",
+      "type": "decision_diamond",
+      "x": 6.0,
+      "y": 2.45,
+      "w": 1.6,
+      "h": 1.3,
+      "text": "Valid?"
+    },
+    {
+      "id": "export",
+      "type": "process_box",
+      "x": 8.6,
+      "y": 2.55,
+      "w": 2.0,
+      "h": 1.1,
+      "text": "Export Result"
+    },
+    {
+      "id": "stop",
+      "type": "terminator",
+      "x": 11.2,
+      "y": 2.7,
+      "w": 1.2,
+      "h": 0.8,
+      "text": "End"
+    }
+  ],
+  "edges": [
+    {
+      "id": "e1",
+      "type": "arrow_connector",
+      "from": "start",
+      "to": "ingest"
+    },
+    {
+      "id": "e2",
+      "type": "arrow_connector",
+      "from": "ingest",
+      "to": "decision"
+    },
+    {
+      "id": "e3",
+      "type": "arrow_connector",
+      "from": "decision",
+      "to": "export",
+      "label": "Yes"
+    },
+    {
+      "id": "e4",
+      "type": "arrow_connector",
+      "from": "export",
+      "to": "stop"
+    }
+  ],
+  "assets": []
+}

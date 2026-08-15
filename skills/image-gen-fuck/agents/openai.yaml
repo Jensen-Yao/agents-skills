@@ -1,0 +1,4 @@
+interface:
+  display_name: "Image Gen CLI Fallback"
+  short_description: "Use a temporary drawing API key for imagegen CLI."
+  default_prompt: "Use $image-gen-fuck with $imagegen when image generation is needed but the built-in image_gen tool is unavailable."

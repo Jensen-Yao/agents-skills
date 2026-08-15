@@ -1,0 +1,4 @@
+interface:
+  display_name: "DramaClaw"
+  short_description: "按官方流程操作、检查、排错并继续 DramaClaw 视频项目"
+  default_prompt: "使用官方 DramaClaw 工作流检查当前项目状态，并只推进已经通过前置确认的下一步。"

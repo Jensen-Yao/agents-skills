@@ -1,0 +1,310 @@
+{
+  "version": "0.1",
+  "metadata": {
+    "title": "Attention Mechanism",
+    "created_by": "visiomaster.manual_reconstruction",
+    "style_profile": "paper_white",
+    "fidelity": "exact",
+    "source_aspect_ratio": 2.5185,
+    "notes": [
+      "Recreated as editable Visio geometry from the supplied attention mechanism figure.",
+      "Feature blocks and weighted vector are editable grid primitives."
+    ]
+  },
+  "page": {
+    "width": 1020,
+    "height": 405,
+    "units": "px",
+    "origin": "top-left",
+    "target_width_in": 10.2,
+    "background": "#FFFFFF"
+  },
+  "nodes": [
+    {
+      "id": "journal_header",
+      "type": "text_block",
+      "x": 322,
+      "y": -11,
+      "w": 560,
+      "h": 22,
+      "text": "Digital Communications and Networks 11 (2025) 1567-1577",
+      "style": {
+        "font_family": "Times New Roman",
+        "font_weight": "italic",
+        "font_size_pt": 11,
+        "text_color": "#000000"
+      }
+    },
+    {
+      "id": "attention_title",
+      "type": "text_block",
+      "x": 265,
+      "y": 12,
+      "w": 245,
+      "h": 32,
+      "text": "Attention mechanism",
+      "style": {
+        "font_family": "Times New Roman",
+        "font_size_pt": 16,
+        "text_color": "#000000"
+      }
+    },
+    {
+      "id": "attention_frame",
+      "type": "group_container",
+      "x": 263,
+      "y": 48,
+      "w": 250,
+      "h": 174,
+      "text": "",
+      "shape": "capsule",
+      "style": {
+        "fill": "none",
+        "line": "#8F8F8F",
+        "line_weight_pt": 1.15,
+        "line_dash": "dash",
+        "rounding_in": 0.30
+      }
+    },
+    {
+      "id": "sigmoid",
+      "type": "rounded_process",
+      "x": 294,
+      "y": 70,
+      "w": 188,
+      "h": 50,
+      "text": "Sigmoid",
+      "style": {
+        "fill": "#FFE49A",
+        "line": "#FFE49A",
+        "font_family": "Times New Roman",
+        "font_size_pt": 16,
+        "rounding_in": 0.14
+      }
+    },
+    {
+      "id": "conv1d",
+      "type": "rounded_process",
+      "x": 298,
+      "y": 151,
+      "w": 181,
+      "h": 50,
+      "text": "Conv1d",
+      "style": {
+        "fill": "#93D4EA",
+        "line": "#93D4EA",
+        "font_family": "Times New Roman",
+        "font_size_pt": 16,
+        "rounding_in": 0.14
+      }
+    },
+    {
+      "id": "high_level_features",
+      "type": "feature_map_banded",
+      "x": 45,
+      "y": 219,
+      "w": 199,
+      "h": 134,
+      "bands": [
+        {"fill": "#F2AF83", "size": 1},
+        {"fill": "#9ED2E3", "size": 1},
+        {"fill": "#D3E4C2", "size": 1},
+        {"fill": "#F7E78C", "size": 1},
+        {"fill": "#9ED2E3", "size": 1},
+        {"fill": "#F2AF83", "size": 1}
+      ],
+      "style": {
+        "line": "#C4C4C4",
+        "line_weight_pt": 0.75
+      }
+    },
+    {
+      "id": "high_level_label",
+      "type": "text_block",
+      "x": 32,
+      "y": 365,
+      "w": 225,
+      "h": 32,
+      "text": "High-level features",
+      "style": {
+        "font_family": "Times New Roman",
+        "font_size_pt": 15,
+        "text_color": "#000000"
+      }
+    },
+    {
+      "id": "weighted_vector",
+      "type": "grid_matrix",
+      "x": 550,
+      "y": 166,
+      "w": 200,
+      "h": 23,
+      "rows": 1,
+      "cols": 9,
+      "colored_cells": [
+        [0, 0, "#FFFFFF"],
+        [0, 1, "#E9E9E9"],
+        [0, 2, "#D5D5D5"],
+        [0, 3, "#A8A8A8"],
+        [0, 4, "#FFFFFF"],
+        [0, 5, "#7B7B7B"],
+        [0, 6, "#A4A4A4"],
+        [0, 7, "#FFFFFF"],
+        [0, 8, "#FFFFFF"]
+      ],
+      "style": {
+        "grid_line": "#111111",
+        "grid_line_weight_pt": 1.0,
+        "line": "#111111",
+        "line_weight_pt": 1.0
+      }
+    },
+    {
+      "id": "weighted_vector_label",
+      "type": "text_block",
+      "x": 668,
+      "y": 120,
+      "w": 226,
+      "h": 36,
+      "text": "Weighted vector",
+      "style": {
+        "font_family": "Times New Roman",
+        "font_size_pt": 15,
+        "text_color": "#000000"
+      }
+    },
+    {
+      "id": "multiply_op",
+      "type": "operator_node",
+      "x": 636,
+      "y": 270,
+      "w": 30,
+      "h": 30,
+      "symbol": "⊗",
+      "style": {
+        "fill": "#FFFFFF",
+        "line": "#6F6F6F",
+        "text_color": "#5C5C5C",
+        "font_size_pt": 15,
+        "line_weight_pt": 1.2
+      }
+    },
+    {
+      "id": "am_resnet_features",
+      "type": "feature_map_grid",
+      "x": 776,
+      "y": 219,
+      "w": 200,
+      "h": 134,
+      "rows": 6,
+      "cols": 9,
+      "row_colors": [
+        "#F2AF83",
+        "#9ED2E3",
+        "#D3E4C2",
+        "#F7E78C",
+        "#9ED2E3",
+        "#F2AF83"
+      ],
+      "column_shades": [0.0, 0.18, 0.38, 0.55, 0.1, 0.72, 0.62, 0.0, 0.18],
+      "max_shade": 0.68,
+      "style": {
+        "grid_line": "#111111",
+        "grid_line_weight_pt": 0.7,
+        "line": "#111111",
+        "line_weight_pt": 0.9
+      }
+    },
+    {
+      "id": "am_resnet_label",
+      "type": "text_block",
+      "x": 755,
+      "y": 365,
+      "w": 250,
+      "h": 32,
+      "text": "AM-ResNet features",
+      "style": {
+        "font_family": "Times New Roman",
+        "font_size_pt": 15,
+        "text_color": "#000000"
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "feature_to_conv",
+      "type": "arrow_connector",
+      "from": "high_level_features:right@0.50",
+      "to": "conv1d:bottom@0.50",
+      "points": [[244, 286], [388, 286], [388, 201]],
+      "route": "orthogonal",
+      "style": {
+        "line": "#6F6F6F",
+        "line_weight_pt": 1.2,
+        "arrow_size": "small"
+      }
+    },
+    {
+      "id": "conv_to_sigmoid",
+      "type": "arrow_connector",
+      "from": "conv1d:top@0.50",
+      "to": "sigmoid:bottom@0.50",
+      "route": "vertical",
+      "style": {
+        "line": "#6F6F6F",
+        "line_weight_pt": 1.2,
+        "arrow_size": "small"
+      }
+    },
+    {
+      "id": "sigmoid_to_weighted",
+      "type": "arrow_connector",
+      "from": "sigmoid:right@0.50",
+      "to": "weighted_vector:top@0.50",
+      "points": [[482, 95], [625, 95], [650, 95], [650, 166]],
+      "route": "orthogonal",
+      "style": {
+        "line": "#6F6F6F",
+        "line_weight_pt": 1.2,
+        "arrow_size": "small"
+      }
+    },
+    {
+      "id": "feature_to_multiply",
+      "type": "arrow_connector",
+      "from": "high_level_features:right@0.50",
+      "to": "multiply_op:left",
+      "route": "horizontal",
+      "style": {
+        "line": "#6F6F6F",
+        "line_weight_pt": 1.2,
+        "arrow_size": "small"
+      }
+    },
+    {
+      "id": "weighted_to_multiply",
+      "type": "arrow_connector",
+      "from": "weighted_vector:bottom@0.50",
+      "to": "multiply_op:top",
+      "route": "vertical",
+      "style": {
+        "line": "#6F6F6F",
+        "line_weight_pt": 1.2,
+        "arrow_size": "small"
+      }
+    },
+    {
+      "id": "multiply_to_output",
+      "type": "arrow_connector",
+      "from": "multiply_op:right",
+      "to": "am_resnet_features:left@0.50",
+      "route": "horizontal",
+      "style": {
+        "line": "#6F6F6F",
+        "line_weight_pt": 1.2,
+        "arrow_size": "small"
+      }
+    }
+  ],
+  "assets": []
+}

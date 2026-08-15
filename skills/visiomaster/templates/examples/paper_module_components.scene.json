@@ -1,0 +1,177 @@
+{
+  "version": "0.1",
+  "metadata": {
+    "title": "Paper Module Components Smoke Test",
+    "style_profile": "paper_white",
+    "notes": [
+      "Exercises semantic paper-diagram components without relying on local Visio stencils."
+    ]
+  },
+  "page": {
+    "width": 8.45,
+    "height": 3.3,
+    "units": "in",
+    "origin": "top-left",
+    "background": "#FFFFFF"
+  },
+  "nodes": [
+    {
+      "id": "encoder",
+      "type": "group_container",
+      "x": 0.35,
+      "y": 0.45,
+      "w": 3.55,
+      "h": 2.25,
+      "text": "AM-ResNet",
+      "z": 0
+    },
+    {
+      "id": "classifier",
+      "type": "group_container",
+      "x": 4.30,
+      "y": 0.45,
+      "w": 3.35,
+      "h": 2.25,
+      "text": "Classifier",
+      "shape": "capsule",
+      "max_rounding_in": 0.35,
+      "z": 0
+    },
+    {
+      "id": "wave",
+      "type": "wave_signal",
+      "container_id": "encoder",
+      "x": 0.70,
+      "y": 1.35,
+      "w": 0.72,
+      "h": 0.38,
+      "cycles": 2.6
+    },
+    {
+      "id": "cnn",
+      "type": "notched_block",
+      "container_id": "encoder",
+      "x": 1.68,
+      "y": 1.06,
+      "w": 0.72,
+      "h": 0.98,
+      "text": "CNN",
+      "notches": [
+        {"x": 0.54, "y": 0.30, "w": 0.32, "h": 0.16, "shape": "diamond"},
+        {"x": 0.54, "y": 0.70, "w": 0.32, "h": 0.16, "shape": "diamond"}
+      ]
+    },
+    {
+      "id": "tokens",
+      "type": "stacked_token",
+      "container_id": "encoder",
+      "x": 2.70,
+      "y": 1.27,
+      "w": 0.34,
+      "h": 0.56,
+      "text": "z"
+    },
+    {
+      "id": "add",
+      "type": "operator_node",
+      "container_id": "encoder",
+      "x": 3.30,
+      "y": 1.44,
+      "w": 0.22,
+      "h": 0.22,
+      "text": "+"
+    },
+    {
+      "id": "encoder_out",
+      "type": "boundary_port",
+      "container_id": "encoder",
+      "side": "right",
+      "shape": "none",
+      "x": 3.88,
+      "y": 1.53,
+      "w": 0.04,
+      "h": 0.04
+    },
+    {
+      "id": "classifier_in",
+      "type": "boundary_port",
+      "container_id": "classifier",
+      "side": "left",
+      "shape": "none",
+      "x": 4.28,
+      "y": 1.53,
+      "w": 0.04,
+      "h": 0.04
+    },
+    {
+      "id": "head",
+      "type": "classifier_head",
+      "container_id": "classifier",
+      "x": 4.85,
+      "y": 1.02,
+      "w": 2.35,
+      "h": 1.06,
+      "labels": ["AvgPool", "Linear"],
+      "output_mode": "boundary"
+    },
+    {
+      "id": "classifier_outputs",
+      "type": "boundary_fanout",
+      "container_id": "classifier",
+      "side": "right",
+      "x": 7.65,
+      "y": 0.94,
+      "w": 0.46,
+      "h": 1.62,
+      "branch_positions": [0.08, 0.38, 0.68, 0.92],
+      "labels": ["N", "S", "V", "F"],
+      "z": 20
+    }
+  ],
+  "edges": [
+    {
+      "id": "wave_to_cnn",
+      "type": "arrow_connector",
+      "from": "wave:right",
+      "to": "cnn:left",
+      "route": "straight"
+    },
+    {
+      "id": "cnn_to_tokens",
+      "type": "arrow_connector",
+      "from": "cnn:right",
+      "to": "tokens:left",
+      "route": "straight"
+    },
+    {
+      "id": "tokens_to_add",
+      "type": "join_connector",
+      "from": "tokens:right",
+      "to": "add:left",
+      "route": "straight"
+    },
+    {
+      "id": "add_to_encoder_port",
+      "type": "arrow_connector",
+      "from": "add:right",
+      "to": "encoder_out:center",
+      "route": "straight"
+    },
+    {
+      "id": "module_bridge",
+      "type": "line_segment",
+      "from": "encoder_out:center",
+      "to": "classifier_in:center",
+      "route": "straight",
+      "allow_cross_container": true
+    },
+    {
+      "id": "classifier_port_to_head",
+      "type": "fork_connector",
+      "from": "classifier_in:center",
+      "to": "head:left",
+      "route": "straight"
+    }
+  ],
+  "assets": []
+}

@@ -1,0 +1,4 @@
+interface:
+  display_name: "CNKI Page Navigation"
+  short_description: "Page and sort CNKI results"
+  default_prompt: "Use $cnki-navigate-pages to sort the current CNKI results by citations."

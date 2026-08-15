@@ -1,0 +1,8 @@
+# 任务产出目录(不提交)
+bugbounty/
+recon-*/
+*.log
+
+# 系统文件
+Thumbs.db
+.DS_Store

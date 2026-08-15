@@ -1,0 +1,287 @@
+{
+  "version": "0.1",
+  "metadata": {
+    "title": "GAN loop feedback smoke example",
+    "style_profile": "paper_white",
+    "fidelity": "exact",
+    "source_aspect_ratio": 1.514,
+    "notes": [
+      "Smoke example for smooth outer loop arrows, dashed feedback paths, and dashed annotation regions."
+    ]
+  },
+  "page": {
+    "width": 895,
+    "height": 591,
+    "units": "px",
+    "origin": "top-left",
+    "target_width_in": 10.7,
+    "background": "#FFFFFF"
+  },
+  "assets": [],
+  "nodes": [
+    {
+      "id": "page_background",
+      "type": "page_background",
+      "x": 0,
+      "y": 0,
+      "w": 895,
+      "h": 591,
+      "z": -100
+    },
+    {
+      "id": "latent",
+      "type": "text_block",
+      "x": 348,
+      "y": 5,
+      "w": 185,
+      "h": 35,
+      "text": "Latent Vector z",
+      "style": {
+        "fill": "#E5E5E5",
+        "line": "none",
+        "font_size_pt": 16
+      }
+    },
+    {
+      "id": "generator",
+      "type": "rounded_process",
+      "x": 348,
+      "y": 80,
+      "w": 186,
+      "h": 85,
+      "text": "Generator\n(G)",
+      "style": {
+        "fill": "#F3C7DA",
+        "line": "none",
+        "font_size_pt": 18
+      }
+    },
+    {
+      "id": "real_box",
+      "type": "rounded_process",
+      "x": 91,
+      "y": 238,
+      "w": 168,
+      "h": 177,
+      "text": "Real\nTFR\n\n\nInput",
+      "style": {
+        "fill": "#F8C7DE",
+        "line": "none",
+        "font_size_pt": 18
+      }
+    },
+    {
+      "id": "disc",
+      "type": "rounded_process",
+      "x": 348,
+      "y": 283,
+      "w": 186,
+      "h": 85,
+      "text": "Discriminator\n(D)",
+      "style": {
+        "fill": "#C7DAFB",
+        "line": "none",
+        "font_size_pt": 18
+      }
+    },
+    {
+      "id": "generated_box",
+      "type": "rounded_process",
+      "x": 605,
+      "y": 238,
+      "w": 168,
+      "h": 177,
+      "text": "Generated\nReconstructed TFR\n\n\nInput",
+      "style": {
+        "fill": "#C7DAFB",
+        "line": "none",
+        "font_size_pt": 16
+      }
+    },
+    {
+      "id": "forward_title",
+      "type": "text_block",
+      "x": 207,
+      "y": 184,
+      "w": 472,
+      "h": 32,
+      "text": "Forward Reconstruction \u2192 Discriminator Evaluation",
+      "style": {
+        "fill": "none",
+        "line": "none",
+        "font_size_pt": 15
+      }
+    },
+    {
+      "id": "forward_loss_region",
+      "type": "dashed_region",
+      "x": 292,
+      "y": 210,
+      "w": 297,
+      "h": 90
+    },
+    {
+      "id": "loss_text",
+      "type": "math_text",
+      "x": 349,
+      "y": 225,
+      "w": 206,
+      "h": 45,
+      "text": "Adversarial Loss L_adv\nGradient Penalty GP",
+      "container_id": "forward_loss_region",
+      "style": {
+        "fill": "none",
+        "line": "none",
+        "font_size_pt": 13
+      }
+    },
+    {
+      "id": "backprop",
+      "type": "text_block",
+      "x": 342,
+      "y": 508,
+      "w": 215,
+      "h": 32,
+      "text": "Loss Backpropagation",
+      "style": {
+        "fill": "none",
+        "line": "none",
+        "font_size_pt": 15
+      }
+    },
+    {
+      "id": "disc_backprop_bus",
+      "type": "merge_bus",
+      "x": 426,
+      "y": 492,
+      "w": 49,
+      "h": 1,
+      "orientation": "horizontal",
+      "side": "top",
+      "port_positions": [0, 1],
+      "style": {
+        "line": "#6F6F6F",
+        "line_dash": "dash",
+        "line_weight_pt": 1.1
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "outer_left_loop_to_latent",
+      "type": "loop_arrow",
+      "semantic_role": "outer_update_loop",
+      "label_id": "backprop",
+      "from_point": [147, 481],
+      "points": [[60, 410], [42, 215], [135, 80], [290, 28]],
+      "end_tangent_point": [326, 24],
+      "to_point": [348, 22],
+      "curve_mode": "smooth",
+      "style": {
+        "line": "#6F6F6F",
+        "line_weight_pt": 1.4
+      }
+    },
+    {
+      "id": "outer_right_loop_to_latent",
+      "type": "loop_arrow",
+      "semantic_role": "outer_update_loop",
+      "label_id": "backprop",
+      "from_point": [745, 481],
+      "points": [[840, 390], [842, 155], [745, 62]],
+      "end_tangent_point": [600, 35],
+      "to_point": [533, 22],
+      "curve_mode": "smooth",
+      "style": {
+        "line": "#6F6F6F",
+        "line_weight_pt": 1.4
+      }
+    },
+    {
+      "id": "latent_to_g",
+      "type": "lane_arrow",
+      "from_point": [441, 39],
+      "to_point": [441, 80],
+      "route": "vertical",
+      "lane_axis": "vertical",
+      "style": {
+        "line": "#6F6F6F",
+        "line_weight_pt": 1.4
+      }
+    },
+    {
+      "id": "left_forward_loss_to_disc",
+      "type": "dashed_feedback_path",
+      "from_point": [292, 267],
+      "points": [[292, 326]],
+      "to_point": [348, 326],
+      "allow_cross_container": true,
+      "allow_direct_cross_container": true
+    },
+    {
+      "id": "right_forward_loss_to_disc",
+      "type": "dashed_feedback_path",
+      "from_point": [589, 267],
+      "points": [[589, 326]],
+      "to_point": [534, 326],
+      "allow_cross_container": true,
+      "allow_direct_cross_container": true
+    },
+    {
+      "id": "left_backprop_to_bus",
+      "type": "dashed_feedback_path",
+      "from_point": [194, 415],
+      "points": [[194, 492]],
+      "to_point": [426, 492],
+      "style": {
+        "line": "#6F6F6F",
+        "line_weight_pt": 1.1,
+        "line_dash": "dash",
+        "end_arrow": "none"
+      }
+    },
+    {
+      "id": "right_backprop_to_bus",
+      "type": "dashed_feedback_path",
+      "from_point": [688, 415],
+      "points": [[688, 492]],
+      "to_point": [475, 492],
+      "style": {
+        "line": "#6F6F6F",
+        "line_weight_pt": 1.1,
+        "line_dash": "dash",
+        "end_arrow": "none"
+      }
+    },
+    {
+      "id": "disc_backprop_arrow_0",
+      "type": "dashed_feedback_path",
+      "bundle_id": "disc_backprop_bundle",
+      "from_point": [426, 492],
+      "to": "disc:bottom@0.42",
+      "route": "vertical",
+      "style": {
+        "line": "#6F6F6F",
+        "line_weight_pt": 1.1,
+        "line_dash": "dash",
+        "arrow_size": "small"
+      },
+      "allow_direct_cross_container": true
+    },
+    {
+      "id": "disc_backprop_arrow_1",
+      "type": "dashed_feedback_path",
+      "bundle_id": "disc_backprop_bundle",
+      "from_point": [475, 492],
+      "to": "disc:bottom@0.68",
+      "route": "vertical",
+      "style": {
+        "line": "#6F6F6F",
+        "line_weight_pt": 1.1,
+        "line_dash": "dash",
+        "arrow_size": "small"
+      },
+      "allow_direct_cross_container": true
+    }
+  ]
+}

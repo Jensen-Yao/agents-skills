@@ -1,11 +1,12 @@
-# 🧠 Agents Skills
+# 🧠 Agents Skills · 智能体技能库
 
 <div align="center">
 
-**个人 Agent 技能库 —— 140+ 个 SKILL.md 技能，供 DeepSeek Harness / Claude Code 等 Agent 在桌面端与手机端共用**
+**个人 Agent 技能库 —— 140+ 个 SKILL.md 技能，桌面端与手机端共用**<br>
+*Personal agent skills library — 140+ SKILL.md skills shared across desktop and mobile*
 
-[![Skills](https://img.shields.io/badge/skills-140-blue.svg)](#-技能索引)
-[![SKILL.md](https://img.shields.io/badge/format-SKILL.md-purple.svg)](#-技能格式)
+[![Skills](https://img.shields.io/badge/skills-140-blue.svg)](#-技能索引-skill-index)
+[![SKILL.md](https://img.shields.io/badge/format-SKILL.md-purple.svg)](#-技能格式-skill-format)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![DSH](https://img.shields.io/badge/DeepSeek%20Harness-4D6BFE.svg)](https://github.com/deepseek-ai/deepseek-harness)
 
@@ -13,43 +14,47 @@
 
 ---
 
-## 📖 这是什么
+## 📖 这是什么 · What is this
 
-本仓库是个人 Agent 技能集合，每个技能是一个目录，内含一份 `SKILL.md`（YAML frontmatter + 指令正文）。技能被 Agent 按需加载：当任务描述命中某个技能的 `description` 时，Agent 调用该技能获取完整专家指令。
+本仓库是个人 Agent 技能集合：每个技能是一个目录，内含一份 `SKILL.md`（YAML frontmatter + 专家指令正文）。当任务描述命中某个技能的 `description` 时，Agent 按需加载该技能，获取完整指令。
 
-## 🏗 技能加载架构
+*This repository is a personal collection of agent skills. Each skill is a directory containing a `SKILL.md` (YAML frontmatter + expert instructions). When a task description matches a skill's `description`, the agent loads it on demand.*
+
+## 🏗 技能加载架构 · Skill Loading Architecture
 
 技能由 DeepSeek Harness 的技能系统（`@deepseek-ai/dsh-skill-filesystem`）从多个根目录按优先级加载：
 
+*Skills are loaded by the DeepSeek Harness skill system (`@deepseek-ai/dsh-skill-filesystem`) from multiple roots by rank:*
+
 ```
 ┌────────────────────────────────────────────┐
-│  技能根目录（按 rank 从高到低）              │
+│  技能根目录 · Skill roots (by rank)         │
 ├────────────────────────────────────────────┤
-│ 1. <项目>/.dsh/skills      项目级（dsh）     │
-│ 2. <项目>/.agents/skills   项目级（agents）  │
-│ 3. 自定义目录 customSkillDirs               │
-│ 4. ~/.dsh/skills           用户级（dsh）     │
-│ 5. ~/.agents/skills        用户级（agents）  │
-│ 6. 内置技能 bundledSkillDir                 │
+│ 1. <项目>/.dsh/skills     项目级 · project  │
+│ 2. <项目>/.agents/skills  项目级 · project  │
+│ 3. 自定义目录 · custom dirs                │
+│ 4. ~/.dsh/skills          用户级 · user     │
+│ 5. ~/.agents/skills       用户级 · user     │
+│ 6. 内置技能 · bundled skills               │
 └────────────────────────────────────────────┘
-         │  按需发现 + 热加载（目录 watcher）
+         │  按需发现 + 热加载 · discovery + hot reload (directory watcher)
          ▼
-   Agent（桌面 / 手机 Termux）
+   Agent（桌面 / 手机 Termux）· Agent (desktop / mobile Termux)
 ```
 
-- 本仓库内容部署于 `~/.agents/skills/`（用户级 agents 根）；
-- 同一套技能**桌面端与手机端通用**：手机端同步到 Termux 的 `~/.agents/skills/` 后，harness 的热加载 watcher 会自动发现新技能，无需重启服务。
+- 本仓库内容部署于 `~/.agents/skills/`（用户级 agents 根）。*This repo deploys to `~/.agents/skills/` (user-level agents root).*
+- 同一套技能**桌面端与手机端通用**；手机端同步后 harness 的热加载 watcher 会自动发现新技能，无需重启。*The same skills work on both desktop and mobile; the harness watcher hot-reloads new skills without restart.*
 
-## 📄 技能格式
+## 📄 技能格式 · Skill Format
 
 ```
-skills/<技能名>/
+skills/<技能名 · skill name>/
 └── SKILL.md
-    ├── frontmatter: name + description（触发条件，描述"何时使用"）
-    └── 正文: 该领域的专家级指令
+    ├── frontmatter: name + description（触发条件，描述"何时使用" / when to use）
+    └── 正文 · body: 该领域的专家级指令 · expert instructions
 ```
 
-示例（`apple-design`）：
+示例 · *Example*（`apple-design`）：
 
 ```yaml
 ---
@@ -60,11 +65,11 @@ description: Apple's approach to interface design and fluid, physical motion... 
 ...
 ```
 
-## 🗂 技能索引
+## 🗂 技能索引 · Skill Index
 
-共 **140** 个技能：
+共 **140** 个技能 · *140 skills in total*（说明为触发条件，英文 · descriptions are English trigger conditions）：
 
-| 技能 | 说明 |
+| 技能 · Skill | 说明 · Description |
 |---|---|
 | `0-autoresearch-skill` | Orchestrates end-to-end autonomous AI research projects using a two-loop architecture. The inner loop runs rapid experiment iterations with clear optimization targets. The outer loop synthesizes results, identifies patterns, and steers research direction. Routes to domain-specific skills for execution, supports continuous agent operation via Claude Code /loop and OpenClaw heartbeat, and produces research presentations and papers. Use when starting a research project, running autonomous experiments, or managing a multi-hypothesis research effort. |
 | `academic-plotting` | Generates publication-quality figures for ML papers from research context. Given a paper section or description, extracts system components and relationships to generate architecture diagrams via Gemini. Given experiment results or data, auto-selects chart type and generates data-driven figures via matplotlib/seaborn. Use when creating any figure for a conference paper. |
@@ -208,25 +213,25 @@ description: Apple's approach to interface design and fluid, physical motion... 
 | `winui-app` | Bootstrap, develop, and design modern WinUI 3 desktop applications with C# and the Windows App SDK using official Microsoft guidance, WinUI Gallery patterns, Windows App SDK samples, and CommunityToolkit components. Use when creating a brand new app, preparing a machine for WinUI, reviewing, refactoring, planning, troubleshooting, environment-checking, or setting up WinUI 3 XAML, controls, navigation, windowing, theming, accessibility, responsiveness, performance, deployment, or related Windows app design and development work. |
 
 
-## 📲 同步到设备
+## 📲 同步到设备 · Sync to Devices
 
-**桌面端（Claude Code 等）**
+**桌面端 · Desktop（Claude Code 等）**
 
 ```bash
 git clone https://github.com/Jensen-Yao/agents-skills.git ~/.agents/skills
 ```
 
-**手机端（Termux 中的 DeepSeek Harness）**
+**手机端 · Mobile（Termux 中的 DeepSeek Harness）**
 
 ```bash
-# 在 Termux 中
+# 在 Termux 中 · inside Termux
 git clone https://github.com/Jensen-Yao/agents-skills.git ~/.agents/skills
-# 或增量更新
+# 或增量更新 · or incremental update
 cd ~/.agents/skills && git pull
 ```
 
-放置后无需重启：harness 的技能 watcher 会自动发现；也可在 App「关于 → 存储位置」中查看/编辑「技能目录」。
+放置后无需重启：harness 的技能 watcher 会自动发现；也可在 App「关于 → 存储位置」中查看/编辑「技能目录」。*No restart needed — the skill watcher picks up changes automatically; you can also browse/edit the skills directory in the app's Storage page.*
 
 ## 📄 License
 
-[MIT](LICENSE) —— 技能内容版权归各自作者。
+[MIT](LICENSE) —— 技能内容版权归各自作者 · *skill content copyright belongs to their respective authors.*

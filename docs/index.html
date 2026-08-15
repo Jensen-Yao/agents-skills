@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Agents Skills · 个人技能库</title>
+<title>Agents Skills · 智能体技能库</title>
 <style>
   :root {
     --bg: #0a0e1a;
@@ -24,16 +24,24 @@
     color: var(--text);
     min-height: 100vh;
   }
-  .wrap { max-width: 1120px; margin: 0 auto; padding: 64px 24px 90px; }
-  .hero { text-align: center; margin-bottom: 48px; }
+  .wrap { max-width: 1120px; margin: 0 auto; padding: 48px 24px 90px; }
+  .langbar { display:flex; justify-content:flex-end; gap:8px; }
+  .langbtn {
+    cursor:pointer; border:1px solid var(--line); background:var(--panel);
+    color:var(--muted); border-radius:999px; padding:6px 16px; font-size:13px;
+    transition: all .18s ease;
+  }
+  .langbtn.active { background: linear-gradient(135deg, var(--accent), #7c3aed); color:#fff; border-color:transparent; }
+  .hero { text-align: center; margin-bottom: 44px; }
   .badge { display:inline-block; padding:5px 13px; border-radius:999px; border:1px solid var(--line); background:var(--panel); color:var(--muted); font-size:13px; margin:0 4px 8px; }
-  h1 { font-size: clamp(32px, 5.5vw, 52px); letter-spacing:-0.03em; margin:16px 0 12px;
+  h1 { font-size: clamp(32px, 5.5vw, 52px); letter-spacing:-0.03em; margin:14px 0 12px;
     background: linear-gradient(120deg, #fff 15%, #9db4ff 65%, #8ee3a8); -webkit-background-clip:text; background-clip:text; color:transparent; }
-  .sub { color: var(--muted); max-width: 660px; margin: 0 auto; line-height: 1.7; font-size: 16px; }
+  .sub { color: var(--muted); max-width: 680px; margin: 0 auto; line-height: 1.75; font-size: 16px; }
   .arch { background: var(--panel); border:1px solid var(--line); border-radius:18px; padding: 24px; margin: 40px 0; }
   .arch h2 { font-size: 20px; margin-bottom: 14px; }
   .arch pre { color:#cdd6f4; font-size:13px; line-height:1.7; font-family: ui-monospace, Consolas, monospace; overflow-x:auto; }
-  h2.sec { font-size: 24px; letter-spacing:-0.02em; margin: 44px 0 18px; }
+  h2.sec { font-size: 24px; letter-spacing:-0.02em; margin: 44px 0 6px; }
+  p.secnote { color: var(--muted); font-size:14px; margin-bottom: 18px; }
   .grid { display:grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 14px; }
   .card { background: var(--panel); border:1px solid var(--line); border-radius:16px; padding:18px; transition: transform .18s ease, border-color .18s ease; }
   .card:hover { transform: translateY(-2px); border-color: rgba(77,107,254,.45); }
@@ -41,37 +49,51 @@
   .card p { color: var(--muted); font-size:13px; line-height:1.6; }
   footer { text-align:center; color:var(--muted); font-size:13px; margin-top:70px; }
   a { color: var(--accent); }
-  @media (max-width:640px){ .wrap{padding:44px 16px 64px;} }
+  .en { display:none; }
+  body[data-lang="en"] .zh { display:none; }
+  body[data-lang="en"] .en { display:inline; }
+  body[data-lang="en"] .en.block { display:block; }
+  @media (max-width:640px){ .wrap{padding:40px 16px 64px;} }
 </style>
 </head>
-<body>
+<body data-lang="zh">
 <div class="wrap">
+  <div class="langbar">
+    <button class="langbtn active" id="btn-zh" onclick="setLang('zh')">中文</button>
+    <button class="langbtn" id="btn-en" onclick="setLang('en')">English</button>
+  </div>
+
   <div class="hero">
     <div>
-      <span class="badge">🧠 140+ Skills</span>
+      <span class="badge">🧠 <span class="zh">140+ 技能</span><span class="en">140+ skills</span></span>
       <span class="badge">📄 SKILL.md</span>
       <span class="badge">🤖 DeepSeek Harness / Claude Code</span>
     </div>
-    <h1>Agents Skills</h1>
-    <p class="sub">个人 Agent 技能库 —— 研究、开发、设计、文档、部署…… 各领域专家指令随取随用，桌面端与手机端同步共享。</p>
+    <h1><span class="zh">智能体技能库</span><span class="en">Agents Skills</span></h1>
+    <p class="sub">
+      <span class="zh">个人 Agent 技能库 —— 研究、开发、设计、文档、部署…… 各领域专家指令随取随用，桌面端与手机端同步共享。</span>
+      <span class="en">Personal agent skills library — research, development, design, docs, deployment... expert instructions on demand, shared across desktop and mobile.</span>
+    </p>
   </div>
 
   <div class="arch">
-    <h2>🏗 加载架构</h2>
+    <h2><span class="zh">🏗 加载架构</span><span class="en">🏗 Loading Architecture</span></h2>
     <pre>
-技能根目录（rank 从高到低）
-  1. &lt;项目&gt;/.dsh/skills        项目级（dsh）
-  2. &lt;项目&gt;/.agents/skills     项目级（agents）
-  3. 自定义目录 customSkillDirs
-  4. ~/.dsh/skills              用户级（dsh）
-  5. ~/.agents/skills           用户级（agents） ← 本仓库部署位置
-  6. 内置技能 bundledSkillDir
+<span class="zh">技能根目录（rank 从高到低）</span><span class="en">Skill roots (by rank, high to low)</span>
+  1. &lt;项目&gt;/.dsh/skills       <span class="zh">项目级（dsh）</span><span class="en">project (dsh)</span>
+  2. &lt;项目&gt;/.agents/skills    <span class="zh">项目级（agents）</span><span class="en">project (agents)</span>
+  3. <span class="zh">自定义目录</span><span class="en">custom dirs</span> customSkillDirs
+  4. ~/.dsh/skills            <span class="zh">用户级（dsh）</span><span class="en">user (dsh)</span>
+  5. ~/.agents/skills         <span class="zh">用户级（agents）← 本仓库部署位置</span><span class="en">user (agents) ← this repo deploys here</span>
+  6. <span class="zh">内置技能</span><span class="en">bundled skills</span>
 
-发现方式：按需发现 + 目录 watcher 热加载（新技能即时生效，无需重启）
+<span class="zh">发现方式：按需发现 + 目录 watcher 热加载（新技能即时生效，无需重启）</span>
+<span class="en">Discovery: on-demand + directory watcher hot reload (new skills take effect immediately, no restart)</span>
     </pre>
   </div>
 
-  <h2 class="sec">🗂 技能清单</h2>
+  <h2 class="sec"><span class="zh">🗂 技能清单</span><span class="en">🗂 Skill List</span></h2>
+  <p class="secnote"><span class="zh">说明为触发条件（英文），命中即加载。</span><span class="en">Descriptions are English trigger conditions — matched on demand.</span></p>
   <div class="grid">
     <div class="card"><h3>0-autoresearch-skill</h3><p>Orchestrates end-to-end autonomous AI research projects using a two-loop architecture. The inner loop runs rapid experiment iterations with clear optimization targets. The outer loop synthesizes results, identifies patterns, and steers research direction. Routes to domain-specific skills for execution, supports continuous agent operation via Claude Code /loop and OpenClaw heartbeat, and produces research presentations and papers. Use when starting a research project, running autonomous experiments, or managing a multi-hypothesis research effort.</p></div>
     <div class="card"><h3>academic-plotting</h3><p>Generates publication-quality figures for ML papers from research context. Given a paper section or description, extracts system components and relationships to generate architecture diagrams via Gemini. Given experiment results or data, auto-selects chart type and generates data-driven figures via matplotlib/seaborn. Use when creating any figure for a conference paper.</p></div>
@@ -217,8 +239,23 @@
   </div>
 
   <footer>
-    <p><a href="https://github.com/Jensen-Yao/agents-skills">GitHub 仓库</a> · MIT License · 与 <a href="https://github.com/deepseek-ai/deepseek-harness">DeepSeek Harness</a> 生态集成</p>
+    <p>
+      <span class="zh"><a href="https://github.com/Jensen-Yao/agents-skills">GitHub 仓库</a> · MIT License · 与 <a href="https://github.com/deepseek-ai/deepseek-harness">DeepSeek Harness</a> 生态集成</span>
+      <span class="en"><a href="https://github.com/Jensen-Yao/agents-skills">GitHub Repository</a> · MIT License · Integrated with the <a href="https://github.com/deepseek-ai/deepseek-harness">DeepSeek Harness</a> ecosystem</span>
+    </p>
   </footer>
 </div>
+<script>
+  function setLang(lang) {
+    document.body.setAttribute('data-lang', lang);
+    document.getElementById('btn-zh').classList.toggle('active', lang === 'zh');
+    document.getElementById('btn-en').classList.toggle('active', lang === 'en');
+    try { localStorage.setItem('agents-skills-lang', lang); } catch (e) {}
+  }
+  try {
+    var saved = localStorage.getItem('agents-skills-lang');
+    if (saved === 'en') setLang('en');
+  } catch (e) {}
+</script>
 </body>
 </html>

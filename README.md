@@ -67,151 +67,178 @@ description: Apple's approach to interface design and fluid, physical motion... 
 
 ## 🗂 技能索引 · Skill Index
 
-共 **140** 个技能 · *140 skills in total*（说明中英双语 · bilingual descriptions）：
+共 **140** 个技能，按类分组；**在线检索版**：https://jensen-yao.github.io/agents-skills/ （支持关键词搜索与分类筛选）。
+*140 skills, grouped by category. Searchable online at the link above.*
 
-| 技能 · Skill | 说明 · Description |
-|---|---|
-| `0-autoresearch-skill` | 使用双循环架构编排端到端的自主 AI 研究项目：内循环以明确的优化目标快速迭代实验，外循环综合结果、识别模式并引导研究方向。路由到领域专属技能执行，通过 Claude Code /loop 和 OpenClaw heartbeat 支持智能体持续运行，并产出研究演示文稿和论文。当启动研究项目、运行自主实验或管理多假设研究任务时使用。<br>*Orchestrates end-to-end autonomous AI research projects using a two-loop architecture. The inner loop runs rapid experiment iterations with clear optimization targets. The outer loop synthesizes results, identifies patterns, and steers research direction. Routes to domain-specific skills for execution, supports continuous agent operation via Claude Code /loop and OpenClaw heartbeat, and produces research presentations and papers. Use when starting a research project, running autonomous experiments, or managing a multi-hypothesis research effort.* |
-| `academic-plotting` | 根据研究上下文为 ML 论文生成出版级图表。给定论文章节或描述时，提取系统组件与关系，通过 Gemini 生成架构图；给定实验结果或数据时，自动选择图表类型，通过 matplotlib/seaborn 生成数据图表。为会议论文制作任何图表时使用。<br>*Generates publication-quality figures for ML papers from research context. Given a paper section or description, extracts system components and relationships to generate architecture diagrams via Gemini. Given experiment results or data, auto-selects chart type and generates data-driven figures via matplotlib/seaborn. Use when creating any figure for a conference paper.* |
-| `accelerate` | 最简单的分布式训练 API。只需 4 行代码即可为任意 PyTorch 脚本添加分布式支持。为 DeepSpeed/FSDP/Megatron/DDP 提供统一 API。自动设备放置、混合精度（FP16/BF16/FP8）。交互式配置、单条启动命令。HuggingFace 生态标准。<br>*Simplest distributed training API. 4 lines to add distributed support to any PyTorch script. Unified API for DeepSpeed/FSDP/Megatron/DDP. Automatic device placement, mixed precision (FP16/BF16/FP8). Interactive config, single launch command. HuggingFace ecosystem standard.* |
-| `a-evolve` | 提供使用 LLM 驱动的进化算法在任意领域自动进化与优化 AI 智能体的指导。当构建自我改进的智能体、针对基准优化智能体提示词和技能，或实现自动化智能体评估循环时使用。<br>*Provides guidance for automatically evolving and optimizing AI agents across any domain using LLM-driven evolution algorithms. Use when building self-improving agents, optimizing agent prompts and skills against benchmarks, or implementing automated agent evaluation loops.* |
-| `alibabacloud-find-skills` | 搜索、发现和浏览阿里云的智能体技能，按类目查找可用 skill 并了解其用途与安装方式。<br>*>* |
-| `animation-vocabulary` | 反向查找术语表，把对网页动画或动效的模糊描述转换为准确术语。当用户问"这叫什么来着"、或描述一个动效却不知道其名称、想要正确的词来提示 AI 或设计师时使用。用于命名效果，而非设计或实现。<br>*Reverse-lookup glossary that turns a vague description of a web animation or motion effect into its exact term ("the bouncy thing when a popover opens" → Pop in; "the iOS rubber-band scroll" → Rubber-banding). Use when the user asks "what's it called when…", or describes a motion effect without knowing its name and wants the right word to prompt an AI or designer with. For naming an effect, not designing or building one.* |
-| `apple-design` | 将 Apple 的界面设计与流畅物理动效方法论移植到 Web。当构建或评审手势驱动的 UI、弹簧动画、拖拽/滑动/底部面板交互、动量和可打断转场、半透明材质与层次、排版、减弱动态效果，或 Apple 风格界面背后的设计基础时使用。<br>*Apple's approach to interface design and fluid, physical motion, translated for the web. Use when building or reviewing gesture-driven UI, spring animations, drag/swipe/sheet interactions, momentum and interruptible transitions, translucent materials and depth, typography (optical sizing, tracking, leading), reduced-motion, or the design foundations (feedback, spatial consistency, restraint) behind Apple-style interfaces.* |
-| `app-shell-ui` | 使用 App Shell UI 风格构建或重设前端界面——简洁克制的 macOS 风桌面工具外壳（左侧导航加内容区、柔和表面、抬升卡片、单一品牌强调色、设置列表式文案），自带明暗双主题。<br>*>* |
-| `audiocraft` | PyTorch 音频生成库，支持文生音乐（MusicGen）和文生音效（AudioGen）。当需要从文本描述生成音乐、创作音效或进行旋律条件音乐生成时使用。<br>*PyTorch library for audio generation including text-to-music (MusicGen) and text-to-sound (AudioGen). Use when you need to generate music from text descriptions, create sound effects, or perform melody-conditioned music generation.* |
-| `autogpt` | 用于构建和部署持续性智能体的自主 AI 智能体平台。当创建可视化工作流智能体、部署持久运行的自主智能体或构建复杂的多步骤 AI 自动化系统时使用。<br>*Autonomous AI agent platform for building and deploying continuous agents. Use when creating visual workflow agents, deploying persistent autonomous agents, or building complex multi-step AI automation systems.* |
-| `awq` | 激活感知权重量化，实现 4-bit LLM 压缩，3 倍加速且精度损失极小。当在有限的 GPU 显存上部署大模型、需要比 GPTQ 更快且精度保持更好的推理，或处理指令微调和多模态模型时使用。MLSys 2024 最佳论文奖得主。<br>*Activation-aware weight quantization for 4-bit LLM compression with 3x speedup and minimal accuracy loss. Use when deploying large models (7B-70B) on limited GPU memory, when you need faster inference than GPTQ with better accuracy preservation, or for instruction-tuned and multimodal models. MLSys 2024 Best Paper Award winner.* |
-| `axolotl` | 使用 Axolotl 微调 LLM 的专家级指导——YAML 配置、100+ 模型、LoRA/QLoRA、DPO/KTO/ORPO/GRPO、多模态支持。<br>*Expert guidance for fine-tuning LLMs with Axolotl - YAML configs, 100+ models, LoRA/QLoRA, DPO/KTO/ORPO/GRPO, multimodal support* |
-| `bigcode-evaluation-harness` | 使用 pass@k 指标在 HumanEval、MBPP、MultiPL-E 等 15+ 基准上评估代码生成模型。当对代码模型做基准测试、比较编码能力、测试多语言支持或衡量代码生成质量时使用。来自 BigCode Project 的行业标准，被 HuggingFace 排行榜采用。<br>*Evaluates code generation models across HumanEval, MBPP, MultiPL-E, and 15+ benchmarks with pass@k metrics. Use when benchmarking code models, comparing coding abilities, testing multi-language support, or measuring code generation quality. Industry standard from BigCode Project used by HuggingFace leaderboards.* |
-| `bitsandbytes` | 将 LLM 量化到 8-bit 或 4-bit，内存减少 50-75% 且精度损失极小。当 GPU 显存有限、需要装入更大模型或想要更快推理时使用。支持 INT8、NF4、FP4 格式、QLoRA 训练和 8-bit 优化器。可与 HuggingFace Transformers 配合使用。<br>*Quantizes LLMs to 8-bit or 4-bit for 50-75% memory reduction with minimal accuracy loss. Use when GPU memory is limited, need to fit larger models, or want faster inference. Supports INT8, NF4, FP4 formats, QLoRA training, and 8-bit optimizers. Works with HuggingFace Transformers.* |
-| `blip-2` | 连接冻结图像编码器与 LLM 的视觉-语言预训练框架。当需要图像描述、视觉问答、图文检索，或具备 SOTA 零样本性能的多模态对话时使用。<br>*Vision-language pre-training framework bridging frozen image encoders and LLMs. Use when you need image captioning, visual question answering, image-text retrieval, or multimodal chat with state-of-the-art zero-shot performance.* |
-| `brainstorming-research-ideas` | 引导研究者通过结构化构思框架发现高影响力的研究方向。当探索新的问题领域、在项目之间转换方向或为现有工作寻找新颖视角时使用。<br>*Guides researchers through structured ideation frameworks to discover high-impact research directions. Use when exploring new problem spaces, pivoting between projects, or seeking novel angles on existing work.* |
-| `bugbounty-workflow` | 授权范围内漏洞挖掘全流程工作流:侦察到挖掘到验证到报告。当用户要求挖洞、测目标、渗透测试、打点或提交 SRC 时使用。<br>*授权范围内(补天/SRC 等赏金平台)漏洞挖掘全流程工作流:侦察→挖掘→验证→报告。当用户要求"挖洞""挖漏洞""测目标""渗透测试""打点""提交SRC/补天"时使用。* |
-| `chinese-plot-labels` | 当 Codex 编写或修改生成图表、曲线图、图形或图片输出的 Python、Java 或 C++ 代码时使用。若用户未明确指定其他语言，生成的图像需使用中文标题、坐标轴标签和图例。<br>*Use when Codex writes or modifies Python, Java, or C++ code that generates charts, plots, figures, or saved image outputs. If the user has not explicitly specified another language, require Chinese titles, axis labels, and legends in generated result images.* |
-| `chroma` | 面向 AI 应用的开源嵌入向量数据库。存储 embedding 与元数据，支持向量和全文检索、按元数据过滤。仅 4 个函数的简单 API。可从笔记本扩展到生产集群。用于语义搜索、RAG 应用或文档检索，最适合本地开发和开源项目。<br>*Open-source embedding database for AI applications. Store embeddings and metadata, perform vector and full-text search, filter by metadata. Simple 4-function API. Scales from notebooks to production clusters. Use for semantic search, RAG applications, or document retrieval. Best for local development and open-source projects.* |
-| `cli-anything` | 当用户希望 Codex 为 GUI 应用或源代码仓库构建、改进、测试、验证或列出 CLI-Anything harness 时使用。将完整的 CLI-Anything 方法论适配到 Codex，且不改变生成的 Python harness 格式。<br>*Use when the user wants Codex to build, refine, test, validate, or list CLI-Anything harnesses for GUI applications or source repositories. Adapts the full CLI-Anything methodology to Codex without changing the generated Python harness format.* |
-| `cli-creator` | 基于 API 文档、OpenAPI 规范、现有 curl 示例、SDK、Web 应用、管理工具或本地脚本，为 Codex 构建可组合的 CLI。当用户希望 Codex 创建命令行工具时使用，该工具可在任意仓库中运行、提供可组合的读写命令、返回稳定 JSON、管理认证，并可搭配配套技能使用。<br>*Build a composable CLI for Codex from API docs, an OpenAPI spec, existing curl examples, an SDK, a web app, an admin tool, or a local script. Use when the user wants Codex to create a command-line tool that can run from any repo, expose composable read/write commands, return stable JSON, manage auth, and pair with a companion skill.* |
-| `clip` | OpenAI 的连接视觉与语言的模型。支持零样本图像分类、图文匹配和跨模态检索。基于 4 亿图文对训练。用于图像搜索、内容审核或无需微调的视觉-语言任务，最适合通用图像理解。<br>*OpenAI's model connecting vision and language. Enables zero-shot image classification, image-text matching, and cross-modal retrieval. Trained on 400M image-text pairs. Use for image search, content moderation, or vision-language tasks without fine-tuning. Best for general-purpose image understanding.* |
-| `cnki-advanced-search` | 在 CNKI 上执行高级检索，支持作者、标题、期刊、日期范围、来源类别等字段过滤。当用户需要超越简单关键词的精确过滤检索时使用。<br>*Perform advanced search on CNKI with field filters like author, title, journal, date range, source category (SCI/EI/CSSCI/北大核心). Use when user needs precise filtered search beyond simple keywords.* |
-| `cnki-download` | 从 CNKI 下载论文 PDF/CAJ。需要用户已登录。当用户想下载某篇特定论文时使用。<br>*Download a paper PDF/CAJ from CNKI. Requires user to be logged in. Use when user wants to download a specific paper.* |
-| `cnki-export` | 从 CNKI 导出论文并推送到 Zotero，或保存为 RIS 文件。当用户想把论文保存到 Zotero 或导出引文数据时使用。<br>*Export paper from CNKI and push to Zotero, or save as RIS file. Use when user wants to save a paper to Zotero or export citation data.* |
-| `cnki-journal-index` | 在 CNKI 上查询期刊收录与索引状态，获取影响因子和评价数据。当用户询问期刊级别、收录或排名时使用。<br>*Query journal indexing/inclusion status on CNKI - check which databases include a journal (北大核心, CSSCI, CSCD, SCI, EI, etc.), get impact factors and evaluation data. Use when user asks about a journal's level, indexing, or ranking.* |
-| `cnki-journal-search` | 在 CNKI 上按名称、ISSN、CN 或主办单位搜索期刊或出版物。当用户想查找特定期刊或浏览出版物时使用。<br>*Search for journals/publications on CNKI by name, ISSN, CN, or sponsor. Use when the user wants to find a specific journal or browse publications.* |
-| `cnki-journal-toc` | 在 CNKI 上浏览期刊期次、查看目录，并下载原始目录 PDF。当用户想查看某期期刊的论文或下载原始封面目录页时使用。<br>*Browse journal issues, view table of contents, and download original TOC PDF from CNKI. Use when user wants to see papers in a specific journal issue or download the original cover/TOC pages.* |
-| `cnki-navigate-pages` | 在 CNKI 搜索结果页之间导航或更改排序方式。当用户想查看更多结果或更改排序时使用。<br>*Navigate CNKI search result pages (next/previous/specific page) or change sort order. Use when user wants to see more results or change sorting.* |
-| `cnki-paper-detail` | 从 CNKI 论文页面提取完整论文信息，包括标题、作者、机构、摘要、关键词、基金、分类。当用户需要某篇论文的详细信息时使用。<br>*Extract full paper details from a CNKI paper page including title, authors, affiliations, abstract, keywords, fund, classification. Use when the user needs detailed information about a specific paper.* |
-| `cnki-parse-results` | 将当前 CNKI 搜索结果页解析为结构化论文数据（标题、作者、期刊、日期、被引）。在执行搜索后需要提取结果时使用。<br>*Parse current CNKI search results page into structured paper data (title, authors, journal, date, citations). Use after a search has been performed and you need to extract the results.* |
-| `cnki-researcher` | 在 Codex 中使用 Chrome DevTools MCP 协调 CNKI 文献研究工作流。当用户要求搜索 CNKI 论文、查看论文详情、浏览期刊或期次、检查期刊收录、下载 CNKI 文件、导出引文、处理登录，或将上述任务组合成文献研究工作流时使用。<br>*Coordinate CNKI research workflows in Codex using Chrome DevTools MCP. Use when the user asks to search CNKI papers, inspect paper details, browse journals or issues, check journal indexing, download CNKI files, export citations, handle institution/off-campus CNKI login, or combine these tasks into a literature research workflow.* |
-| `cnki-search` | 按关键词在 CNKI（中国知网）搜索论文。当用户想查找某个主题的学术论文时使用。<br>*Search CNKI (中国知网) for papers by keyword. Use when the user wants to find academic papers on a topic.* |
-| `constitutional-ai` | Anthropic 通过自我改进训练无害 AI 的方法。两阶段方案——先进行带自我批评与修订的监督学习，再进行 RLAIF（基于 AI 反馈的强化学习）。用于安全对齐、无需人工标注即可减少有害输出。支撑 Claude 的安全系统。<br>*Anthropic's method for training harmless AI through self-improvement. Two-phase approach - supervised learning with self-critique/revision, then RLAIF (RL from AI Feedback). Use for safety alignment, reducing harmful outputs without human labels. Powers Claude's safety system.* |
-| `cosmos-policy` | 在 LIBERO 和 RoboCasa 仿真环境中评估 NVIDIA Cosmos Policy。当为机器人操作评估配置 cosmos-policy、使用 EGL 渲染运行无头 GPU 评估，或在集群或本地 GPU 机器上分析推理延迟时使用。<br>*Evaluates NVIDIA Cosmos Policy on LIBERO and RoboCasa simulation environments. Use when setting up cosmos-policy for robot manipulation evaluation, running headless GPU evaluations with EGL rendering, or profiling inference latency on cluster or local GPU machines.* |
-| `creative-thinking-for-research` | 将认知科学的创造性思维框架应用于 CS 与 AI 研究的构思。当希望通过组合式创造、类比推理、约束操控等有实证依据的创意策略寻找真正新颖的研究方向时使用。<br>*Applies cognitive science frameworks for creative thinking to CS and AI research ideation. Use when seeking genuinely novel research directions by leveraging combinatorial creativity, analogical reasoning, constraint manipulation, and other empirically grounded creative strategies.* |
-| `crewai` | 面向自主 AI 协作的多智能体编排框架。当构建由专职智能体组成的团队协作处理复杂任务、需要带记忆的基于角色的智能体协作，或需要顺序与分层执行的生产工作流时使用。不依赖 LangChain，精简而快速。<br>*Multi-agent orchestration framework for autonomous AI collaboration. Use when building teams of specialized agents working together on complex tasks, when you need role-based agent collaboration with memory, or for production workflows requiring sequential/hierarchical execution. Built without LangChain dependencies for lean, fast execution.* |
-| `deepspeed` | 使用 DeepSpeed 进行分布式训练的专家级指导——ZeRO 优化阶段、流水线并行、FP16/BF16/FP8、1-bit Adam、稀疏注意力。<br>*Expert guidance for distributed training with DeepSpeed - ZeRO optimization stages, pipeline parallelism, FP16/BF16/FP8, 1-bit Adam, sparse attention* |
-| `dramaclaw` | 按照官方工作流操作、检查、配置、排障并继续 DramaClaw 项目。当用户提及 DramaClaw、NovelVideo、虾导、虾料、虾塘、虾镜、虾画、虾格、虾条、项目同步、模型或存储配置、角色、身份、肖像、场景、道具、配音、剧集、剧本、分镜草图、首帧、音频、视频、合成、项目状态、恢复与继续，或要求生成或修复 DramaClaw 作品时使用。<br>*"Operate, inspect, configure, troubleshoot, and continue DramaClaw projects according to the official workflow. Use whenever the user mentions DramaClaw, NovelVideo, 虾导, 虾料, 虾塘, 虾镜, 虾画, 虾格, 虾条, CLI/API/Web project synchronization, model or storage configuration, characters, identities, portraits, scenes, props, voices, episodes, Beats, scripts, sketches, first frames, audio, video, composition, project status, resume/continue, or asks to generate/fix a DramaClaw production. Enforces asset, image, and review gates before downstream generation."* |
-| `drawio-skill` | 当用户要求绘制示意图、流程图、架构图、ER 图、UML 时序或类图、网络拓扑、ML 与 DL 模型结构图、思维导图或任何可视化时使用。当图表需要自定义样式、丰富的形状库、泳道或可导出图片（PNG、SVG、PDF、JPG）时最为合适。生成 .drawio XML，并通过本机 draw.io 桌面 CLI 导出。<br>*Use when the user requests diagrams, flowcharts, architecture diagrams, ER diagrams, UML / sequence / class diagrams, network topology, ML/DL model figures (Transformer/CNN/LSTM), mind maps, or any visualization. Also use proactively when explaining systems with 3+ components, complex data flows, or relationships that benefit from visual representation. Best suited when the diagram needs custom styling, rich shape vocabulary, swimlanes, or exportable images (PNG/SVG/PDF/JPG). Generates .drawio XML and exports locally via the native draw.io desktop CLI.* |
-| `dspy` | 使用声明式编程构建复杂 AI 系统，自动优化提示词，用 DSPy 创建模块化 RAG 系统和智能体——斯坦福 NLP 的系统化 LM 编程框架。<br>*Build complex AI systems with declarative programming, optimize prompts automatically, create modular RAG systems and agents with DSPy - Stanford NLP's framework for systematic LM programming* |
-| `emil-design-eng` | 本技能凝练了 Emil Kowalski 关于 UI 打磨、组件设计、动画决策以及让软件手感出色的那些隐形细节的设计哲学。<br>*This skill encodes Emil Kowalski's philosophy on UI polish, component design, animation decisions, and the invisible details that make software feel great.* |
-| `faiss` | Facebook 的高效稠密向量相似度搜索与聚类库。支持数十亿向量、GPU 加速和多种索引类型。用于快速 k-NN 搜索、大规模向量检索，或需要不带元数据的纯相似度搜索场景，最适合高性能应用。<br>*Facebook's library for efficient similarity search and clustering of dense vectors. Supports billions of vectors, GPU acceleration, and various index types (Flat, IVF, HNSW). Use for fast k-NN search, large-scale vector retrieval, or when you need pure similarity search without metadata. Best for high-performance applications.* |
-| `find-animation-opportunities` | 在代码库或 UI 中找出应该加动画却没有加的地方，并排除不该加动画的部分。只读操作；它给出带精确参数的动效建议，但不会落地实现。若要修复现有动画，请改用 improve-animations 或 review-animations。<br>*Search a codebase or UI for places that don't animate but should, and reject everything that shouldn't. Read-only; it proposes motion with exact values, it does not implement it. Use when the user asks "what could be animated here?" or wants to "make this feel more alive". For fixing existing animations, use improve-animations or review-animations instead.* |
-| `flash-attention` | 使用 Flash Attention 优化 transformer 注意力，实现 2-4 倍加速和 10-20 倍内存缩减。当训练或运行长序列的 transformer、遇到注意力机制的 GPU 显存问题，或需要更快推理时使用。支持 PyTorch 原生 SDPA、flash-attn 库、H100 FP8 和滑动窗口注意力。<br>*Optimizes transformer attention with Flash Attention for 2-4x speedup and 10-20x memory reduction. Use when training/running transformers with long sequences (>512 tokens), encountering GPU memory issues with attention, or need faster inference. Supports PyTorch native SDPA, flash-attn library, H100 FP8, and sliding window attention.* |
-| `gguf` | GGUF 格式与 llama.cpp 量化，实现高效的 CPU 与 GPU 推理。当在消费级硬件、Apple Silicon 上部署模型，或需要无需 GPU 的 2-8 bit 灵活量化时使用。<br>*GGUF format and llama.cpp quantization for efficient CPU/GPU inference. Use when deploying models on consumer hardware, Apple Silicon, or when needing flexible quantization from 2-8 bit without GPU requirements.* |
-| `gptq` | 训练后 4-bit 量化，精度损失极小。用于在消费级 GPU 上部署大模型，需要 4 倍内存缩减且困惑度下降小于 2%，或相比 FP16 实现更快推理（3-4 倍加速）时使用。可与 transformers 和 PEFT 集成以进行 QLoRA 微调。<br>*Post-training 4-bit quantization for LLMs with minimal accuracy loss. Use for deploying large models (70B, 405B) on consumer GPUs, when you need 4× memory reduction with <2% perplexity degradation, or for faster inference (3-4× speedup) vs FP16. Integrates with transformers and PEFT for QLoRA fine-tuning.* |
-| `grpo-rl-training` | 使用 TRL 进行 GRPO 与 RL 微调的专家级指导，适用于推理和任务特定模型的训练。<br>*Expert guidance for GRPO/RL fine-tuning with TRL for reasoning and task-specific model training* |
-| `guidance` | 用正则和文法控制 LLM 输出，保证生成的 JSON、XML、代码有效，强制结构化格式，并用 Guidance 构建多步骤工作流——微软研究院的受约束生成框架。<br>*Control LLM output with regex and grammars, guarantee valid JSON/XML/code generation, enforce structured formats, and build multi-step workflows with Guidance - Microsoft Research's constrained generation framework* |
-| `hatch-pet` | 根据角色美术、生成图像、品牌线索或视觉参考，创建、修复、验证、视觉质检并打包兼容 Codex 的动画宠物和宠物精灵表。本技能组合已安装的 imagegen 系统技能进行视觉生成，并使用内置脚本确定性组装精灵表。<br>*Create, repair, validate, visually QA, and package Codex-compatible animated pets and pet spritesheets from character art, generated images, company or prospect brand cues, or visual references. Use when a user wants a lightweight-worker Codex pet workflow, a non-pixel custom pet style, a prospect or company mascot pet, or a full 8x9 animated pet atlas with transparent unused cells, QA contact sheets, and pet.json packaging. This skill composes the installed $imagegen system skill for visual generation and uses bundled scripts for deterministic spritesheet assembly.* |
-| `hqq` | 无需校准数据的半二次量化（HQQ）。当需要在没有校准数据集的情况下将模型量化到 4、3、2-bit 精度、追求快速量化工作流，或搭配 vLLM 或 HuggingFace Transformers 部署时使用。<br>*Half-Quadratic Quantization for LLMs without calibration data. Use when quantizing models to 4/3/2-bit precision without needing calibration datasets, for fast quantization workflows, or when deploying with vLLM or HuggingFace Transformers.* |
-| `huggingface-tokenizers` | 为研究与生产优化的高速 tokenizer。基于 Rust 的实现可在 20 秒内完成 1GB 文本的切分。支持 BPE、WordPiece 和 Unigram 算法。可训练自定义词表、追踪对齐、处理 padding 与截断。与 transformers 无缝集成。当需要高性能分词或自定义 tokenizer 训练时使用。<br>*Fast tokenizers optimized for research and production. Rust-based implementation tokenizes 1GB in <20 seconds. Supports BPE, WordPiece, and Unigram algorithms. Train custom vocabularies, track alignments, handle padding/truncation. Integrates seamlessly with transformers. Use when you need high-performance tokenization or custom tokenizer training.* |
-| `imagegen` | 当任务受益于 AI 生成的位图视觉内容（如照片、插图、纹理、精灵图、模型稿或透明背景抠图）时，生成或编辑栅格图像。若任务更适合编辑现有 SVG、矢量或代码原生资产、扩展现有图标或标志体系，或直接在 HTML、CSS、canvas 中构建视觉，则不要使用。<br>*"Generate or edit raster images when the task benefits from AI-created bitmap visuals such as photos, illustrations, textures, sprites, mockups, or transparent-background cutouts. Use when Codex should create a brand-new image, transform an existing image, or derive visual variants from references, and the output should be a bitmap asset rather than repo-native code or vector. Do not use when the task is better handled by editing existing SVG/vector/code-native assets, extending an established icon or logo system, or building the visual directly in HTML/CSS/canvas."* |
-| `image-gen-fuck` | imagegen 的辅助工作流，用于 Codex 需要高质量图像生成但内置 image_gen 工具不可用或未暴露的场景。与 imagegen 配合使用，通过单独的临时绘图 API key 运行已安装的 image_gen.py CLI，且不改变 Codex 桌面或聊天模型的 API 配置。<br>*Auxiliary workflow for $imagegen when Codex needs high-quality image generation but the built-in image_gen tool is unavailable or not exposed. Use this with $imagegen to run the installed image_gen.py CLI through a separate temporary drawing API key, preferably configured in Codex++ cliWrapper settings, defaulting to OPENAI_BASE_URL=https://code.codingplay.top/v1, without changing the Codex desktop/chat model API configuration.* |
-| `improve-animations` | 以资深动效顾问的身份审视代码库中的动画与动效代码，产出带优先级的审计报告和可独立执行的实现方案，供其他智能体执行。对源代码只读——它只规划改进，不实际修改。<br>*Survey a codebase's animation and motion code as a senior motion advisor, then produce a prioritized audit and self-contained implementation plans for other agents (or cheaper models) to execute. Read-only on source code — it plans improvements, it does not apply them. Use when the user asks to "improve the animations", "audit the motion", "make this app feel better", or wants a roadmap of animation fixes rather than a review of a single diff.* |
-| `instructor` | 使用 Instructor 从 LLM 响应中提取结构化数据——Pydantic 校验、自动重试失败的提取、类型安全地解析复杂 JSON、流式返回部分结果。久经考验的结构化输出库。<br>*Extract structured data from LLM responses with Pydantic validation, retry failed extractions automatically, parse complex JSON with type safety, and stream partial results with Instructor - battle-tested structured output library* |
-| `karpathy-guidelines` | 减少常见 LLM 编码错误的行为准则。当编写、评审或重构代码时使用，以避免过度复杂化、做精准改动、显式暴露假设并定义可验证的成功标准。<br>*Behavioral guidelines to reduce common LLM coding mistakes. Use when writing, reviewing, or refactoring code to avoid overcomplication, make surgical changes, surface assumptions, and define verifiable success criteria.* |
-| `knowledge-distillation` | 通过从教师模型到学生模型的知识蒸馏压缩大语言模型。当部署保持性能的更小模型、将 GPT-4 的能力迁移到开源模型或降低推理成本时使用。涵盖温度缩放、软目标、反向 KLD、logit 蒸馏和 MiniLLM 训练策略。<br>*Compress large language models using knowledge distillation from teacher to student models. Use when deploying smaller models with retained performance, transferring GPT-4 capabilities to open-source models, or reducing inference costs. Covers temperature scaling, soft targets, reverse KLD, logit distillation, and MiniLLM training strategies.* |
-| `lambda-labs` | 用于 ML 训练和推理的预留与按需 GPU 云实例。当需要可通过简单 SSH 访问的专用 GPU 实例、持久化文件系统或用于大规模训练的高性能多节点集群时使用。<br>*Reserved and on-demand GPU cloud instances for ML training and inference. Use when you need dedicated GPU instances with simple SSH access, persistent filesystems, or high-performance multi-node clusters for large-scale training.* |
-| `langchain` | 用于构建 LLM 应用的框架，支持智能体、链和 RAG。支持多家提供商、500+ 集成、ReAct 智能体、工具调用、记忆管理和向量库检索。用于构建聊天机器人、问答系统、自主智能体或 RAG 应用，最适合快速原型开发和生产部署。<br>*Framework for building LLM-powered applications with agents, chains, and RAG. Supports multiple providers (OpenAI, Anthropic, Google), 500+ integrations, ReAct agents, tool calling, memory management, and vector store retrieval. Use for building chatbots, question-answering systems, autonomous agents, or RAG applications. Best for rapid prototyping and production deployments.* |
-| `langsmith` | 用于追踪、评估和监控的 LLM 可观测性平台。当调试 LLM 应用、按数据集评估模型输出、监控生产系统或为 AI 应用构建系统化测试流水线时使用。<br>*LLM observability platform for tracing, evaluation, and monitoring. Use when debugging LLM applications, evaluating model outputs against datasets, monitoring production systems, or building systematic testing pipelines for AI applications.* |
-| `libreoffice-local-install` | 使用本机已安装的 LibreOffice 进行 CLI 文档转换、PDF 导出、渲染、打印和 Office 格式自动化。在记录的可执行文件可用时，不要下载或重装 LibreOffice。<br>*Use the existing local LibreOffice installation for CLI document conversion, PDF export, rendering, printing, and Office-format automation on this Windows machine. Trigger when a task mentions LibreOffice, soffice, headless document conversion, DOCX/XLSX/PPTX/ODF conversion, or needs the local LibreOffice executable path. Do not download or reinstall LibreOffice while the recorded executable works.* |
-| `litgpt` | 使用 Lightning AI 的 LitGPT 实现并训练 LLM，支持 20+ 预训练架构（Llama、Gemma、Phi、Qwen、Mistral）。当需要干净的模型实现、教学式的架构理解，或使用 LoRA 与 QLoRA 进行生产微调时使用。单文件实现，无抽象层。<br>*Implements and trains LLMs using Lightning AI's LitGPT with 20+ pretrained architectures (Llama, Gemma, Phi, Qwen, Mistral). Use when need clean model implementations, educational understanding of architectures, or production fine-tuning with LoRA/QLoRA. Single-file implementations, no abstraction layers.* |
-| `llama-cpp` | 无需 NVIDIA 硬件即可在 CPU、Apple Silicon 和消费级 GPU 上运行 LLM 推理。用于边缘部署、M1 与 M2 与 M3 Mac、AMD 与 Intel GPU 或 CUDA 不可用的场景。支持 GGUF 量化以减少内存，在 CPU 上相比 PyTorch 快 4-10 倍。<br>*Runs LLM inference on CPU, Apple Silicon, and consumer GPUs without NVIDIA hardware. Use for edge deployment, M1/M2/M3 Macs, AMD/Intel GPUs, or when CUDA is unavailable. Supports GGUF quantization (1.5-8 bit) for reduced memory and 4-10× speedup vs PyTorch on CPU.* |
-| `llama-factory` | 使用 LLaMA-Factory 微调 LLM 的专家级指导——WebUI 无代码、100+ 模型、2 至 8-bit QLoRA、多模态支持。<br>*Expert guidance for fine-tuning LLMs with LLaMA-Factory - WebUI no-code, 100+ models, 2/3/4/5/6/8-bit QLoRA, multimodal support* |
-| `llamaguard` | Meta 专用于 LLM 输入与输出过滤的 7-8B 审核模型。覆盖 6 类安全风险，准确率 94-95%。可通过 vLLM、HuggingFace、Sagemaker 部署，并与 NeMo Guardrails 集成。<br>*Meta's 7-8B specialized moderation model for LLM input/output filtering. 6 safety categories - violence/hate, sexual content, weapons, substances, self-harm, criminal planning. 94-95% accuracy. Deploy with vLLM, HuggingFace, Sagemaker. Integrates with NeMo Guardrails.* |
-| `llamaindex` | 用于构建 RAG LLM 应用的数据框架。专注于文档摄取（300+ 连接器）、索引和查询。具备向量索引、查询引擎、智能体与多模态支持。用于文档问答、聊天机器人、知识检索或构建 RAG 流水线，最适合以数据为中心的 LLM 应用。<br>*Data framework for building LLM applications with RAG. Specializes in document ingestion (300+ connectors), indexing, and querying. Features vector indices, query engines, agents, and multi-modal support. Use for document Q&A, chatbots, knowledge retrieval, or building RAG pipelines. Best for data-centric LLM applications.* |
-| `llava` | 大型语言与视觉助手（LLaVA）。支持视觉指令微调和基于图像的对话。将 CLIP 视觉编码器与 Vicuna 与 Llama 语言模型结合。支持多轮图像对话、视觉问答和指令跟随。用于视觉-语言聊天机器人或图像理解任务，最适合对话式图像分析。<br>*Large Language and Vision Assistant. Enables visual instruction tuning and image-based conversations. Combines CLIP vision encoder with Vicuna/LLaMA language models. Supports multi-turn image chat, visual question answering, and instruction following. Use for vision-language chatbots or image understanding tasks. Best for conversational image analysis.* |
-| `lm-evaluation-harness` | 在 60+ 学术基准（MMLU、HumanEval、GSM8K、TruthfulQA、HellaSwag）上评估 LLM。当对模型质量做基准测试、比较模型、报告学术结果或追踪训练进度时使用。EleutherAI、HuggingFace 及各大实验室使用的行业标准。<br>*Evaluates LLMs across 60+ academic benchmarks (MMLU, HumanEval, GSM8K, TruthfulQA, HellaSwag). Use when benchmarking model quality, comparing models, reporting academic results, or tracking training progress. Industry standard used by EleutherAI, HuggingFace, and major labs. Supports HuggingFace, vLLM, APIs.* |
-| `long-context` | 使用 RoPE、YaRN、ALiBi 和位置插值技术扩展 transformer 模型的上下文窗口。当处理长文档、将预训练模型扩展到超出原始上下文限制，或实现高效位置编码时使用。涵盖旋转位置嵌入、注意力偏置、插值方法和面向 LLM 的外推策略。<br>*Extend context windows of transformer models using RoPE, YaRN, ALiBi, and position interpolation techniques. Use when processing long documents (32k-128k+ tokens), extending pre-trained models beyond original context limits, or implementing efficient positional encodings. Covers rotary embeddings, attention biases, interpolation methods, and extrapolation strategies for LLMs.* |
-| `mamba` | 复杂度为 O(n) 的状态空间模型，而 Transformer 为 O(n2)。推理快 5 倍、支持百万 token 序列、无需 KV cache。采用硬件感知设计的选择性 SSM。包含 Mamba-1 和 Mamba-2（多头）。HuggingFace 上有 130M-2.8B 的模型。<br>*State-space model with O(n) complexity vs Transformers' O(n²). 5× faster inference, million-token sequences, no KV cache. Selective SSM with hardware-aware design. Mamba-1 (d_state=16) and Mamba-2 (d_state=128, multi-head). Models 130M-2.8B on HuggingFace.* |
-| `megatron-core` | 使用 NVIDIA Megatron-Core 训练大语言模型（2B-462B 参数），支持高级并行策略。当训练大于 1B 参数的模型、需要最大化 GPU 效率或需要张量、流水线、序列、上下文、专家并行时使用。用于 Nemotron、Llama、DeepSeek 的生产级框架。<br>*Trains large language models (2B-462B parameters) using NVIDIA Megatron-Core with advanced parallelism strategies. Use when training models >1B parameters, need maximum GPU efficiency (47% MFU on H100), or require tensor/pipeline/sequence/context/expert parallelism. Production-ready framework used for Nemotron, LLaMA, DeepSeek.* |
-| `miles` | 提供使用 miles（slime 的生产级分支）进行企业级 RL 训练的指导。当训练 FP8 与 INT4 的大型 MoE 模型、需要训练与推理对齐，或需要投机 RL 以获得最大吞吐量时使用。<br>*Provides guidance for enterprise-grade RL training using miles, a production-ready fork of slime. Use when training large MoE models with FP8/INT4, needing train-inference alignment, or requiring speculative RL for maximum throughput.* |
-| `mlflow` | 使用 MLflow 追踪 ML 实验、管理带版本控制的模型注册表、将模型部署到生产环境并复现实验——与框架无关的 ML 生命周期平台。<br>*Track ML experiments, manage model registry with versioning, deploy models to production, and reproduce experiments with MLflow - framework-agnostic ML lifecycle platform* |
-| `ml-paper-writing` | 为 NeurIPS、ICML、ICLR、ACL、AAAI、COLM 撰写达到发表水准的 ML 与 AI 论文。当从研究仓库起草论文、组织论证结构、核实引用或准备 camera-ready 终稿时使用。若面向系统类会议，请改用 systems-paper-writing。<br>*Write publication-ready ML/AI papers for NeurIPS, ICML, ICLR, ACL, AAAI, COLM. Use when drafting papers from research repos, structuring arguments, verifying citations, or preparing camera-ready submissions. For systems venues (OSDI, NSDI, ASPLOS, SOSP), use systems-paper-writing instead.* |
-| `ml-training-recipes` | 覆盖所有领域的久经考验的 PyTorch 训练配方——LLM、视觉、扩散模型、医学影像、蛋白质与药物发现、空间组学、基因组学。涵盖训练循环、优化器选择、学习率调度、混合精度、调试和系统化实验。<br>*Battle-tested PyTorch training recipes for all domains — LLMs, vision, diffusion, medical imaging, protein/drug discovery, spatial omics, genomics. Covers training loops, optimizer selection (AdamW, Muon), LR scheduling, mixed precision, debugging, and systematic experimentation. Use when training or fine-tuning neural networks, debugging loss spikes or OOM, choosing architectures, or optimizing GPU throughput.* |
-| `modal` | 用于运行 ML 工作负载的无服务器 GPU 云平台。当需要按需访问 GPU 而无需管理基础设施、将 ML 模型部署为 API，或运行自动扩展的批处理任务时使用。<br>*Serverless GPU cloud platform for running ML workloads. Use when you need on-demand GPU access without infrastructure management, deploying ML models as APIs, or running batch jobs with automatic scaling.* |
-| `model-merging` | 使用 mergekit 合并多个微调模型以组合能力，无需重新训练。当通过融合领域专长创建专用模型、追求超越单一模型的性能，或快速试验模型变体时使用。涵盖 SLERP、TIES-Merging、DARE、Task Arithmetic、线性合并和生产部署策略。<br>*Merge multiple fine-tuned models using mergekit to combine capabilities without retraining. Use when creating specialized models by blending domain-specific expertise (math + coding + chat), improving performance beyond single models, or experimenting rapidly with model variants. Covers SLERP, TIES-Merging, DARE, Task Arithmetic, linear merging, and production deployment strategies.* |
-| `model-pruning` | 使用 Wanda、SparseGPT 等剪枝技术减小 LLM 体积并加速推理。当无需重新训练即可压缩模型、以极小精度损失实现 50% 稀疏度，或在硬件加速器上实现更快推理时使用。涵盖非结构化剪枝、结构化剪枝、N:M 稀疏、幅度剪枝和一次性方法。<br>*Reduce LLM size and accelerate inference using pruning techniques like Wanda and SparseGPT. Use when compressing models without retraining, achieving 50% sparsity with minimal accuracy loss, or enabling faster inference on hardware accelerators. Covers unstructured pruning, structured pruning, N:M sparsity, magnitude pruning, and one-shot methods.* |
-| `moe-training` | 使用 DeepSpeed 或 HuggingFace 训练混合专家（MoE）模型。当算力有限却要训练大规模模型、实现 Mixtral 8x7B 或 DeepSeek-V3 等稀疏架构，或在不按比例增加算力的情况下扩展模型容量时使用。涵盖 MoE 架构、路由机制、负载均衡、专家并行和推理优化。<br>*Train Mixture of Experts (MoE) models using DeepSpeed or HuggingFace. Use when training large-scale models with limited compute (5× cost reduction vs dense models), implementing sparse architectures like Mixtral 8x7B or DeepSeek-V3, or scaling model capacity without proportional compute increase. Covers MoE architectures, routing mechanisms, load balancing, expert parallelism, and inference optimization.* |
-| `nanogpt` | 约 300 行的教学版 GPT 实现。可在 OpenWebText 上复现 GPT-2（124M）。代码干净、易于改造，适合学习 transformer。作者 Andrej Karpathy。非常适合从零理解 GPT 架构。<br>*Educational GPT implementation in ~300 lines. Reproduces GPT-2 (124M) on OpenWebText. Clean, hackable code for learning transformers. By Andrej Karpathy. Perfect for understanding GPT architecture from scratch. Train on Shakespeare (CPU) or OpenWebText (multi-GPU).* |
-| `nemo-curator` | 用于 LLM 训练的 GPU 加速数据治理工具。支持文本、图像、视频、音频。具备模糊去重、质量过滤、语义去重、PII 脱敏、NSFW 检测。通过 RAPIDS 跨 GPU 扩展。<br>*GPU-accelerated data curation for LLM training. Supports text/image/video/audio. Features fuzzy deduplication (16× faster), quality filtering (30+ heuristics), semantic deduplication, PII redaction, NSFW detection. Scales across GPUs with RAPIDS. Use for preparing high-quality training datasets, cleaning web data, or deduplicating large corpora.* |
-| `nemo-evaluator` | 整合 18+ 评测工具、跨 100+ 基准以多后端执行评估 LLM。当需要在本地 Docker、Slurm HPC 或云平台上进行可扩展评估时使用。NVIDIA 的企业级平台，采用容器优先架构，保证基准测试可复现。<br>*Evaluates LLMs across 100+ benchmarks from 18+ harnesses (MMLU, HumanEval, GSM8K, safety, VLM) with multi-backend execution. Use when needing scalable evaluation on local Docker, Slurm HPC, or cloud platforms. NVIDIA's enterprise-grade platform with container-first architecture for reproducible benchmarking.* |
-| `nemo-guardrails` | NVIDIA 面向 LLM 应用的运行时安全框架。具备越狱检测、输入与输出校验、事实核查、幻觉检测、PII 过滤、毒性检测。使用 Colang 2.0 DSL 实现可编程护栏。生产就绪，可在 T4 GPU 上运行。<br>*NVIDIA's runtime safety framework for LLM applications. Features jailbreak detection, input/output validation, fact-checking, hallucination detection, PII filtering, toxicity detection. Uses Colang 2.0 DSL for programmable rails. Production-ready, runs on T4 GPU.* |
-| `nnsight` | 提供使用 nnsight 解释和操控神经网络内部的指导，可选 NDIF 远程执行。当需要在不具备本地 GPU 资源的情况下对大规模模型（70B+）运行可解释性实验，或处理任意 PyTorch 架构时使用。<br>*Provides guidance for interpreting and manipulating neural network internals using nnsight with optional NDIF remote execution. Use when needing to run interpretability experiments on massive models (70B+) without local GPU resources, or when working with any PyTorch architecture.* |
-| `officecli` | 使用 officecli 命令行工具创建、分析、校对和修改 Office 文档（docx、xlsx、pptx）。当用户想要创建、检查、核对格式、查找问题、添加图表或修改 Office 文档时使用。<br>*Create, analyze, proofread, and modify Office documents (.docx, .xlsx, .pptx) using the officecli CLI tool. Use when the user wants to create, inspect, check formatting, find issues, add charts, or modify Office documents.* |
-| `openpi` | 使用 JAX 或 PyTorch 后端微调并部署 Physical Intelligence 的 OpenPI 模型（pi0、pi0-fast、pi0.5），在 ALOHA、DROID 和 LIBERO 环境中进行机器人策略推理。当将 pi0 模型适配到自定义数据集、运行策略推理服务器或排查归一化统计和 GPU 显存问题时使用。<br>*Fine-tune and serve Physical Intelligence OpenPI models (pi0, pi0-fast, pi0.5) using JAX or PyTorch backends for robot policy inference across ALOHA, DROID, and LIBERO environments. Use when adapting pi0 models to custom datasets, converting JAX checkpoints to PyTorch, running policy inference servers, or debugging norm stats and GPU memory issues.* |
-| `openrlhf` | 高性能 RLHF 框架，搭载 Ray 与 vLLM 加速。用于大模型的 PPO、GRPO、RLOO、DPO 训练。基于 Ray、vLLM、ZeRO-3 构建。凭借分布式架构和 GPU 资源共享，比 DeepSpeedChat 快 2 倍。<br>*High-performance RLHF framework with Ray+vLLM acceleration. Use for PPO, GRPO, RLOO, DPO training of large models (7B-70B+). Built on Ray, vLLM, ZeRO-3. 2× faster than DeepSpeedChat with distributed architecture and GPU resource sharing.* |
-| `openvla-oft` | 微调并评估 OpenVLA-OFT 和 OpenVLA-OFT+ 策略，使用连续动作头、LoRA 适配和 FiLM 条件机制在 LIBERO 仿真与 ALOHA 真实场景中生成机器人动作。当复现论文结果、训练自定义 VLA 动作头、为 ALOHA 部署服务端-客户端推理，或排查归一化、LoRA 合并和跨 GPU 问题时使用。<br>*Fine-tunes and evaluates OpenVLA-OFT and OpenVLA-OFT+ policies for robot action generation with continuous action heads, LoRA adaptation, and FiLM conditioning on LIBERO simulation and ALOHA real-world setups. Use when reproducing OpenVLA-OFT paper results, training custom VLA action heads (L1 or diffusion), deploying server-client inference for ALOHA, or debugging normalization, LoRA merge, and cross-GPU issues.* |
-| `outlines` | 使用 Outlines 保证生成过程输出有效的 JSON、XML、代码结构，用 Pydantic 模型实现类型安全输出，支持本地模型并最大化推理速度——dottxt.ai 的结构化生成库。<br>*Guarantee valid JSON/XML/code structure during generation, use Pydantic models for type-safe outputs, support local models (Transformers, vLLM), and maximize inference speed with Outlines - dottxt.ai's structured generation library* |
-| `peft` | 使用 LoRA、QLoRA 及 25+ 方法对 LLM 进行参数高效微调。当 GPU 显存有限却要微调大模型、需要仅训练少于 1% 的参数且精度损失极小，或需要多适配器服务时使用。HuggingFace 官方库，与 transformers 生态深度集成。<br>*Parameter-efficient fine-tuning for LLMs using LoRA, QLoRA, and 25+ methods. Use when fine-tuning large models (7B-70B) with limited GPU memory, when you need to train <1% of parameters with minimal accuracy loss, or for multi-adapter serving. HuggingFace's official library integrated with transformers ecosystem.* |
-| `phoenix` | 面向 LLM 追踪、评估和监控的开源 AI 可观测性平台。当使用详细追踪调试 LLM 应用、在数据集上运行评估或实时洞察监控生产 AI 系统时使用。<br>*Open-source AI observability platform for LLM tracing, evaluation, and monitoring. Use when debugging LLM applications with detailed traces, running evaluations on datasets, or monitoring production AI systems with real-time insights.* |
-| `pick-ui-library` | 从一份精心筛选、带倾向性建议的前端库清单中，为给定任务挑选合适的库——数字输入、OTP 输入、图表、命令菜单、虚拟化、拖拽、toast 提示、状态管理、样式等。仅在显式调用时运行，不会自行触发。<br>*Pick the right library for a given frontend task from a curated, opinionated list — numbers, OTP inputs, charts, command menus, virtualization, drag and drop, toasts, state, styling, and more. Only runs when explicitly invoked; it does not trigger on its own.* |
-| `pinecone` | 面向生产 AI 应用的托管向量数据库。全托管、自动扩展，支持混合检索、元数据过滤和命名空间。低延迟。用于生产级 RAG、推荐系统或大规模语义搜索，最适合无服务器托管基础设施。<br>*Managed vector database for production AI applications. Fully managed, auto-scaling, with hybrid search (dense + sparse), metadata filtering, and namespaces. Low latency (<100ms p95). Use for production RAG, recommendation systems, or semantic search at scale. Best for serverless, managed infrastructure.* |
-| `playwright` | 当任务需要通过 playwright-cli 或内置包装脚本从终端自动化真实浏览器（导航、表单填写、快照、截图、数据提取、UI 流程调试）时使用。<br>*"Use when the task requires automating a real browser from the terminal (navigation, form filling, snapshots, screenshots, data extraction, UI-flow debugging) via `playwright-cli` or the bundled wrapper script."* |
-| `presenting-conference-talks` | 根据已完成的论文生成会议演讲幻灯片（Beamer LaTeX PDF 和可编辑 PPTX），附带演讲者备注和讲稿。当为 ML 和系统类会议准备口头报告、spotlight 展示或特邀报告时使用。<br>*Generates conference presentation slides (Beamer LaTeX PDF and editable PPTX) from a compiled paper with speaker notes and talk script. Use when preparing oral talks, spotlight presentations, or invited talks for ML and systems conferences.* |
-| `prompt-guard` | Meta 的 86M 提示注入与越狱检测器。为 LLM 应用过滤恶意提示和第三方数据。TPR 99%+、FPR 小于 1%。速度快（GPU 上小于 2ms）。支持多语言。可通过 HuggingFace 部署或批量处理，用于 RAG 安全。<br>*Meta's 86M prompt injection and jailbreak detector. Filters malicious prompts and third-party data for LLM apps. 99%+ TPR, <1% FPR. Fast (<2ms GPU). Multilingual (8 languages). Deploy with HuggingFace or batch processing for RAG security.* |
-| `prototype` | 为你描述的 UI 片段构建多个真正不同的版本，渲染在可视化选择器后面，让你可以实时翻看并把感觉合适的那一版提升为正式方案。仅在显式调用时运行，不会自行触发。<br>*Build multiple genuinely different versions of a UI piece you describe, rendered behind a visual picker so you can flip through them live and promote the one that feels right. Only runs when explicitly invoked; it does not trigger on its own.* |
-| `pytorch-fsdp2` | 为训练脚本添加 PyTorch FSDP2（fully_shard），包含正确的初始化、分片、混合精度与卸载配置和分布式 checkpoint。当模型超出单卡显存，或需要基于 DTensor 配合 DeviceMesh 分片时使用。<br>*Adds PyTorch FSDP2 (fully_shard) to training scripts with correct init, sharding, mixed precision/offload config, and distributed checkpointing. Use when models exceed single-GPU memory or when you need DTensor-based sharding with DeviceMesh.* |
-| `pytorch-lightning` | 高层 PyTorch 框架，提供 Trainer 类、自动分布式训练（DDP、FSDP、DeepSpeed）、回调系统和极简样板代码。同一份代码可从笔记本扩展到超级计算机。当想要内置最佳实践的简洁训练循环时使用。<br>*High-level PyTorch framework with Trainer class, automatic distributed training (DDP/FSDP/DeepSpeed), callbacks system, and minimal boilerplate. Scales from laptop to supercomputer with same code. Use when you want clean training loops with built-in best practices.* |
-| `pyvene` | 提供使用 pyvene 声明式干预框架对 PyTorch 模型进行因果干预的指导。当进行因果追踪、激活替换、交换干预训练或检验关于模型行为的因果假设时使用。<br>*Provides guidance for performing causal interventions on PyTorch models using pyvene's declarative intervention framework. Use when conducting causal tracing, activation patching, interchange intervention training, or testing causal hypotheses about model behavior.* |
-| `qdrant` | 用于 RAG 和语义搜索的高性能向量相似度检索引擎。当构建需要快速近邻搜索、带过滤的混合检索或具备 Rust 高性能可扩展向量存储的生产级 RAG 系统时使用。<br>*High-performance vector similarity search engine for RAG and semantic search. Use when building production RAG systems requiring fast nearest neighbor search, hybrid search with filtering, or scalable vector storage with Rust-powered performance.* |
-| `ray-data` | 面向 ML 工作负载的可扩展数据处理。支持跨 CPU 与 GPU 流式执行，支持 Parquet、CSV、JSON、图像。与 Ray Train、PyTorch、TensorFlow 集成。可从单机扩展到数百节点。用于批量推理、数据预处理、多模态数据加载或分布式 ETL 流水线。<br>*Scalable data processing for ML workloads. Streaming execution across CPU/GPU, supports Parquet/CSV/JSON/images. Integrates with Ray Train, PyTorch, TensorFlow. Scales from single machine to 100s of nodes. Use for batch inference, data preprocessing, multi-modal data loading, or distributed ETL pipelines.* |
-| `ray-train` | 跨集群的分布式训练编排。可将 PyTorch、TensorFlow、HuggingFace 从笔记本扩展到数千节点。内置基于 Ray Tune 的超参数调优、容错和弹性扩展。当跨多台机器训练超大规模模型或运行分布式超参数搜索时使用。<br>*Distributed training orchestration across clusters. Scales PyTorch/TensorFlow/HuggingFace from laptop to 1000s of nodes. Built-in hyperparameter tuning with Ray Tune, fault tolerance, elastic scaling. Use when training massive models across multiple machines or running distributed hyperparameter sweeps.* |
-| `review-animations` | 以源自 Emil Kowalski 设计工程哲学的高工艺标准评审动画与动效代码。默认倾向标记问题；通过标准才算通过。<br>*Reviews animation and motion code against a high craft bar derived from Emil Kowalski's design engineering philosophy. Default to flagging; approval is earned.* |
-| `rwkv` | RNN 与 Transformer 混合架构，推理复杂度 O(n)。线性时间、无限上下文、无 KV cache。像 GPT 一样训练（并行）、像 RNN 一样推理（顺序）。Linux Foundation AI 项目。RWKV-7（2025 年 3 月）。模型参数最高达 14B。<br>*RNN+Transformer hybrid with O(n) inference. Linear time, infinite context, no KV cache. Train like GPT (parallel), infer like RNN (sequential). Linux Foundation AI project. Production at Windows, Office, NeMo. RWKV-7 (March 2025). Models up to 14B parameters.* |
-| `saelens` | 提供使用 SAELens 训练和分析稀疏自编码器（SAE）的指导，将神经网络激活分解为可解释的特征。当发现可解释特征、分析叠加现象或研究语言模型中的单语义表征时使用。<br>*Provides guidance for training and analyzing Sparse Autoencoders (SAEs) using SAELens to decompose neural network activations into interpretable features. Use when discovering interpretable features, analyzing superposition, or studying monosemantic representations in language models.* |
-| `scholar-ppt-cn` | 当用户想要根据论文、学位论文、报告、图表、笔记、参考模板、截图或视觉原型创建、重设风格或重建中文学术 PowerPoint 时使用。该工作流保持用户界面简洁，同时恢复有用的规划环节。首先创建制作规划表，将每页幻灯片映射到叙事章节、源素材、核心信息和详细的版式原型；然后创建原型族加变体蓝图。只有确立这一族蓝图后，才会生成视觉样例和可编辑 PPTX。<br>*Use this skill when a user wants to create, restyle, or rebuild a Chinese academic PowerPoint from papers, theses, reports, figures, notes, reference templates, screenshots, or visual mockups. The workflow keeps the user interface simple while restoring useful planning. First create a production planning table that maps each slide to narrative section, source asset, source-asset geometry, core message, and detailed layout archetype. Then create a mockup family + variants blueprint that groups planned slides into reusable visual families and assigns concrete variants. Visual samples and editable PPTX are generated only after this family blueprint is established. Template DNA controls visual identity; layout archetypes and mockup family variants control page structure; approved mockups override fallback layouts.* |
-| `sci-extract` | 通读学术论文并提取专业的研究洞见、图表、元数据和批判性评价。当用户分享科学论文、综述、系统综述、元分析、范围综述、arXiv 链接、DOI、PDF 或粘贴的论文文本，并要求阅读、总结、分析、提取、消化、评审、批判或解释时使用。对于原创研究论文，产出改良版 Heilmeier 分析；对于综述文献，产出范围地图式提取。不要将此技能用于非学术文章、博客或新闻。<br>*Read an academic paper end to end and extract professional research insights, figures, metadata, and critique. Use this skill whenever the user shares a scientific paper, review paper, survey paper, systematic review, meta-analysis, scoping review, arXiv link, DOI, PDF, or pasted paper text and asks to read, summarize, analyze, extract, digest, review, critique, or explain it. For original research papers, produce a modified Heilmeier analysis. For review literature, produce a field-map extraction covering scope, taxonomy, evidence quality, consensus, controversies, gaps, and future directions. Do NOT use this skill for non-academic articles, blog posts, or news.* |
-| `sci-figure` | 从学术 PDF 论文中提取图形和子图。支持 Fig、Figure、Scheme、Chart、Supplementary Figure、Extended Data Figure 及对应中文（图、方案、示意图、附图、补充图）。子图标签识别支持多种格式。以可配置 DPI 输出高质量 PNG。<br>*Extracts figures and sub-figures from academic PDF papers. Supports Fig/Figure, Scheme, Chart, Supplementary Figure, Extended Data Figure (Nature), and Chinese equivalents (图/方案/示意图/附图/补充图). Sub-figure label recognition supports (a)/(A)/a)/(i)/(1)/a. formats. High-quality PNG output at configurable DPI. Use when user asks to "extract figure", "截取文献图片", "提取子图", "get figure from paper", "Scheme", "方案图", "补充图", "Supplementary Figure", or "Extended Data".* |
-| `sci-html` | 根据 PDF、结构化文本、Markdown、论文摘要、大纲或研究笔记生成学术演示风格的 HTML 幻灯片和浏览器报告。当用户想把科学论文 PDF 直接转换为交互式 HTML 报告、可点击的网页演示、可分享的浏览器幻灯片，或带图表、结构化洞见、章节页和离线目录输出的类 PPT HTML 时使用。<br>*Generate academic presentation-style HTML slide decks and browser reports from PDFs, structured text, Markdown, paper summaries, outlines, or research notes. Use whenever the user wants to convert a scientific paper PDF directly into an interactive HTML report, clickable web presentation, shareable browser deck, or PPT-like HTML output with figures, structured insights, section pages, and offline deck-directory output. In the Aut_Sci_Write suite, choose this skill when the user wants HTML/web output; choose sci-ppt when they explicitly need a .pptx file.* |
-| `sci-ppt` | 根据论文 PDF、结构化大纲或纯文本生成专业的学术 PowerPoint（PPTX）演示。用于论文答辩、组会报告、文献汇报和研究生申请。支持自动提取图表、LaTeX 公式渲染和中英双语排版。<br>*Generate professional academic PowerPoint (PPTX) presentations from paper PDFs, structured outlines, or plain text. Use for thesis defense, seminar reports, literature presentations, and graduate school applications. Supports automatic figure extraction, LaTeX formula rendering, and bilingual (Chinese/English) layouts.* |
-| `sci-review` | 用于起草、打磨和回应学术文献综述与同行评审意见的专项工作流。适用于文献综述大纲、研究空白综合、审稿人反驳、回复信和学术写作语气修正。<br>*Specialized workflows for drafting, refining, and responding to academic literature reviews and peer review feedback. Use this skill for literature review outlines, research-gap synthesis, reviewer rebuttals, response letters, and academic writing tone repair.* |
-| `sci-search` | 学术论文搜索与指标分析。同时检索 arXiv、PubMed 和 Web of Science，并附带期刊影响因子数据。当用户请求搜索论文或查找文献时触发。<br>*Academic paper search and metrics analysis. Searches arXiv, PubMed, and Web of Science simultaneously with journal impact factor data. Triggers on requests to search for papers or find literature.* |
-| `sci-zotero` | 与你的 Zotero 文献库交互，同步参考文献、按 DOI、ISBN、PMID 添加引文并管理 PDF。当用户提出与 Zotero 相关的请求时触发。<br>*Interact with your Zotero library to sync references, add citations by DOI/ISBN/PMID, and manage PDFs. Triggers on Zotero-related requests.* |
-| `segment-anything` | 具备零样本迁移能力的图像分割基础模型。当需要用点、框或掩码作为提示分割图像中的任意物体，或自动生成图像中所有物体的掩码时使用。<br>*Foundation model for image segmentation with zero-shot transfer. Use when you need to segment any object in images using points, boxes, or masks as prompts, or automatically generate all object masks in an image.* |
-| `sentencepiece` | 与语言无关的分词器，将文本视为原始 Unicode。支持 BPE 和 Unigram 算法。速度快、轻量、词表确定。无需预分词即可在原始文本上训练。当需要多语言支持、中日韩文字或可复现的分词时使用。<br>*Language-independent tokenizer treating text as raw Unicode. Supports BPE and Unigram algorithms. Fast (50k sentences/sec), lightweight (6MB memory), deterministic vocabulary. Used by T5, ALBERT, XLNet, mBART. Train on raw text without pre-tokenization. Use when you need multilingual support, CJK languages, or reproducible tokenization.* |
-| `sentence-transformers` | 用于 SOTA 句子、文本和图像 embedding 的框架。提供 5000+ 预训练模型，支持语义相似度、聚类和检索。支持多语言、领域特定和多模态模型。用于为 RAG、语义搜索或相似度任务生成 embedding，最适合生产环境下的 embedding 生成。<br>*Framework for state-of-the-art sentence, text, and image embeddings. Provides 5000+ pre-trained models for semantic similarity, clustering, and retrieval. Supports multilingual, domain-specific, and multimodal models. Use for generating embeddings for RAG, semantic search, or similarity tasks. Best for production embedding generation.* |
-| `sglang` | 具备 RadixAttention 前缀缓存的快速结构化生成与服务框架。用于 JSON 与正则输出、受约束解码、带工具调用的智能体工作流，或需要借助前缀共享实现比 vLLM 快 5 倍的推理时使用。支撑 xAI、AMD、NVIDIA 和 LinkedIn 的 30 万+ GPU。<br>*Fast structured generation and serving for LLMs with RadixAttention prefix caching. Use for JSON/regex outputs, constrained decoding, agentic workflows with tool calls, or when you need 5× faster inference than vLLM with prefix sharing. Powers 300,000+ GPUs at xAI, AMD, NVIDIA, and LinkedIn.* |
-| `simpo` | 用于 LLM 对齐的简单偏好优化（SimPO）。无需参考模型的 DPO 替代方案，性能更优（AlpacaEval 2.0 上+6.4 分）。不需要参考模型，比 DPO 更高效。当想要比 DPO 与 PPO 更简单、更快的偏好对齐训练时使用。<br>*Simple Preference Optimization for LLM alignment. Reference-free alternative to DPO with better performance (+6.4 points on AlpacaEval 2.0). No reference model needed, more efficient than DPO. Use for preference alignment when want simpler, faster training than DPO/PPO.* |
-| `skypilot` | 面向 ML 工作负载的多云编排，带自动成本优化。当需要跨多个云运行训练或批处理任务、利用支持自动恢复的 spot 实例，或跨提供商优化 GPU 成本时使用。<br>*Multi-cloud orchestration for ML workloads with automatic cost optimization. Use when you need to run training or batch jobs across multiple clouds, leverage spot instances with auto-recovery, or optimize GPU costs across providers.* |
-| `slime` | 提供使用 slime（Megatron 与 SGLang 框架）进行 LLM 强化学习后训练的指导。当训练 GLM 模型、实现自定义数据生成工作流，或需要与 Megatron-LM 紧密集成以扩展 RL 时使用。<br>*Provides guidance for LLM post-training with RL using slime, a Megatron+SGLang framework. Use when training GLM models, implementing custom data generation workflows, or needing tight Megatron-LM integration for RL scaling.* |
-| `speculative-decoding` | 使用投机解码、Medusa 多头和前瞻解码技术加速 LLM 推理。当优化推理速度、降低实时应用延迟或在算力有限的环境部署模型时使用。涵盖草稿模型、树状注意力、Jacobi 迭代、并行 token 生成和生产部署策略。<br>*Accelerate LLM inference using speculative decoding, Medusa multiple heads, and lookahead decoding techniques. Use when optimizing inference speed (1.5-3.6× speedup), reducing latency for real-time applications, or deploying models with limited compute. Covers draft models, tree-based attention, Jacobi iteration, parallel token generation, and production deployment strategies.* |
-| `stable-diffusion` | 通过 HuggingFace Diffusers 使用 Stable Diffusion 模型进行 SOTA 文生图。当从文本提示生成图像、进行图生图转换、图像修补或构建自定义扩散流水线时使用。<br>*State-of-the-art text-to-image generation with Stable Diffusion models via HuggingFace Diffusers. Use when generating images from text prompts, performing image-to-image translation, inpainting, or building custom diffusion pipelines.* |
-| `swanlab` | 提供使用 SwanLab 进行实验追踪的指导。当需要开源的运行追踪、本地或自托管仪表盘，以及面向 ML 工作流的轻量媒体日志时使用。<br>*Provides guidance for experiment tracking with SwanLab. Use when you need open-source run tracking, local or self-hosted dashboards, and lightweight media logging for ML workflows.* |
-| `systems-paper-writing` | 面向 OSDI、SOSP、ASPLOS、NSDI 和 EuroSys 的系统类论文写作综合指南。提供段落级结构蓝图、写作范式、按会议区分的检查清单、审稿人指南、LaTeX 模板和会议截稿日期。所有系统类会议论文写作都使用本技能。<br>*Comprehensive guide for writing systems papers targeting OSDI, SOSP, ASPLOS, NSDI, and EuroSys. Provides paragraph-level structural blueprints, writing patterns, venue-specific checklists, reviewer guidelines, LaTeX templates, and conference deadlines. Use this skill for all systems conference paper writing.* |
-| `tensorboard` | 使用 TensorBoard 可视化训练指标、用直方图调试模型、比较实验、可视化模型图和性能剖析——Google 的 ML 可视化工具包。<br>*Visualize training metrics, debug models with histograms, compare experiments, visualize model graphs, and profile performance with TensorBoard - Google's ML visualization toolkit* |
-| `tensorrt-llm` | 使用 NVIDIA TensorRT 优化 LLM 推理，实现最大吞吐量和最低延迟。用于 NVIDIA GPU（A100、H100）上的生产部署、需要比 PyTorch 快 10-100 倍的推理，或以量化、动态批处理和多 GPU 扩展方式服务模型时使用。<br>*Optimizes LLM inference with NVIDIA TensorRT for maximum throughput and lowest latency. Use for production deployment on NVIDIA GPUs (A100/H100), when you need 10-100x faster inference than PyTorch, or for serving models with quantization (FP8/INT4), in-flight batching, and multi-GPU scaling.* |
-| `torchforge` | 提供使用 torchforge（Meta 将基础设施与算法分离的库）进行 PyTorch 原生智能体强化学习的指导。当想要干净的 RL 抽象、轻松的算法实验，或借助 Monarch 和 TorchTitan 进行可扩展训练时使用。<br>*Provides guidance for PyTorch-native agentic RL using torchforge, Meta's library separating infra from algorithms. Use when you want clean RL abstractions, easy algorithm experimentation, or scalable training with Monarch and TorchTitan.* |
-| `torchtitan` | 使用 torchtitan 进行 PyTorch 原生的分布式 LLM 预训练，支持 4D 并行（FSDP2、TP、PP、CP）。当使用 Float8、torch.compile 和分布式 checkpoint 预训练 Llama 3.1、DeepSeek V3 或自定义模型，规模从 8 到 512+ GPU 时使用。<br>*Provides PyTorch-native distributed LLM pretraining using torchtitan with 4D parallelism (FSDP2, TP, PP, CP). Use when pretraining Llama 3.1, DeepSeek V3, or custom models at scale from 8 to 512+ GPUs with Float8, torch.compile, and distributed checkpointing.* |
-| `transformer-lens` | 提供使用 TransformerLens 进行机制可解释性研究的指导，通过 HookPoints 和激活缓存检查与操控 transformer 内部。当逆向解析模型算法、研究注意力模式或进行激活替换实验时使用。<br>*Provides guidance for mechanistic interpretability research using TransformerLens to inspect and manipulate transformer internals via HookPoints and activation caching. Use when reverse-engineering model algorithms, studying attention patterns, or performing activation patching experiments.* |
-| `trl-fine-tuning` | 使用 TRL 通过强化学习微调 LLM——SFT 用于指令微调、DPO 用于偏好对齐、PPO 与 GRPO 用于奖励优化，以及奖励模型训练。当需要 RLHF、让模型对齐偏好或基于人类反馈训练时使用。<br>*Fine-tune LLMs using reinforcement learning with TRL - SFT for instruction tuning, DPO for preference alignment, PPO/GRPO for reward optimization, and reward model training. Use when need RLHF, align model with preferences, or train from human feedback. Works with HuggingFace Transformers.* |
-| `unsloth` | 使用 Unsloth 快速微调的专家级指导——训练快 2-5 倍、内存减少 50-80%、LoRA 与 QLoRA 优化。<br>*Expert guidance for fast fine-tuning with Unsloth - 2-5x faster training, 50-80% less memory, LoRA/QLoRA optimization* |
-| `verl` | 提供使用 verl（火山引擎 RL）进行 LLM 强化学习训练的指导。当以灵活的基础设施后端大规模实现 RLHF、GRPO、PPO 或其他 RL 算法进行 LLM 后训练时使用。<br>*Provides guidance for training LLMs with reinforcement learning using verl (Volcano Engine RL). Use when implementing RLHF, GRPO, PPO, or other RL algorithms for LLM post-training at scale with flexible infrastructure backends.* |
-| `visiomaster` | 面向 Windows 优先的 Visio 图表重建工作流，用于流程图、架构图和论文风格模块图。通过 scene.json 到 Visio 的流水线输出可编辑的 Visio vsdx 以及导出的 svg 和 png。当用户希望把图表重建为可编辑的 Visio 形状时使用。<br>*Windows-first Visio diagram reconstruction workflow for flowcharts, architecture diagrams, and paper-style module figures. Reuses ppt-master style analysis and composition discipline on the front half, but outputs editable Visio .vsdx plus exported .svg and .png through a scene.json to Visio pipeline. Use when the user wants a diagram recreated as editable Visio shapes instead of a pasted screenshot or PPT-only result.* |
-| `vllm` | 使用 vLLM 的 PagedAttention 和连续批处理以高吞吐量服务 LLM。当部署生产级 LLM API、优化推理延迟与吞吐量或在有限 GPU 显存下服务模型时使用。支持 OpenAI 兼容端点、量化（GPTQ、AWQ、FP8）和张量并行。<br>*Serves LLMs with high throughput using vLLM's PagedAttention and continuous batching. Use when deploying production LLM APIs, optimizing inference latency/throughput, or serving models with limited GPU memory. Supports OpenAI-compatible endpoints, quantization (GPTQ/AWQ/FP8), and tensor parallelism.* |
-| `weights-and-biases` | 使用 W&B 自动记录并追踪 ML 实验、实时可视化训练、通过 sweep 优化超参数并管理模型注册表——协作式 MLOps 平台。<br>*Track ML experiments with automatic logging, visualize training in real-time, optimize hyperparameters with sweeps, and manage model registry with W&B - collaborative MLOps platform* |
-| `whisper` | OpenAI 的通用语音识别模型。支持 99 种语言、转写、翻译成英语和语种识别。提供从 tiny 到 large 的六种尺寸。用于语音转文字、播客转写或多语言音频处理，最适合稳健的多语言 ASR。<br>*OpenAI's general-purpose speech recognition model. Supports 99 languages, transcription, translation to English, and language identification. Six model sizes from tiny (39M params) to large (1550M params). Use for speech-to-text, podcast transcription, or multilingual audio processing. Best for robust, multilingual ASR.* |
-| `windows-deployment-cli-locations` | 定位并调用此 Windows 工作站上已安装的部署与数据库工具，尤其是 Supabase CLI、Netlify CLI、Neon CLI、Vercel CLI、Cloudflare Wrangler、Railway CLI、PostgreSQL 和 Docker 检查。当任务需要这些命令之一、命令不在 PATH 中、需要检查工具是否已安装或在安装另一个副本之前使用。<br>*Locate and invoke the deployment and database tools installed on this Windows workstation, especially Supabase CLI, Netlify CLI, Neon CLI, Vercel CLI, Cloudflare Wrangler, Railway CLI, PostgreSQL, and Docker checks. Use when a task needs one of these commands, when a command is not on PATH, when checking whether a tool is installed, or before installing another copy.* |
-| `winui-app` | 使用 C# 和 Windows App SDK 引导、开发和设计现代 WinUI 3 桌面应用，参考微软官方指南、WinUI Gallery 模式、Windows App SDK 示例和 CommunityToolkit 组件。当创建全新应用、为 WinUI 准备机器、评审、重构、规划、排障、环境检查，或配置 WinUI 3 的 XAML、控件、导航、窗口、主题、无障碍、响应式、性能、部署及相关 Windows 应用设计与开发工作时使用。<br>*Bootstrap, develop, and design modern WinUI 3 desktop applications with C# and the Windows App SDK using official Microsoft guidance, WinUI Gallery patterns, Windows App SDK samples, and CommunityToolkit components. Use when creating a brand new app, preparing a machine for WinUI, reviewing, refactoring, planning, troubleshooting, environment-checking, or setting up WinUI 3 XAML, controls, navigation, windowing, theming, accessibility, responsiveness, performance, deployment, or related Windows app design and development work.* |
+### 框架与平台 · framework  (13)
 
+- **`autogpt`** — 
+- **`crewai`** — 
+- **`dspy`** — 
+- **`guidance`** — 
+- **`instructor`** — 
+- **`langchain`** — 
+- **`langsmith`** — 
+- **`mlflow`** — 
+- **`outlines`** — 
+- **`phoenix`** — 
+- **`swanlab`** — 
+- **`tensorboard`** — 
+- **`weights-and-biases`** — 
+
+### 评估与基准 · eval  (3)
+
+- **`bigcode-evaluation-harness`** — 
+- **`lm-evaluation-harness`** — 
+- **`nemo-evaluator`** — 
+
+### 数据与检索 · data  (11)
+
+- **`chroma`** — 
+- **`faiss`** — 
+- **`nemo-curator`** — 
+- **`nnsight`** — 
+- **`pinecone`** — 
+- **`pyvene`** — 
+- **`qdrant`** — 
+- **`ray-data`** — 
+- **`sentencepiece`** — 
+- **`sentence-transformers`** — 
+- **`transformer-lens`** — 
+
+### 工具与CLI · tool  (33)
+
+- **`0-autoresearch-skill`** — 
+- **`a-evolve`** — 
+- **`alibabacloud-find-skills`** — 
+- **`audiocraft`** — 
+- **`blip-2`** — 
+- **`cli-anything`** — 
+- **`cli-creator`** — 
+- **`clip`** — 
+- **`dramaclaw`** — 
+- **`hatch-pet`** — 
+- **`huggingface-tokenizers`** — 
+- **`imagegen`** — 
+- **`image-gen-fuck`** — 
+- **`karpathy-guidelines`** — 
+- **`lambda-labs`** — 
+- **`libreoffice-local-install`** — 
+- **`llava`** — 
+- **`ml-training-recipes`** — 
+- **`modal`** — 
+- **`officecli`** — 
+- **`playwright`** — 
+- **`pytorch-fsdp2`** — 
+- **`pytorch-lightning`** — 
+- **`ray-train`** — 
+- **`saelens`** — 
+- **`segment-anything`** — 
+- **`skypilot`** — 
+- **`stable-diffusion`** — 
+- **`tensorrt-llm`** — 
+- **`visiomaster`** — 
+- **`whisper`** — 
+- **`windows-deployment-cli-locations`** — 
+- **`winui-app`** — 
+
+### 研究与写作 · research  (5)
+
+- **`brainstorming-research-ideas`** — 
+- **`creative-thinking-for-research`** — 
+- **`ml-paper-writing`** — 
+- **`presenting-conference-talks`** — 
+- **`systems-paper-writing`** — 
+
+### 学术文献 · academic  (19)
+
+- **`cnki-advanced-search`** — 
+- **`cnki-download`** — 
+- **`cnki-export`** — 
+- **`cnki-journal-index`** — 
+- **`cnki-journal-search`** — 
+- **`cnki-journal-toc`** — 
+- **`cnki-navigate-pages`** — 
+- **`cnki-paper-detail`** — 
+- **`cnki-parse-results`** — 
+- **`cnki-researcher`** — 
+- **`cnki-search`** — 
+- **`scholar-ppt-cn`** — 
+- **`sci-extract`** — 
+- **`sci-figure`** — 
+- **`sci-html`** — 
+- **`sci-ppt`** — 
+- **`sci-review`** — 
+- **`sci-search`** — 
+- **`sci-zotero`** — 
+
+### 安全与对齐 · safety  (4)
+
+- **`bugbounty-workflow`** — 
+- **`constitutional-ai`** — 
+- **`nemo-guardrails`** — 
+- **`prompt-guard`** — 
+
+### 设计与前端 · design  (12)
+
+- **`academic-plotting`** — 
+- **`animation-vocabulary`** — 
+- **`apple-design`** — 
+- **`app-shell-ui`** — 
+- **`chinese-plot-labels`** — 
+- **`drawio-skill`** — 
+- **`emil-design-eng`** — 
+- **`find-animation-opportunities`** — 
+- **`improve-animations`** — 
+- **`pick-ui-library`** — 
+- **`prototype`** — 
+- **`review-animations`** — 
+
+### 训练与推理 · ml  (39)
+
+- **`accelerate`** — 
+- **`awq`** — 
+- **`axolotl`** — 
+- **`bitsandbytes`** — 
+- **`deepspeed`** — 
+- **`flash-attention`** — 
+- **`gguf`** — 
+- **`gptq`** — 
+- **`grpo-rl-training`** — 
+- **`hqq`** — 
+- **`knowledge-distillation`** — 
+- **`litgpt`** — 
+- **`llama-cpp`** — 
+- **`llama-factory`** — 
+- **`llamaguard`** — 
+- **`llamaindex`** — 
+- **`long-context`** — 
+- **`mamba`** — 
+- **`megatron-core`** — 
+- **`miles`** — 
+- **`model-merging`** — 
+- **`model-pruning`** — 
+- **`moe-training`** — 
+- **`nanogpt`** — 
+- **`openpi`** — 
+- **`openrlhf`** — 
+- **`openvla-oft`** — 
+- **`peft`** — 
+- **`rwkv`** — 
+- **`sglang`** — 
+- **`simpo`** — 
+- **`slime`** — 
+- **`speculative-decoding`** — 
+- **`torchforge`** — 
+- **`torchtitan`** — 
+- **`trl-fine-tuning`** — 
+- **`unsloth`** — 
+- **`verl`** — 
+- **`vllm`** — 
+
+### 机器人 · robotics  (1)
+
+- **`cosmos-policy`** — 
 
 ## 📲 同步到设备 · Sync to Devices
 

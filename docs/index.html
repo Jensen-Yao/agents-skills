@@ -37,13 +37,28 @@
   .chip.active { background:linear-gradient(135deg, var(--accent), #7c3aed); color:#fff; border-color:transparent; }
   .count { color:var(--muted); font-size:13px; margin-bottom:14px; }
   .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:14px; }
-  .card { background:var(--panel); border:1px solid var(--line); border-radius:16px; padding:18px; transition:transform .18s ease,border-color .18s ease; }
+  .card { background:var(--panel); border:1px solid var(--line); border-radius:16px; padding:18px; transition:transform .18s ease,border-color .18s ease; cursor:pointer; }
   .card:hover { transform:translateY(-2px); border-color:rgba(77,107,254,.45); }
   .card .cardtop { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; gap:8px; }
   .card h3 { font-size:15px; color:#9db4ff; font-family:ui-monospace,Consolas,monospace; word-break:break-all; }
   .card .cat { font-size:11px; color:var(--muted); border:1px solid var(--line); border-radius:999px; padding:2px 8px; white-space:nowrap; }
   .card p { color:var(--muted); font-size:13px; line-height:1.6; }
   .empty { text-align:center; color:var(--muted); padding:40px 0; display:none; }
+  .modal { position:fixed; inset:0; background:rgba(4,6,14,.72); backdrop-filter:blur(4px); display:none; align-items:center; justify-content:center; z-index:50; padding:20px; }
+  .modal.open { display:flex; }
+  .modal-box { background:#121830; border:1px solid var(--line); border-radius:20px; max-width:760px; width:100%; max-height:86vh; display:flex; flex-direction:column; overflow:hidden; }
+  .modal-head { padding:20px 24px 0; display:flex; justify-content:space-between; align-items:flex-start; gap:12px; }
+  .modal-head h3 { font-size:20px; color:#9db4ff; font-family:ui-monospace,Consolas,monospace; word-break:break-all; }
+  .modal-head .cat { font-size:12px; color:var(--muted); border:1px solid var(--line); border-radius:999px; padding:3px 10px; white-space:nowrap; }
+  .modal-close { cursor:pointer; border:1px solid var(--line); background:var(--panel); color:var(--muted); width:34px; height:34px; border-radius:50%; font-size:15px; flex:none; }
+  .modal-desc { padding:14px 24px 0; color:var(--muted); font-size:14px; line-height:1.75; }
+  .modal-desc b { color:var(--text); }
+  .modal-actions { display:flex; gap:10px; padding:14px 24px 0; flex-wrap:wrap; }
+  .mbtn { cursor:pointer; border:1px solid var(--line); background:var(--panel); color:var(--text); border-radius:999px; padding:8px 16px; font-size:13px; transition:all .16s ease; text-decoration:none; }
+  .mbtn.primary { background:linear-gradient(135deg, var(--accent), #7c3aed); color:#fff; border-color:transparent; }
+  .mbtn:hover { transform:translateY(-1px); }
+  .modal-pre { margin:16px 24px 22px; padding:16px; background:rgba(0,0,0,.35); border:1px solid var(--line); border-radius:12px; overflow:auto; color:#cdd6f4; font-size:12px; line-height:1.65; font-family:ui-monospace,Consolas,monospace; white-space:pre-wrap; word-break:break-word; min-height:120px; max-height:42vh; }
+  .loading { color:var(--muted); }
   footer { text-align:center; color:var(--muted); font-size:13px; margin-top:70px; }
   a { color:var(--accent); }
   .en { display:none; }
@@ -233,6 +248,27 @@
     <div class="card" data-name="winui-app" data-zh="使用 C# 和 Windows App SDK 引导、开发和设计现代 WinUI 3 桌面应用，参考微软官方指南、WinUI Gallery 模式、Windows App SDK 示例和 CommunityToolkit 组件。当创建全新应用、为 WinUI 准备机器、评审、重构、规划、排障、环境检查，或配置 WinUI 3 的 XAML、控件、导航、窗口、主题、无障碍、响应式、性能、部署及相关 Windows 应用设计与开发工作时使用。" data-en="Bootstrap, develop, and design modern WinUI 3 desktop applications with C# and the Windows App SDK using official Microsoft guidance, WinUI Gallery patterns, Windows App SDK samples, and CommunityToolkit components. Use when creating a brand new app, preparing a machine for WinUI, reviewing, refactoring, planning, troubleshooting, environment-checking, or setting up WinUI 3 XAML, controls, navigation, windowing, theming, accessibility, responsiveness, performance, deployment, or related Windows app design and development work."><div class="cardtop"><h3>winui-app</h3><span class="cat">工具与CLI</span></div><p class="zh">使用 C# 和 Windows App SDK 引导、开发和设计现代 WinUI 3 桌面应用，参考微软官方指南、WinUI Gallery 模式、Windows App SDK 示例和 CommunityToolkit 组件。当创建全新应用、为 WinUI 准备机器、评审、重构、规划、排障、环境检查，或配置 WinUI 3 的 XAML、控件、导航、窗口、主题、无障碍、响应式、性能、部署及相关 Windows 应用设计与开发工作时使用。</p><p class="en">Bootstrap, develop, and design modern WinUI 3 desktop applications with C# and the Windows App SDK using official Microsoft guidance, WinUI Gallery patterns, Windows App SDK samples, and CommunityToolkit components. Use when creating a brand new app, preparing a machine for WinUI, reviewing, refactoring, planning, troubleshooting, environment-checking, or setting up WinUI 3 XAML, controls, navigation, windowing, theming, accessibility, responsiveness, performance, deployment, or related Windows app design and development work.</p></div>
   <div class="empty" id="empty"><span class="zh">没有匹配的技能</span><span class="en">No matching skills</span></div>
 
+  <div class="modal" id="modal" onclick="if(event.target===this)closeModal()">
+    <div class="modal-box">
+      <div class="modal-head">
+        <div>
+          <h3 id="mName"></h3>
+          <span class="cat" id="mCat" style="margin-top:8px;display:inline-block"></span>
+        </div>
+        <button class="modal-close" onclick="closeModal()">✕</button>
+      </div>
+      <div class="modal-desc">
+        <p><b><span class="zh">中文说明</span><span class="en">Chinese</span>：</b><span id="mZh"></span></p>
+        <p style="margin-top:8px"><b><span class="zh">英文说明（触发条件）</span><span class="en">English (trigger)</span>：</b><span id="mEn"></span></p>
+      </div>
+      <div class="modal-actions">
+        <a class="mbtn" id="mPath" target="_blank" rel="noopener"><span class="zh">在仓库中查看</span><span class="en">View in repo</span> ↗</a>
+        <button class="mbtn primary" id="mLoad" onclick="loadSkill()"><span class="zh">加载完整 SKILL.md</span><span class="en">Load full SKILL.md</span></button>
+      </div>
+      <pre class="modal-pre loading" id="mBody"></pre>
+    </div>
+  </div>
+
   <footer>
     <p><span class="zh"><a href="https://github.com/Jensen-Yao/agents-skills">GitHub 仓库</a> · MIT License · 与 <a href="https://github.com/deepseek-ai/deepseek-harness">DeepSeek Harness</a> 生态集成</span><span class="en"><a href="https://github.com/Jensen-Yao/agents-skills">GitHub Repository</a> · MIT License · Integrated with the <a href="https://github.com/deepseek-ai/deepseek-harness">DeepSeek Harness</a> ecosystem</span></p>
   </footer>
@@ -290,6 +326,43 @@
     try{ localStorage.setItem('agents-skills-lang', l); }catch(e){}
   }
   document.getElementById('search').addEventListener('input', function(){ state.q = this.value; filter(); });
+  // 详情弹层
+  var currentSkill = '';
+  function openModal(name, zh, en){
+    currentSkill = name;
+    document.getElementById('mName').textContent = name;
+    document.getElementById('mCat').textContent = CAT_NAMES[catOf(name)] || '';
+    document.getElementById('mZh').textContent = zh;
+    document.getElementById('mEn').textContent = en;
+    document.getElementById('mPath').setAttribute('href', 'https://github.com/Jensen-Yao/agents-skills/blob/main/skills/' + encodeURIComponent(name) + '/SKILL.md');
+    var body = document.getElementById('mBody');
+    body.textContent = '';
+    body.classList.add('loading');
+    document.getElementById('modal').classList.add('open');
+    loadSkill();
+  }
+  function closeModal(){ document.getElementById('modal').classList.remove('open'); }
+  function loadSkill(){
+    if(!currentSkill) return;
+    var body = document.getElementById('mBody');
+    body.classList.add('loading');
+    body.textContent = document.documentElement.lang==='en' ? 'Loading SKILL.md…' : '正在加载 SKILL.md…';
+    fetch('https://raw.githubusercontent.com/Jensen-Yao/agents-skills/main/skills/' + encodeURIComponent(currentSkill) + '/SKILL.md')
+      .then(function(r){ if(!r.ok) throw new Error(String(r.status)); return r.text(); })
+      .then(function(t){ body.classList.remove('loading'); body.textContent = t; })
+      .catch(function(e){
+        body.classList.remove('loading');
+        body.textContent = document.documentElement.lang==='en'
+          ? 'Failed to load ('+e.message+'). Open it in the repo link instead.'
+          : '加载失败（'+e.message+'）。请改用「在仓库中查看」。';
+      });
+  }
+  document.getElementById('grid').addEventListener('click', function(e){
+    var card = e.target.closest('.card');
+    if(!card) return;
+    openModal(card.dataset.name, card.dataset.zh, card.dataset.en);
+  });
+  document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeModal(); });
   buildChips();
   filter();
   try{ if(localStorage.getItem('agents-skills-lang')==='en') setLang('en'); }catch(e){}

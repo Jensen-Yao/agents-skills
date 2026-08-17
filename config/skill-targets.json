@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "source": "C:/Users/18052/.agents/agents-skills-repo/skills",
+  "targets": [
+    {
+      "name": "dsh",
+      "path": "F:/DeepSeek harness/.agents/skills"
+    },
+    {
+      "name": "model-management",
+      "path": "D:/Desktop/模型管理/skills"
+    }
+  ]
+}

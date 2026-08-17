@@ -292,6 +292,19 @@ cd ~/.agents/skills && git pull
 
 放置后无需重启：harness 的技能 watcher 会自动发现；也可在 App「关于 → 存储位置」中查看/编辑「技能目录」。*No restart needed — the skill watcher picks up changes automatically; you can also browse/edit the skills directory in the app's Storage page.*
 
+**本机 DSH 与模型管理目录 · Local DSH and model-management roots**
+
+本机可将 canonical `skills/` 通过目录联接暴露到 DSH 源码仓库和模型管理目录，不复制三套内容：
+
+```powershell
+python scripts/sync_skill_targets.py
+python scripts/sync_skill_targets.py --check
+```
+
+目标路径由 `config/skill-targets.json` 管理。已配置的 `F:\DeepSeek harness\.agents\skills` 与 `D:\Desktop\模型管理\skills` 会保留各自已有的专用 skill；共享 skill 通过 junction 指向本仓库。更新已有 skill 会即时反映，新增 skill 时重新运行同步命令即可补上入口。
+
+*The local DSH source tree and model-management directory can expose the canonical `skills/` tree through directory junctions instead of maintaining three copies. Existing target-specific skills are preserved; edits to existing shared skills appear immediately, and rerunning the sync command adds links for newly added skills.*
+
 ## 📄 License
 
 [MIT](LICENSE) —— 技能内容版权归各自作者 · *skill content copyright belongs to their respective authors.*

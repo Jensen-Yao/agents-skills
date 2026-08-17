@@ -1,6 +1,7 @@
 ---
 name: baseline-ui
-description: Quickly deslop UI code by fixing spacing, hierarchy, typography, and small layout issues. Use when the interface needs a fast cleanup or polish pass.
+description: "Apply a fast spacing, hierarchy, typography, and small-layout cleanup. Use only when explicitly invoked or selected by ui-skills-root for a narrow cleanup. Do not introduce animation or replace the product's visual identity."
+disable-model-invocation: true
 ---
 
 # Baseline UI

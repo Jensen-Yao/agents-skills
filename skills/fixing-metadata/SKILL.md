@@ -1,12 +1,9 @@
 ---
 name: fixing-metadata
-description: >
-  Audit and fix HTML metadata including page titles, meta descriptions, canonical URLs, Open Graph
-  tags, Twitter cards, favicons, JSON-LD structured data, and robots directives. Use when adding
-  SEO metadata, fixing social share previews, reviewing Open Graph tags, setting up canonical URLs,
-  or shipping new pages that need correct meta tags.
+description: "Audit and fix page metadata including titles, descriptions, canonical URLs, social cards, favicons, JSON-LD, and robots directives. Use only when explicitly invoked or selected by ui-skills-root for metadata, SEO, or social-preview work."
 version: 1.0.1
 license: MIT
+disable-model-invocation: true
 ---
 
 ## Workflow

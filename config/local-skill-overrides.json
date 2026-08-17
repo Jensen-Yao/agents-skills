@@ -1,0 +1,94 @@
+{
+  "version": 1,
+  "skills": {
+    "ui-skills-root": {
+      "frontmatter": {
+        "description": "Use automatically as the sole routing entry for UI-related work. Before implementation, select the smallest useful UI skill context with the globally installed ui-skills CLI (fall back to npx ui-skills). Prefer one narrow skill, and never combine a read-only audit skill with a modifying skill in the same execution. If the registry reports an ambiguous slug, use its namespaced slug such as emilkowalski/prototype; local-only skills such as app-shell-ui must be handled explicitly."
+      }
+    },
+    "baseline-ui": {
+      "frontmatter": {
+        "description": "Apply a fast spacing, hierarchy, typography, and small-layout cleanup. Use only when explicitly invoked or selected by ui-skills-root for a narrow cleanup. Do not introduce animation or replace the product's visual identity.",
+        "disable-model-invocation": true
+      }
+    },
+    "improve-ui": {
+      "frontmatter": {
+        "description": "Audit an existing product surface against its own design evidence and write implementation plans. Strictly read-only on product source. Use only when explicitly invoked or selected by ui-skills-root, and never combine it with a modifying skill in the same execution.",
+        "disable-model-invocation": true
+      }
+    },
+    "fixing-accessibility": {
+      "frontmatter": {
+        "description": "Audit and fix HTML accessibility issues including ARIA, keyboard navigation, focus, contrast, and form errors. Use only when explicitly invoked or selected by ui-skills-root for an accessibility-specific task.",
+        "disable-model-invocation": true
+      }
+    },
+    "fixing-metadata": {
+      "frontmatter": {
+        "description": "Audit and fix page metadata including titles, descriptions, canonical URLs, social cards, favicons, JSON-LD, and robots directives. Use only when explicitly invoked or selected by ui-skills-root for metadata, SEO, or social-preview work.",
+        "disable-model-invocation": true
+      }
+    },
+    "fixing-motion-performance": {
+      "frontmatter": {
+        "description": "Audit and fix animation performance problems such as layout thrashing, non-composited properties, scroll-linked motion, and costly blur. Use only when explicitly invoked or selected by ui-skills-root for motion-performance work.",
+        "disable-model-invocation": true
+      }
+    },
+    "create-design-md": {
+      "frontmatter": {
+        "description": "Create or update DESIGN.md from an existing product repository or public website. Use only when explicitly invoked or selected by ui-skills-root. Modify only DESIGN.md; do not change product source, dependencies, or configuration.",
+        "disable-model-invocation": true
+      }
+    },
+    "app-shell-ui": {
+      "frontmatter": {
+        "description": "Build or restyle an explicit App Shell UI or macOS-style desktop-tool shell with shared navigation and light/dark themes. Use only when the user asks for this style or invokes the skill. Do not override an existing product identity unless the user explicitly requests it.",
+        "disable-model-invocation": true
+      }
+    },
+    "apple-design": {
+      "frontmatter": {
+        "description": "Apply Apple's interface and physical-motion principles to gesture, spring, drag, swipe, sheet, momentum, material, or reduced-motion work. Use only for an explicit Apple-style or gesture-driven request; do not use as a general UI-polish skill.",
+        "disable-model-invocation": true
+      }
+    },
+    "prototype": {
+      "frontmatter": {
+        "description": "Build multiple genuinely different UI variants behind a visual picker for deliberate divergent exploration. Run only when explicitly invoked; do not use for routine cleanup, review, or implementation of an already chosen direction.",
+        "disable-model-invocation": true
+      }
+    },
+    "pick-ui-library": {
+      "frontmatter": {
+        "description": "Choose an opinionated library for a specific frontend capability from the bundled list. Run only when explicitly invoked or when ui-skills-root selects it for a dependency-choice question; do not trigger during ordinary implementation.",
+        "disable-model-invocation": true
+      }
+    },
+    "find-animation-opportunities": {
+      "frontmatter": {
+        "description": "Read-only search for high-confidence places where motion would help, with precise recommendations and deliberate rejection of unnecessary animation. Run only when explicitly invoked; it does not implement changes.",
+        "disable-model-invocation": true
+      }
+    },
+    "improve-animations": {
+      "frontmatter": {
+        "description": "Read-only audit of a codebase's animation and motion, producing prioritized findings and self-contained implementation plans. Run only when explicitly invoked; never combine it with a modifying skill in the same execution.",
+        "disable-model-invocation": true
+      }
+    },
+    "review-animations": {
+      "frontmatter": {
+        "description": "Review a specific animation or motion change against a high craft and performance bar. Run only when explicitly invoked; do not use for general UI review, broad audits, or implementation.",
+        "disable-model-invocation": true
+      }
+    }
+  },
+  "reference_only": {
+    "emil-design-eng": {
+      "file": "REFERENCE.md",
+      "reason": "Overlaps the narrower animation skills and contains intrusive global response behavior. Keep its knowledge available without registering it as an active skill."
+    }
+  }
+}

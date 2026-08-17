@@ -15,6 +15,11 @@ import tempfile
 from pathlib import Path
 from typing import Any
 
+try:
+    from apply_skill_overrides import key_spans, split_frontmatter
+except ModuleNotFoundError:  # Allows importing as scripts.check_skill_updates from the repo root.
+    from scripts.apply_skill_overrides import key_spans, split_frontmatter
+
 
 README_SKILL_RE = re.compile(r"\(skills/([^/]+)/SKILL\.md\)")
 PAGE_SKILL_RE = re.compile(r'data-name="([^"]+)"')
@@ -27,6 +32,11 @@ def parse_args() -> argparse.Namespace:
         "--config",
         type=Path,
         help="Upstream configuration (default: config/upstreams.json).",
+    )
+    parser.add_argument(
+        "--overrides",
+        type=Path,
+        help="Local override configuration (default: config/local-skill-overrides.json).",
     )
     parser.add_argument(
         "--report",
@@ -58,6 +68,18 @@ def load_config(path: Path) -> dict[str, Any]:
         config = json.load(handle)
     if config.get("version") != 1 or not isinstance(config.get("repositories"), list):
         raise ValueError(f"Unsupported upstream config: {path}")
+    return config
+
+
+def load_overrides(path: Path) -> dict[str, Any]:
+    with path.open("r", encoding="utf-8") as handle:
+        config = json.load(handle)
+    if (
+        config.get("version") != 1
+        or not isinstance(config.get("skills"), dict)
+        or not isinstance(config.get("reference_only"), dict)
+    ):
+        raise ValueError(f"Unsupported override config: {path}")
     return config
 
 
@@ -131,31 +153,61 @@ def ignored(relative_path: str, patterns: list[str]) -> bool:
     return any(fnmatch.fnmatch(relative_path, pattern) for pattern in patterns)
 
 
-def content_digest(path: Path) -> str:
+def normalized_skill_text(path: Path, ignored_fields: set[str]) -> bytes:
+    text = path.read_text(encoding="utf-8").replace("\r\n", "\n")
+    if not ignored_fields:
+        return text.encode("utf-8")
+    frontmatter, remainder = split_frontmatter(text, path)
+    spans = key_spans(frontmatter)
+    for key in sorted(ignored_fields, key=lambda item: spans.get(item, (-1, -1))[0], reverse=True):
+        if key in spans:
+            start, end = spans[key]
+            del frontmatter[start:end]
+    return ("---\n" + "".join(frontmatter) + remainder).encode("utf-8")
+
+
+def content_digest(path: Path, ignored_fields: set[str] | None = None) -> str:
+    if ignored_fields is not None:
+        data = normalized_skill_text(path, ignored_fields)
+        return hashlib.sha256(data).hexdigest()
     data = path.read_bytes()
     if b"\x00" not in data:
         data = data.replace(b"\r\n", b"\n")
     return hashlib.sha256(data).hexdigest()
 
 
-def compare_skill(source: Path, local: Path, patterns: list[str]) -> list[str]:
+def compare_skill(
+    source: Path,
+    local: Path,
+    patterns: list[str],
+    ignored_frontmatter_fields: set[str],
+    reference_file: str | None = None,
+) -> list[str]:
     differences: list[str] = []
     for source_file in sorted(path for path in source.rglob("*") if path.is_file()):
         relative = source_file.relative_to(source).as_posix()
+        if ".git" in Path(relative).parts:
+            continue
         if ignored(relative, patterns):
             continue
-        local_file = local / Path(relative)
+        local_relative = reference_file if relative == "SKILL.md" and reference_file else relative
+        local_file = local / Path(local_relative)
         if not local_file.is_file():
-            differences.append(f"missing {relative}")
-        elif content_digest(source_file) != content_digest(local_file):
+            differences.append(f"missing {local_relative}")
+        elif relative == "SKILL.md" and content_digest(
+            source_file, ignored_frontmatter_fields
+        ) != content_digest(local_file, ignored_frontmatter_fields):
+            differences.append(f"changed {relative}")
+        elif relative != "SKILL.md" and content_digest(source_file) != content_digest(local_file):
             differences.append(f"changed {relative}")
     return differences
 
 
 def upstream_findings(
     root: Path,
-    installed: set[str],
+    tracked: set[str],
     config: dict[str, Any],
+    overrides: dict[str, Any],
 ) -> list[dict[str, Any]]:
     findings: list[dict[str, Any]] = []
     with tempfile.TemporaryDirectory(prefix="agents-skills-upstreams-") as temp_dir:
@@ -166,20 +218,36 @@ def upstream_findings(
             clone_repository(repository["url"], checkout)
 
             if "discover" in repository:
-                mappings = discover_sources(checkout, installed, repository["discover"])
+                mappings = discover_sources(checkout, tracked, repository["discover"])
             else:
                 mappings = repository.get("skills", {})
 
             patterns = DEFAULT_IGNORES + repository.get("ignore", [])
             for local_name, source_path in sorted(mappings.items()):
-                if local_name not in installed:
+                if local_name not in tracked:
                     continue
                 source = checkout / Path(source_path)
                 if not (source / "SKILL.md").is_file():
                     raise RuntimeError(
                         f"Configured source {repo_name}:{source_path} has no SKILL.md"
                     )
-                differences = compare_skill(source, root / "skills" / local_name, patterns)
+                frontmatter_fields = set(
+                    overrides.get("skills", {})
+                    .get(local_name, {})
+                    .get("frontmatter", {})
+                )
+                reference_file = (
+                    overrides.get("reference_only", {})
+                    .get(local_name, {})
+                    .get("file")
+                )
+                differences = compare_skill(
+                    source,
+                    root / "skills" / local_name,
+                    patterns,
+                    frontmatter_fields,
+                    reference_file,
+                )
                 if differences:
                     findings.append(
                         {
@@ -232,6 +300,7 @@ def render_report(result: dict[str, Any]) -> str:
             "### Resolution",
             "",
             "Synchronize the listed skills, update README and `docs/index.html` when needed, then run the workflow again. The issue closes automatically when the report is clean.",
+            "After copying an upstream skill, run `python scripts/apply_skill_overrides.py` to restore local routing fields and reference-only skills before committing.",
         ]
     )
     return "\n".join(lines) + "\n"
@@ -252,17 +321,27 @@ def main() -> int:
     args = parse_args()
     root = repo_root()
     config_path = args.config or root / "config" / "upstreams.json"
+    overrides_path = args.overrides or root / "config" / "local-skill-overrides.json"
     report_path = args.report if args.report.is_absolute() else root / args.report
     json_path = args.json_path if args.json_path.is_absolute() else root / args.json_path
 
     try:
         installed = skill_directories(root / "skills")
+        overrides = load_overrides(overrides_path)
+        reference_only = set(overrides["reference_only"])
+        tracked = installed | reference_only
         catalog = catalog_findings(root, installed)
         upstreams: list[dict[str, Any]] = []
         if not args.skip_upstreams:
-            upstreams = upstream_findings(root, installed, load_config(config_path))
+            upstreams = upstream_findings(
+                root,
+                tracked,
+                load_config(config_path),
+                overrides,
+            )
         result = {
             "installed_count": len(installed),
+            "reference_count": len(reference_only),
             "update_count": len(catalog) + len(upstreams),
             "catalog": catalog,
             "upstreams": upstreams,

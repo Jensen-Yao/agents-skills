@@ -2,10 +2,10 @@
 
 <div align="center">
 
-**个人 Agent 技能库 —— 140+ 个 SKILL.md 技能，桌面端与手机端共用**<br>
-*Personal agent skills library — 140+ SKILL.md skills shared across desktop and mobile*
+**个人 Agent 技能库 —— 149 个活动 SKILL.md 技能，桌面端与手机端共用**<br>
+*Personal agent skills library — 149 active SKILL.md skills shared across desktop and mobile*
 
-[![Skills](https://img.shields.io/badge/skills-140-blue.svg)](#-技能索引-skill-index)
+[![Skills](https://img.shields.io/badge/skills-149-blue.svg)](#-技能索引-skill-index)
 [![SKILL.md](https://img.shields.io/badge/format-SKILL.md-purple.svg)](#-技能格式-skill-format)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![DSH](https://img.shields.io/badge/DeepSeek%20Harness-4D6BFE.svg)](https://github.com/deepseek-ai/deepseek-harness)
@@ -45,6 +45,24 @@
 - 本仓库内容部署于 `~/.agents/skills/`（用户级 agents 根）。*This repo deploys to `~/.agents/skills/` (user-level agents root).*
 - 同一套技能**桌面端与手机端通用**；手机端同步后 harness 的热加载 watcher 会自动发现新技能，无需重启。*The same skills work on both desktop and mobile; the harness watcher hot-reloads new skills without restart.*
 
+## 🔄 上游更新与本地覆盖 · Upstream Updates and Local Overrides
+
+技能正文保持可从公开上游更新；本地触发边界单独保存在 `config/local-skill-overrides.json`，不会靠永久手改上游正文维持。同步任意上游技能后运行：
+
+*Skill bodies remain updateable from public upstreams. Local trigger boundaries live separately in `config/local-skill-overrides.json`, rather than as permanent edits to upstream bodies. After synchronizing any upstream skill, run:*
+
+```powershell
+python scripts/apply_skill_overrides.py
+```
+
+该命令默认同时处理仓库的 `skills/` 与本机 `~/.agents/skills/`，可重复运行；检查而不写入时使用 `--check`。每日 GitHub Actions 会对比直接上游，比较时只忽略有意覆盖的 frontmatter 字段，正文、脚本、参考资料的真实更新仍会创建 `skill-update` Issue。
+
+*The command updates both the repository `skills/` tree and local `~/.agents/skills/` by default and is idempotent; use `--check` for verification only. The daily GitHub Actions job compares direct upstreams, ignores only intentional frontmatter overrides, and still opens a `skill-update` issue for genuine body, script, or reference changes.*
+
+UI 技能由 `ui-skills-root` 作为唯一自动入口；其余 UI 专项技能只在显式调用或被路由器选中时使用。`emil-design-eng` 保留为 `REFERENCE.md` 供查阅，但不注册为活动技能。
+
+*`ui-skills-root` is the sole automatic UI entry. Other UI skills run only when explicitly invoked or selected by the router. `emil-design-eng` remains available as `REFERENCE.md`, but is not registered as an active skill.*
+
 ## 📄 技能格式 · Skill Format
 
 ```
@@ -59,7 +77,7 @@ skills/<技能名 · skill name>/
 ```yaml
 ---
 name: apple-design
-description: Apple's approach to interface design and fluid, physical motion... Use when building or reviewing gesture-driven UI...
+description: Apply Apple's interface and physical-motion principles... Use only for an explicit Apple-style or gesture-driven request.
 ---
 # Apple Design
 ...
@@ -67,8 +85,8 @@ description: Apple's approach to interface design and fluid, physical motion... 
 
 ## 🗂 技能索引 · Skill Index
 
-共 **150** 个技能，按类分组；**点击技能名查看完整 SKILL.md**；在线检索版（关键词搜索 + 分类筛选）：https://jensen-yao.github.io/agents-skills/
-*150 skills grouped by category. Click a skill name to view its full SKILL.md; searchable online at the link above.*
+共 **149** 个活动技能，按类分组；**点击技能名查看完整 SKILL.md**；在线检索版（关键词搜索 + 分类筛选）：https://jensen-yao.github.io/agents-skills/
+*149 active skills grouped by category. Click a skill name to view its full SKILL.md; searchable online at the link above.*
 
 ### 学术文献 (19)
 
@@ -148,28 +166,27 @@ description: Apple's approach to interface design and fluid, physical motion... 
 - [**`presenting-conference-talks`**](skills/presenting-conference-talks/SKILL.md) — 根据已完成的论文生成会议演讲幻灯片（Beamer LaTeX PDF 和可编辑 PPTX），附带演讲者备注和讲稿。当为 ML 和系统类会议准备口头报告、spotlight 展示或特邀报告时使用。
 - [**`systems-paper-writing`**](skills/systems-paper-writing/SKILL.md) — 面向 OSDI、SOSP、ASPLOS、NSDI 和 EuroSys 的系统类论文写作综合指南。提供段落级结构蓝图、写作范式、按会议区分的检查清单、审稿人指南、LaTeX 模板和会议截稿日期。所有系统类会议论文写作都使用本技能。
 
-### 设计与前端 (20)
+### 设计与前端 (19)
 
 - [**`academic-plotting`**](skills/academic-plotting/SKILL.md) — 根据研究上下文为 ML 论文生成出版级图表。给定论文章节或描述时，提取系统组件与关系，通过 Gemini 生成架构图；给定实验结果或数据时，自动选择图表类型，通过 matplotlib/seaborn 生成数据图表。为会议论文制作任何图表时使用。
 - [**`animation-vocabulary`**](skills/animation-vocabulary/SKILL.md) — 反向查找术语表，把对网页动画或动效的模糊描述转换为准确术语。当用户问&quot;这叫什么来着&quot;、或描述一个动效却不知道其名称、想要正确的词来提示 AI 或设计师时使用。用于命名效果，而非设计或实现。
-- [**`apple-design`**](skills/apple-design/SKILL.md) — 将 Apple 的界面设计与流畅物理动效方法论移植到 Web。当构建或评审手势驱动的 UI、弹簧动画、拖拽/滑动/底部面板交互、动量和可打断转场、半透明材质与层次、排版、减弱动态效果，或 Apple 风格界面背后的设计基础时使用。
-- [**`app-shell-ui`**](skills/app-shell-ui/SKILL.md) — 使用 App Shell UI 风格构建或重设前端界面——简洁克制的 macOS 风桌面工具外壳（左侧导航加内容区、柔和表面、抬升卡片、单一品牌强调色、设置列表式文案），自带明暗双主题。
-- [**`baseline-ui`**](skills/baseline-ui/SKILL.md) — 快速清理 AI 生成界面的间距、层级、排版和小型布局问题。当界面需要一轮快速整理或打磨时使用。
+- [**`apple-design`**](skills/apple-design/SKILL.md) — 仅在用户明确要求 Apple 风格、手势交互、弹簧动画、拖拽/滑动/底部面板或物理动效时使用；不作为通用 UI 打磨技能自动触发。
+- [**`app-shell-ui`**](skills/app-shell-ui/SKILL.md) — 仅在用户明确要求 App Shell UI、macOS 风桌面工具外壳或同类明暗主题应用框架时使用；除非明确要求，不覆盖产品现有视觉身份。
+- [**`baseline-ui`**](skills/baseline-ui/SKILL.md) — 由 `ui-skills-root` 选中或显式调用后，快速修正间距、层级、排版和小型布局；不主动引入动画，也不替换产品身份。
 - [**`chinese-plot-labels`**](skills/chinese-plot-labels/SKILL.md) — 当 Codex 编写或修改生成图表、曲线图、图形或图片输出的 Python、Java 或 C++ 代码时使用。若用户未明确指定其他语言，生成的图像需使用中文标题、坐标轴标签和图例。
-- [**`create-design-md`**](skills/create-design-md/SKILL.md) — 根据现有产品仓库或公开网站创建或更新 DESIGN.md，记录经过证据验证的设计语言、设计令牌与实现指导。当需要为编码智能体补充持久化 UI 上下文时使用。
+- [**`create-design-md`**](skills/create-design-md/SKILL.md) — 根据现有产品仓库或公开网站创建或更新 DESIGN.md；仅修改 `DESIGN.md`，不改产品源码、依赖或配置。
 - [**`diagram-design`**](skills/diagram-design/SKILL.md) — 创建带品牌感的架构图、流程图、时序图、状态机、ER 图、时间线、泳道图、矩阵和数据流图，并可将 draw.io 或 Mermaid 源文件重绘为独立 HTML、SVG 或 PNG。
 - [**`drawio-skill`**](skills/drawio-skill/SKILL.md) — 当用户要求绘制示意图、流程图、架构图、ER 图、UML 时序或类图、网络拓扑、ML 与 DL 模型结构图、思维导图或任何可视化时使用。当图表需要自定义样式、丰富的形状库、泳道或可导出图片（PNG、SVG、PDF、JPG）时最为合适。生成 .drawio XML，并通过本机 draw.io 桌面 CLI 导出。
-- [**`emil-design-eng`**](skills/emil-design-eng/SKILL.md) — 本技能凝练了 Emil Kowalski 关于 UI 打磨、组件设计、动画决策以及让软件手感出色的那些隐形细节的设计哲学。
-- [**`find-animation-opportunities`**](skills/find-animation-opportunities/SKILL.md) — 在代码库或 UI 中找出应该加动画却没有加的地方，并排除不该加动画的部分。只读操作；它给出带精确参数的动效建议，但不会落地实现。若要修复现有动画，请改用 improve-animations 或 review-animations。
-- [**`fixing-accessibility`**](skills/fixing-accessibility/SKILL.md) — 审计并修复 HTML 无障碍问题，包括 ARIA 标签、键盘导航、焦点管理、颜色对比度和表单错误。当添加交互控件、表单、对话框或检查 WCAG 合规性时使用。
-- [**`fixing-metadata`**](skills/fixing-metadata/SKILL.md) — 审计并修复页面元数据，包括标题、描述、规范链接、Open Graph、Twitter 卡片、favicon、JSON-LD 和 robots 指令。当需要 SEO 或社交分享预览时使用。
-- [**`fixing-motion-performance`**](skills/fixing-motion-performance/SKILL.md) — 审计并修复动画性能问题，包括布局抖动、合成属性、滚动关联动效和模糊效果。当动画卡顿或转场不流畅时使用。
-- [**`improve-animations`**](skills/improve-animations/SKILL.md) — 以资深动效顾问的身份审视代码库中的动画与动效代码，产出带优先级的审计报告和可独立执行的实现方案，供其他智能体执行。对源代码只读——它只规划改进，不实际修改。
-- [**`improve-ui`**](skills/improve-ui/SKILL.md) — 基于产品自身的设计证据审计现有界面，识别已验证的 UI 问题，并为另一个智能体编写可独立执行的改进计划；保持产品身份且只读产品源代码。
-- [**`pick-ui-library`**](skills/pick-ui-library/SKILL.md) — 从一份精心筛选、带倾向性建议的前端库清单中，为给定任务挑选合适的库——数字输入、OTP 输入、图表、命令菜单、虚拟化、拖拽、toast 提示、状态管理、样式等。仅在显式调用时运行，不会自行触发。
-- [**`prototype`**](skills/prototype/SKILL.md) — 为你描述的 UI 片段构建多个真正不同的版本，渲染在可视化选择器后面，让你可以实时翻看并把感觉合适的那一版提升为正式方案。仅在显式调用时运行，不会自行触发。
-- [**`review-animations`**](skills/review-animations/SKILL.md) — 以源自 Emil Kowalski 设计工程哲学的高工艺标准评审动画与动效代码。默认倾向标记问题；通过标准才算通过。
-- [**`ui-skills-root`**](skills/ui-skills-root/SKILL.md) — UI 任务的路由层，使用 ui-skills CLI 选择最小且最合适的 UI Skills 上下文，再进入实现阶段。
+- [**`find-animation-opportunities`**](skills/find-animation-opportunities/SKILL.md) — 仅显式调用的只读动效机会搜索；给出精确建议并主动排除不必要动画，不落地实现。
+- [**`fixing-accessibility`**](skills/fixing-accessibility/SKILL.md) — 由路由器选中或显式调用后，专项审计并修复 ARIA、键盘导航、焦点、对比度和表单错误。
+- [**`fixing-metadata`**](skills/fixing-metadata/SKILL.md) — 由路由器选中或显式调用后，专项审计并修复标题、规范链接、社交卡片、favicon、JSON-LD 和 robots 指令。
+- [**`fixing-motion-performance`**](skills/fixing-motion-performance/SKILL.md) — 由路由器选中或显式调用后，专项修复布局抖动、非合成属性、滚动关联动效和高成本模糊等动画性能问题。
+- [**`improve-animations`**](skills/improve-animations/SKILL.md) — 仅显式调用的只读动效审计与规划；不修改源代码，也不与修改型技能在同一次执行中混用。
+- [**`improve-ui`**](skills/improve-ui/SKILL.md) — 由路由器选中或显式调用的只读 UI 审计与实施规划；不修改产品源代码，也不与修改型技能在同一次执行中混用。
+- [**`pick-ui-library`**](skills/pick-ui-library/SKILL.md) — 仅显式调用或由路由器用于依赖选择问题；不在普通 UI 实现过程中自行触发。
+- [**`prototype`**](skills/prototype/SKILL.md) — 仅显式调用的发散探索工具，用可视化选择器比较多个真正不同的 UI 方向；不用于常规清理、评审或既定方向的实现。
+- [**`review-animations`**](skills/review-animations/SKILL.md) — 仅显式调用，用于评审一个明确的动画或动效变更；不承担通用 UI 评审、宽泛审计或实现工作。
+- [**`ui-skills-root`**](skills/ui-skills-root/SKILL.md) — 唯一自动 UI 入口；使用全局 `ui-skills` CLI（不可用时回退 `npx ui-skills`）选择最小且最合适的专项上下文。
 
 ### 数据与检索 (11)
 

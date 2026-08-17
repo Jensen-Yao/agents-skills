@@ -6,7 +6,17 @@
       "url": "https://github.com/Orchestra-Research/AI-research-SKILLs.git",
       "discover": {
         "include_installed_only": true,
-        "exclude": []
+        "exclude": [
+          "animation-vocabulary",
+          "apple-design",
+          "app-shell-ui",
+          "emil-design-eng",
+          "find-animation-opportunities",
+          "improve-animations",
+          "pick-ui-library",
+          "prototype",
+          "review-animations"
+        ]
       }
     },
     {
@@ -18,7 +28,29 @@
         "fixing-accessibility": "skills/fixing-accessibility",
         "fixing-metadata": "skills/fixing-metadata",
         "fixing-motion-performance": "skills/fixing-motion-performance",
-        "improve-ui": "skills/improve-ui"
+        "improve-ui": "skills/improve-ui",
+        "ui-skills-root": "skills/ui-skills-root"
+      }
+    },
+    {
+      "repository": "emilkowalski/skills",
+      "url": "https://github.com/emilkowalski/skills.git",
+      "skills": {
+        "animation-vocabulary": "skills/animation-vocabulary",
+        "apple-design": "skills/apple-design",
+        "emil-design-eng": "skills/emil-design-eng",
+        "find-animation-opportunities": "skills/find-animation-opportunities",
+        "improve-animations": "skills/improve-animations",
+        "pick-ui-library": "skills/pick-ui-library",
+        "prototype": "skills/prototype",
+        "review-animations": "skills/review-animations"
+      }
+    },
+    {
+      "repository": "yg2224/app-shell-ui",
+      "url": "https://github.com/yg2224/app-shell-ui.git",
+      "skills": {
+        "app-shell-ui": "."
       }
     },
     {

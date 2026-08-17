@@ -25,6 +25,9 @@ jobs:
         with:
           python-version: "3.12"
 
+      - name: Verify local routing overrides
+        run: python scripts/apply_skill_overrides.py --check --root skills
+
       - name: Compare catalogs and upstreams
         id: check
         shell: bash

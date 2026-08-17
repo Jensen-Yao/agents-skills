@@ -1,6 +1,7 @@
 ---
 name: create-design-md
-description: Create or update a DESIGN.md from an existing product repository or public website. Use when asked to document an interface's design language, reconstruct its visual system, extract design tokens and guidance from current evidence, or give coding agents persistent UI context. Do not modify product source or promote accidental implementation patterns into design decisions.
+description: "Create or update DESIGN.md from an existing product repository or public website. Use only when explicitly invoked or selected by ui-skills-root. Modify only DESIGN.md; do not change product source, dependencies, or configuration."
+disable-model-invocation: true
 ---
 
 # Create DESIGN.md

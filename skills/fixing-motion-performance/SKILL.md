@@ -1,6 +1,7 @@
 ---
 name: fixing-motion-performance
-description: Audit and fix animation performance issues including layout thrashing, compositor properties, scroll-linked motion, and blur effects. Use when animations stutter, transitions jank, or reviewing CSS/JS animation performance.
+description: "Audit and fix animation performance problems such as layout thrashing, non-composited properties, scroll-linked motion, and costly blur. Use only when explicitly invoked or selected by ui-skills-root for motion-performance work."
+disable-model-invocation: true
 ---
 
 # fixing-motion-performance

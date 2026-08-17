@@ -9,9 +9,6 @@ from __future__ import annotations
 import os
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, Optional
-
-import fitz
 
 from .academic_parser import AcademicParser, ContentType
 from .agent import PPTAgent
@@ -30,7 +27,7 @@ class EnhancedPPTAgent(PPTAgent):
         pdf_path: str,
         output_path: str = "output.pptx",
         enable_formula_rendering: bool = True,
-    ) -> Optional[str]:
+    ) -> str | None:
         if not os.path.exists(pdf_path):
             self.logger.error("PDF not found: %s", pdf_path)
             return None
@@ -56,13 +53,15 @@ class EnhancedPPTAgent(PPTAgent):
 
     @staticmethod
     def _extract_pdf_text(pdf_path: str) -> str:
+        import fitz
+
         text_parts = []
         with fitz.open(pdf_path) as doc:
             for page in doc:
                 text_parts.append(page.get_text())
         return "\n\n".join(text_parts)
 
-    def _render_formulas(self) -> Dict[str, str]:
+    def _render_formulas(self) -> dict[str, str]:
         rendered = {}
         if not self.academic_parser or not self.formula_renderer:
             return rendered
@@ -73,15 +72,21 @@ class EnhancedPPTAgent(PPTAgent):
                     rendered[formula] = path
         return rendered
 
-    def _prepare_ppt_input(self, rendered_formulas: Dict[str, str]) -> str:
+    def _prepare_ppt_input(self, rendered_formulas: dict[str, str]) -> str:
         if not self.academic_parser:
             return ""
         lines = [self.academic_parser.generate_ppt_outline()]
         if rendered_formulas:
             lines.append("")
-            lines.append("Rendered formulas")
+            lines.append("1. Rendered formulas")
             for formula, image_path in rendered_formulas.items():
-                lines.append(f"- {formula} -> {image_path}")
+                # Emit the figure-comment format that TextParser.FIG_RE parses so
+                # the rendered PNG is embedded. Pipes would break the regex groups,
+                # so sanitise the label only.
+                label = formula.replace("|", "/").strip()
+                lines.append(
+                    f"<!-- fig: {label} | path={image_path} | position=full -->"
+                )
         return "\n".join(lines).strip()
 
     def _record_run(self, status: str, pdf_path: str, detail: str) -> None:
@@ -91,7 +96,7 @@ class EnhancedPPTAgent(PPTAgent):
         with log_path.open("a", encoding="utf-8") as handle:
             handle.write(f"{datetime.now().isoformat()}\t{status}\t{pdf_path}\t{detail}\n")
 
-    def get_enhancement_status(self) -> Dict:
+    def get_enhancement_status(self) -> dict:
         return {
             "enhancements_enabled": self.enable_enhancements,
             "academic_parser": self.academic_parser is not None,
@@ -108,7 +113,7 @@ def create_enhanced_ppt_from_pdf(
     pdf_path: str,
     output_path: str = "output.pptx",
     enable_formula_rendering: bool = True,
-) -> Optional[str]:
+) -> str | None:
     return EnhancedPPTAgent().generate_from_pdf(
         pdf_path,
         output_path,

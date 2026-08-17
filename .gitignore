@@ -1,0 +1,6 @@
+/skill-update-report.md
+/skill-update-report.json
+/.playwright-cli/
+/output/playwright/
+__pycache__/
+*.py[cod]

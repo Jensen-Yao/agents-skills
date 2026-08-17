@@ -2,14 +2,28 @@
 PPT Agent 模板系统
 """
 from .base import BaseTemplate
-from .cover import CoverTemplate
-from .toc import TOCTemplate
-from .section import SectionTemplate
-from .content_list import ContentListTemplate
 from .content_detail import ContentDetailTemplate
-from .content_detail_image import ContentDetailImageTemplate
-from .timeline import TimelineTemplate
+from .content_list import ContentListTemplate
+from .cover import CoverTemplate
 from .ending import EndingTemplate
+from .section import SectionTemplate
+from .timeline import TimelineTemplate
+from .toc import TOCTemplate
+
+__all__ = [
+    "TEMPLATE_MAP",
+    "BaseTemplate",
+    "ContentDetailTemplate",
+    "ContentListTemplate",
+    "CoverTemplate",
+    "EndingTemplate",
+    "SectionTemplate",
+    "TOCTemplate",
+    "TimelineTemplate",
+    "get_template",
+    "list_templates",
+    "register_template",
+]
 
 # 模板映射
 TEMPLATE_MAP = {
@@ -18,7 +32,6 @@ TEMPLATE_MAP = {
     'section': SectionTemplate,
     'content-list': ContentListTemplate,
     'content-detail': ContentDetailTemplate,
-    'content-detail-image': ContentDetailImageTemplate,
     'timeline': TimelineTemplate,
     'ending': EndingTemplate,
 }

@@ -67,8 +67,8 @@ description: Apple's approach to interface design and fluid, physical motion... 
 
 ## 🗂 技能索引 · Skill Index
 
-共 **140** 个技能，按类分组；**点击技能名查看完整 SKILL.md**；在线检索版（关键词搜索 + 分类筛选）：https://jensen-yao.github.io/agents-skills/
-*140 skills grouped by category. Click a skill name to view its full SKILL.md; searchable online at the link above.*
+共 **150** 个技能，按类分组；**点击技能名查看完整 SKILL.md**；在线检索版（关键词搜索 + 分类筛选）：https://jensen-yao.github.io/agents-skills/
+*150 skills grouped by category. Click a skill name to view its full SKILL.md; searchable online at the link above.*
 
 ### 学术文献 (19)
 
@@ -148,20 +148,28 @@ description: Apple's approach to interface design and fluid, physical motion... 
 - [**`presenting-conference-talks`**](skills/presenting-conference-talks/SKILL.md) — 根据已完成的论文生成会议演讲幻灯片（Beamer LaTeX PDF 和可编辑 PPTX），附带演讲者备注和讲稿。当为 ML 和系统类会议准备口头报告、spotlight 展示或特邀报告时使用。
 - [**`systems-paper-writing`**](skills/systems-paper-writing/SKILL.md) — 面向 OSDI、SOSP、ASPLOS、NSDI 和 EuroSys 的系统类论文写作综合指南。提供段落级结构蓝图、写作范式、按会议区分的检查清单、审稿人指南、LaTeX 模板和会议截稿日期。所有系统类会议论文写作都使用本技能。
 
-### 设计与前端 (12)
+### 设计与前端 (20)
 
 - [**`academic-plotting`**](skills/academic-plotting/SKILL.md) — 根据研究上下文为 ML 论文生成出版级图表。给定论文章节或描述时，提取系统组件与关系，通过 Gemini 生成架构图；给定实验结果或数据时，自动选择图表类型，通过 matplotlib/seaborn 生成数据图表。为会议论文制作任何图表时使用。
 - [**`animation-vocabulary`**](skills/animation-vocabulary/SKILL.md) — 反向查找术语表，把对网页动画或动效的模糊描述转换为准确术语。当用户问&quot;这叫什么来着&quot;、或描述一个动效却不知道其名称、想要正确的词来提示 AI 或设计师时使用。用于命名效果，而非设计或实现。
 - [**`apple-design`**](skills/apple-design/SKILL.md) — 将 Apple 的界面设计与流畅物理动效方法论移植到 Web。当构建或评审手势驱动的 UI、弹簧动画、拖拽/滑动/底部面板交互、动量和可打断转场、半透明材质与层次、排版、减弱动态效果，或 Apple 风格界面背后的设计基础时使用。
 - [**`app-shell-ui`**](skills/app-shell-ui/SKILL.md) — 使用 App Shell UI 风格构建或重设前端界面——简洁克制的 macOS 风桌面工具外壳（左侧导航加内容区、柔和表面、抬升卡片、单一品牌强调色、设置列表式文案），自带明暗双主题。
+- [**`baseline-ui`**](skills/baseline-ui/SKILL.md) — 快速清理 AI 生成界面的间距、层级、排版和小型布局问题。当界面需要一轮快速整理或打磨时使用。
 - [**`chinese-plot-labels`**](skills/chinese-plot-labels/SKILL.md) — 当 Codex 编写或修改生成图表、曲线图、图形或图片输出的 Python、Java 或 C++ 代码时使用。若用户未明确指定其他语言，生成的图像需使用中文标题、坐标轴标签和图例。
+- [**`create-design-md`**](skills/create-design-md/SKILL.md) — 根据现有产品仓库或公开网站创建或更新 DESIGN.md，记录经过证据验证的设计语言、设计令牌与实现指导。当需要为编码智能体补充持久化 UI 上下文时使用。
+- [**`diagram-design`**](skills/diagram-design/SKILL.md) — 创建带品牌感的架构图、流程图、时序图、状态机、ER 图、时间线、泳道图、矩阵和数据流图，并可将 draw.io 或 Mermaid 源文件重绘为独立 HTML、SVG 或 PNG。
 - [**`drawio-skill`**](skills/drawio-skill/SKILL.md) — 当用户要求绘制示意图、流程图、架构图、ER 图、UML 时序或类图、网络拓扑、ML 与 DL 模型结构图、思维导图或任何可视化时使用。当图表需要自定义样式、丰富的形状库、泳道或可导出图片（PNG、SVG、PDF、JPG）时最为合适。生成 .drawio XML，并通过本机 draw.io 桌面 CLI 导出。
 - [**`emil-design-eng`**](skills/emil-design-eng/SKILL.md) — 本技能凝练了 Emil Kowalski 关于 UI 打磨、组件设计、动画决策以及让软件手感出色的那些隐形细节的设计哲学。
 - [**`find-animation-opportunities`**](skills/find-animation-opportunities/SKILL.md) — 在代码库或 UI 中找出应该加动画却没有加的地方，并排除不该加动画的部分。只读操作；它给出带精确参数的动效建议，但不会落地实现。若要修复现有动画，请改用 improve-animations 或 review-animations。
+- [**`fixing-accessibility`**](skills/fixing-accessibility/SKILL.md) — 审计并修复 HTML 无障碍问题，包括 ARIA 标签、键盘导航、焦点管理、颜色对比度和表单错误。当添加交互控件、表单、对话框或检查 WCAG 合规性时使用。
+- [**`fixing-metadata`**](skills/fixing-metadata/SKILL.md) — 审计并修复页面元数据，包括标题、描述、规范链接、Open Graph、Twitter 卡片、favicon、JSON-LD 和 robots 指令。当需要 SEO 或社交分享预览时使用。
+- [**`fixing-motion-performance`**](skills/fixing-motion-performance/SKILL.md) — 审计并修复动画性能问题，包括布局抖动、合成属性、滚动关联动效和模糊效果。当动画卡顿或转场不流畅时使用。
 - [**`improve-animations`**](skills/improve-animations/SKILL.md) — 以资深动效顾问的身份审视代码库中的动画与动效代码，产出带优先级的审计报告和可独立执行的实现方案，供其他智能体执行。对源代码只读——它只规划改进，不实际修改。
+- [**`improve-ui`**](skills/improve-ui/SKILL.md) — 基于产品自身的设计证据审计现有界面，识别已验证的 UI 问题，并为另一个智能体编写可独立执行的改进计划；保持产品身份且只读产品源代码。
 - [**`pick-ui-library`**](skills/pick-ui-library/SKILL.md) — 从一份精心筛选、带倾向性建议的前端库清单中，为给定任务挑选合适的库——数字输入、OTP 输入、图表、命令菜单、虚拟化、拖拽、toast 提示、状态管理、样式等。仅在显式调用时运行，不会自行触发。
 - [**`prototype`**](skills/prototype/SKILL.md) — 为你描述的 UI 片段构建多个真正不同的版本，渲染在可视化选择器后面，让你可以实时翻看并把感觉合适的那一版提升为正式方案。仅在显式调用时运行，不会自行触发。
 - [**`review-animations`**](skills/review-animations/SKILL.md) — 以源自 Emil Kowalski 设计工程哲学的高工艺标准评审动画与动效代码。默认倾向标记问题；通过标准才算通过。
+- [**`ui-skills-root`**](skills/ui-skills-root/SKILL.md) — UI 任务的路由层，使用 ui-skills CLI 选择最小且最合适的 UI Skills 上下文，再进入实现阶段。
 
 ### 数据与检索 (11)
 
@@ -204,7 +212,7 @@ description: Apple's approach to interface design and fluid, physical motion... 
 - [**`tensorboard`**](skills/tensorboard/SKILL.md) — 使用 TensorBoard 可视化训练指标、用直方图调试模型、比较实验、可视化模型图和性能剖析——Google 的 ML 可视化工具包。
 - [**`weights-and-biases`**](skills/weights-and-biases/SKILL.md) — 使用 W&amp;B 自动记录并追踪 ML 实验、实时可视化训练、通过 sweep 优化超参数并管理模型注册表——协作式 MLOps 平台。
 
-### 工具与CLI (33)
+### 工具与CLI (35)
 
 - [**`0-autoresearch-skill`**](skills/0-autoresearch-skill/SKILL.md) — 使用双循环架构编排端到端的自主 AI 研究项目：内循环以明确的优化目标快速迭代实验，外循环综合结果、识别模式并引导研究方向。路由到领域专属技能执行，通过 Claude Code /loop 和 OpenClaw heartbeat 支持智能体持续运行，并产出研究演示文稿和论文。当启动研究项目、运行自主实验或管理多假设研究任务时使用。
 - [**`a-evolve`**](skills/a-evolve/SKILL.md) — 提供使用 LLM 驱动的进化算法在任意领域自动进化与优化 AI 智能体的指导。当构建自我改进的智能体、针对基准优化智能体提示词和技能，或实现自动化智能体评估循环时使用。
@@ -222,6 +230,7 @@ description: Apple's approach to interface design and fluid, physical motion... 
 - [**`karpathy-guidelines`**](skills/karpathy-guidelines/SKILL.md) — 减少常见 LLM 编码错误的行为准则。当编写、评审或重构代码时使用，以避免过度复杂化、做精准改动、显式暴露假设并定义可验证的成功标准。
 - [**`lambda-labs`**](skills/lambda-labs/SKILL.md) — 用于 ML 训练和推理的预留与按需 GPU 云实例。当需要可通过简单 SSH 访问的专用 GPU 实例、持久化文件系统或用于大规模训练的高性能多节点集群时使用。
 - [**`libreoffice-local-install`**](skills/libreoffice-local-install/SKILL.md) — 使用本机已安装的 LibreOffice 进行 CLI 文档转换、PDF 导出、渲染、打印和 Office 格式自动化。在记录的可执行文件可用时，不要下载或重装 LibreOffice。
+- [**`local-models`**](skills/local-models/SKILL.md) — 按需操作本机托管的 CosyVoice3、bge-m3、Ollama、MusicGen 和 LM Studio 等模型服务。仅在任务真正需要本地模型时加载或启动资源。
 - [**`llava`**](skills/llava/SKILL.md) — 大型语言与视觉助手（LLaVA）。支持视觉指令微调和基于图像的对话。将 CLIP 视觉编码器与 Vicuna 与 Llama 语言模型结合。支持多轮图像对话、视觉问答和指令跟随。用于视觉-语言聊天机器人或图像理解任务，最适合对话式图像分析。
 - [**`ml-training-recipes`**](skills/ml-training-recipes/SKILL.md) — 覆盖所有领域的久经考验的 PyTorch 训练配方——LLM、视觉、扩散模型、医学影像、蛋白质与药物发现、空间组学、基因组学。涵盖训练循环、优化器选择、学习率调度、混合精度、调试和系统化实验。
 - [**`modal`**](skills/modal/SKILL.md) — 用于运行 ML 工作负载的无服务器 GPU 云平台。当需要按需访问 GPU 而无需管理基础设施、将 ML 模型部署为 API，或运行自动扩展的批处理任务时使用。
@@ -238,7 +247,14 @@ description: Apple's approach to interface design and fluid, physical motion... 
 - [**`visiomaster`**](skills/visiomaster/SKILL.md) — 面向 Windows 优先的 Visio 图表重建工作流，用于流程图、架构图和论文风格模块图。通过 scene.json 到 Visio 的流水线输出可编辑的 Visio vsdx 以及导出的 svg 和 png。当用户希望把图表重建为可编辑的 Visio 形状时使用。
 - [**`whisper`**](skills/whisper/SKILL.md) — OpenAI 的通用语音识别模型。支持 99 种语言、转写、翻译成英语和语种识别。提供从 tiny 到 large 的六种尺寸。用于语音转文字、播客转写或多语言音频处理，最适合稳健的多语言 ASR。
 - [**`windows-deployment-cli-locations`**](skills/windows-deployment-cli-locations/SKILL.md) — 定位并调用此 Windows 工作站上已安装的部署与数据库工具，尤其是 Supabase CLI、Netlify CLI、Neon CLI、Vercel CLI、Cloudflare Wrangler、Railway CLI、PostgreSQL 和 Docker 检查。当任务需要这些命令之一、命令不在 PATH 中、需要检查工具是否已安装或在安装另一个副本之前使用。
+- [**`windows-ios-cicd`**](skills/windows-ios-cicd/SKILL.md) — 在没有本机 Mac/Xcode 的 Windows 上，通过 XcodeGen、Swift Package、GitHub Actions macOS CI 和 XCUITest 完成 iOS/watchOS 的构建、测试、截图验证与分发。
 - [**`winui-app`**](skills/winui-app/SKILL.md) — 使用 C# 和 Windows App SDK 引导、开发和设计现代 WinUI 3 桌面应用，参考微软官方指南、WinUI Gallery 模式、Windows App SDK 示例和 CommunityToolkit 组件。当创建全新应用、为 WinUI 准备机器、评审、重构、规划、排障、环境检查，或配置 WinUI 3 的 XAML、控件、导航、窗口、主题、无障碍、响应式、性能、部署及相关 Windows 应用设计与开发工作时使用。
+
+## 🔔 更新监控 · Update Monitoring
+
+[![Check skill updates](https://github.com/Jensen-Yao/agents-skills/actions/workflows/check-skill-updates.yml/badge.svg)](https://github.com/Jensen-Yao/agents-skills/actions/workflows/check-skill-updates.yml)
+
+GitHub Actions 每日检查 `skills/` 与 README、Pages 索引是否一致，并比较配置的公开上游仓库。发现遗漏或上游内容变化时，会在本仓库创建或更新唯一的 `skill-update` Issue；Pages 首页会读取该 Issue 并显示提醒。检查恢复干净后，Issue 会自动关闭。*The scheduled check compares the installed skills with both catalogs and configured public upstreams. When changes are found it maintains one `skill-update` issue, which is surfaced on Pages and closed automatically once current.*
 
 ## 📲 同步到设备 · Sync to Devices
 

@@ -7,7 +7,6 @@ import os
 import subprocess
 import tempfile
 from pathlib import Path
-from typing import Optional
 
 import requests
 
@@ -18,7 +17,7 @@ def _default_cache_dir() -> str:
 
 
 class FormulaRenderer:
-    def __init__(self, dpi: int = 300, output_dir: Optional[str] = None):
+    def __init__(self, dpi: int = 300, output_dir: str | None = None):
         self.dpi = dpi
         self.output_dir = output_dir or _default_cache_dir()
         self.latex_available = self._check_latex()
@@ -37,8 +36,8 @@ class FormulaRenderer:
         latex_code: str,
         color: str = "000000",
         background: str = "FFFFFF",
-    ) -> Optional[str]:
-        formula_hash = hashlib.md5(f"{latex_code}_{color}_{background}".encode("utf-8")).hexdigest()[:12]
+    ) -> str | None:
+        formula_hash = hashlib.md5(f"{latex_code}_{color}_{background}".encode()).hexdigest()[:12]
         output_path = os.path.join(self.output_dir, f"formula_{formula_hash}.png")
         if os.path.exists(output_path):
             return output_path
@@ -49,20 +48,27 @@ class FormulaRenderer:
                 return rendered
         return self._render_fallback(latex_code, output_path, color, background)
 
-    def _render_local(self, latex_code: str, output_path: str, color: str, background: str) -> Optional[str]:
+    def _render_local(self, latex_code: str, output_path: str, color: str, background: str) -> str | None:
         try:
             with tempfile.TemporaryDirectory() as tmpdir:
                 tex_file = os.path.join(tmpdir, "formula.tex")
                 self._create_tex_file(tex_file, latex_code, color, background)
                 subprocess.run(
-                    ["pdflatex", "-interaction=nonstopmode", "-output-directory", tmpdir, tex_file],
+                    [
+                        "pdflatex",
+                        "-interaction=nonstopmode",
+                        "-no-shell-escape",
+                        "-output-directory",
+                        tmpdir,
+                        tex_file,
+                    ],
                     capture_output=True,
                     timeout=20,
                     check=False,
                 )
                 pdf_file = os.path.join(tmpdir, "formula.pdf")
                 if os.path.exists(pdf_file):
-                    target_prefix = output_path[:-4] if output_path.endswith(".png") else output_path
+                    target_prefix = output_path.removesuffix(".png")
                     result = subprocess.run(
                         ["pdftoppm", "-png", "-r", str(self.dpi), "-singlefile", pdf_file, target_prefix],
                         capture_output=True,
@@ -89,7 +95,7 @@ class FormulaRenderer:
         with open(tex_file, "w", encoding="utf-8") as handle:
             handle.write(tex_content)
 
-    def _render_fallback(self, latex_code: str, output_path: str, color: str, background: str) -> Optional[str]:
+    def _render_fallback(self, latex_code: str, output_path: str, color: str, background: str) -> str | None:
         try:
             import matplotlib
 
@@ -107,7 +113,12 @@ class FormulaRenderer:
 
         try:
             encoded = requests.utils.quote(latex_code)
-            url = f"https://latex.codecogs.com/png.image?\\dpi{{300}}\\bg_white\\inline\\color{{black}}{encoded}"
+            # Honor the dpi/color args; use a transparent background (codecogs
+            # \bg{transparent}) instead of a hardcoded white background.
+            url = (
+                f"https://latex.codecogs.com/png.image?"
+                f"\\dpi{{{self.dpi}}}\\bg{{transparent}}\\fg{{{color}}}\\inline {encoded}"
+            )
             response = requests.get(url, timeout=10)
             if response.status_code == 200:
                 with open(output_path, "wb") as handle:

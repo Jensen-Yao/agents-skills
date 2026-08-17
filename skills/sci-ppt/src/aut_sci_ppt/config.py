@@ -4,36 +4,55 @@ PPT Agent 配置管理模块 - 基于参考 PPT 提取的真实风格
 import logging
 import os
 from pathlib import Path
-from typing import Dict, Any
 
 SKILL_DIR = Path(__file__).resolve().parents[2]
 ROOT_DIR = SKILL_DIR.parent.parent
 
 
-def _load_env_file(path: Path) -> Dict[str, str]:
-    values: Dict[str, str] = {}
+def _init_shared_env():
+    """Import unified env config from _shared module."""
+    import importlib.util
+    shared_path = ROOT_DIR / "skills" / "_shared" / "env_config.py"
+    if not shared_path.exists():
+        shared_path = SKILL_DIR.parent / "_shared" / "env_config.py"
+    if shared_path.exists():
+        spec = importlib.util.spec_from_file_location("_shared.env_config", shared_path)
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        return mod
+    return None
+
+
+_ENV_MOD = _init_shared_env()
+
+
+def _parse_env_file(path: Path) -> dict:
+    """Parse a .env file into a dict. Fallback when _shared is unavailable."""
+    import re as _re
+    env = {}
     if not path.exists():
-        return values
+        return env
     try:
-        with path.open("r", encoding="utf-8") as f:
-            for raw_line in f:
-                line = raw_line.strip()
-                if not line or line.startswith("#") or "=" not in line:
-                    continue
-                key, value = line.split("=", 1)
-                values[key.strip()] = value.strip().strip('"').strip("'")
-    except OSError as exc:
-        logging.getLogger("aut_sci_ppt").warning("failed to load local env from %s: %s", path, exc)
-    return values
-
-
-LOCAL_ENV: Dict[str, str] = {}
-for _env_path in (ROOT_DIR / ".env", SKILL_DIR / ".env"):
-    LOCAL_ENV.update(_load_env_file(_env_path))
+        for line in path.read_text(encoding="utf-8").splitlines():
+            line = line.strip()
+            if not line or line.startswith("#"):
+                continue
+            m = _re.match(r"^([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.*?)$", line)
+            if m:
+                env[m.group(1)] = m.group(2).strip().strip("\"'")
+    except OSError:
+        pass
+    return env
 
 
 def get_config_value(name: str, default: str = "") -> str:
-    return LOCAL_ENV.get(name) or os.environ.get(name, default)
+    if _ENV_MOD:
+        return _ENV_MOD.get_env_value(name, default)
+    env_file = Path.home() / ".aut_sci_write" / ".env"
+    val = _parse_env_file(env_file).get(name)
+    if val:
+        return val
+    return os.environ.get(name, default)
 
 def setup_logging(level: str = "INFO") -> logging.Logger:
     logger = logging.getLogger("aut_sci_ppt")
@@ -122,7 +141,6 @@ class Config:
         "section":             {"required_fields": ["part_num", "part_title"]},
         "content-list":        {"required_fields": ["title", "items"], "max_items_per_page": 6},
         "content-detail":      {"required_fields": ["title", "points"]},
-        "content-detail-image":{"required_fields": ["title", "points"]},
         "timeline":            {"required_fields": ["title", "events"]},
         "ending":              {"required_fields": ["message", "author"]},
     }

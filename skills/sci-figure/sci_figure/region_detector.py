@@ -11,8 +11,9 @@ Core algorithm:
 
 from __future__ import annotations
 
-import numpy as np
 import cv2
+import numpy as np
+
 from sci_figure.utils import get_logger
 
 logger = get_logger()
@@ -115,6 +116,7 @@ class RegionDetector:
         regions: list[dict],
         caption_bbox_px: tuple,
         page_height: int,
+        page_width: int,
         column_bounds: tuple = None,
     ) -> dict | None:
         """
@@ -153,13 +155,12 @@ class RegionDetector:
 
             # Vertical proximity (closer = better)
             vertical_dist = cap_y0 - ry1
-            if vertical_dist < 0:
-                vertical_dist = 0
+            vertical_dist = max(vertical_dist, 0)
             proximity_score = max(0, 1.0 - vertical_dist / (page_height * 0.3))
 
-            # Center alignment bonus
+            # Center alignment bonus (horizontal offset normalized by page WIDTH)
             region_center = (rx0 + rx1) / 2
-            center_offset = abs(region_center - cap_center_x) / (page_height * 0.5)
+            center_offset = abs(region_center - cap_center_x) / (page_width * 0.5)
             alignment_score = max(0, 1.0 - center_offset)
 
             score = (

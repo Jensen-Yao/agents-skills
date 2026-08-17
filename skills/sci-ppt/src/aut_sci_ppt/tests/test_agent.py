@@ -5,16 +5,17 @@ from pathlib import Path
 
 from aut_sci_ppt.enhanced_agent import EnhancedPPTAgent
 from aut_sci_ppt.models import (
+    PAGE_TYPE_CONTENT_LIST,
+    PAGE_TYPE_SECTION,
     ContentListData,
     CoverData,
     ListItem,
     Page,
     ParsedData,
-    PAGE_TYPE_CONTENT_LIST,
-    PAGE_TYPE_SECTION,
 )
-from aut_sci_ppt.parser.text_parser import TextParser
 from aut_sci_ppt.paginator.smart_paginator import SmartPaginator
+from aut_sci_ppt.paper_workflow import _detect_paper_sections
+from aut_sci_ppt.parser.text_parser import TextParser
 
 
 class TestTextParser(unittest.TestCase):
@@ -108,6 +109,22 @@ class TestEnhancedPPTAgent(unittest.TestCase):
         )
 
         self.assertIsNone(result)
+
+
+class TestPaperWorkflowSectionDetection(unittest.TestCase):
+    def test_raises_when_no_sections_detected(self):
+        junk = "qwerty zzz lorem ipsum dolor sit amet random words only here."
+        with self.assertRaises(ValueError) as ctx:
+            _detect_paper_sections(junk, [junk])
+        self.assertIn("could not extract paper structure", str(ctx.exception))
+
+    def test_detects_real_sections(self):
+        text = (
+            "Abstract: this work. Introduction: background here. "
+            "Methods: we do. Results: we found. Conclusion: done."
+        )
+        sections = _detect_paper_sections(text, [text])
+        self.assertGreater(len(sections), 0)
 
 
 if __name__ == "__main__":

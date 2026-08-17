@@ -5,118 +5,25 @@ Step2: 用户修改提纲md文件
 Step3: build_from_outline() - 根据提纲+已提取图片生成最终PPT
 """
 
-import fitz
 import os
 import re
-from typing import List, Dict, Optional, Tuple
-from .config import get_config_value
-from .pdf_extractor import PDFFigureExtractor, ExtractedFigure
-from .models import (
-    FigurePlaceholder,
-    ContentWithFigureData,
-    ContentListData,
-    ContentDetailData,
-    ListItem,
-    Page,
-    PAGE_TYPE_CONTENT_WITH_FIG,
-    PAGE_TYPE_CONTENT_LIST,
-    PAGE_TYPE_CONTENT_DETAIL,
-)
 
-
-def _call_llm(prompt: str) -> str:
-    """通过 Moonshot API 调用 LLM"""
-    import json, urllib.request
-
-    api_key = get_config_value("MOONSHOT_API_KEY")
-    if not api_key:
-        raise ValueError(
-            "MOONSHOT_API_KEY is not configured. Add it to skills/sci-ppt/.env "
-            "to enable translation."
-        )
-    payload = json.dumps(
-        {
-            "model": "moonshot-v1-8k",
-            "max_tokens": 4096,
-            "messages": [{"role": "user", "content": prompt}],
-        }
-    ).encode()
-    req = urllib.request.Request(
-        "https://api.moonshot.cn/v1/chat/completions",
-        data=payload,
-        headers={
-            "Authorization": f"Bearer {api_key}",
-            "Content-Type": "application/json",
-        },
-    )
-    with urllib.request.urlopen(req, timeout=60) as resp:
-        r = json.loads(resp.read())
-        return r["choices"][0]["message"]["content"].strip()
-
-
-def _translate_to_chinese(text: str) -> str:
-    """调用 LLM 将英文学术内容翻译为中文，失败时返回原文。"""
-    try:
-        return _call_llm(
-            "请将以下英文学术内容翻译成简洁的中文，直接输出译文，不要任何解释：\n\n"
-            + text
-        )
-    except Exception as e:
-        print(f"  ⚠️  翻译失败（{e}），保留原文")
-        return text
-
-
-def _translate_sections(sections: List[Dict]) -> List[Dict]:
-    """将章节标题和要点批量翻译为中文（一次 API 调用）"""
-    try:
-        lines = []
-        for i, sec in enumerate(sections):
-            lines.append(f"[SEC{i}]{sec['title']}")
-            for j, item in enumerate(sec.get("items", [])):
-                lines.append(f"[S{i}I{j}]{item}")
-
-        batch = "\n".join(lines)
-        translated = _call_llm(
-            "请将以下英文学术内容翻译成中文，保留每行的标签前缀（如[SEC0]、[S0I0]），直接输出，不要解释：\n\n"
-            + batch
-        )
-
-        result_sections = [dict(s) for s in sections]
-        for s in result_sections:
-            s["items"] = list(s.get("items", []))
-
-        for line in translated.splitlines():
-            m = re.match(r"\[SEC(\d+)\](.+)", line.strip())
-            if m:
-                idx = int(m.group(1))
-                if idx < len(result_sections):
-                    result_sections[idx]["title"] = m.group(2).strip()
-                continue
-            m2 = re.match(r"\[S(\d+)I(\d+)\](.+)", line.strip())
-            if m2:
-                si, ii = int(m2.group(1)), int(m2.group(2))
-                if si < len(result_sections):
-                    items = result_sections[si].get("items", [])
-                    if ii < len(items):
-                        result_sections[si]["items"][ii] = m2.group(3).strip()
-        return result_sections
-    except Exception as e:
-        print(f"  ⚠️  批量翻译失败（{e}），保留原文")
-        return sections
-
+from .pdf_extractor import ExtractedFigure, PDFFigureExtractor
 
 # ══════════════════════════════════════════════
 #  Step 1: 从 PDF 提取文本+图片，生成提纲 Markdown 文件
 # ══════════════════════════════════════════════
 
 
-def generate_outline(pdf_path: str, output_dir: str = None, translate: bool = False) -> str:
+def generate_outline(pdf_path: str, output_dir: str = None) -> str:
     """
     读取 PDF，提取全文关键信息，同步提取所有图片，
     生成标准提纲 Markdown 文件（含图片预览）。
 
     返回：生成的 .md 文件路径（供用户修改）
     """
+    import fitz
+
     doc = fitz.open(pdf_path)
     pdf_dir = os.path.dirname(os.path.abspath(pdf_path))
     pdf_name = os.path.splitext(os.path.basename(pdf_path))[0]
@@ -141,9 +48,9 @@ def generate_outline(pdf_path: str, output_dir: str = None, translate: bool = Fa
     # ── 3. 同步提取所有图片（智能裁切，PyMuPDF坐标渲染）────
     print("  📷 提取PDF图片中...")
     extractor = PDFFigureExtractor(pdf_path, figures_dir)
-    all_figures: List[ExtractedFigure] = []
+    all_figures: list[ExtractedFigure] = []
     fig_count = 0
-    fig_page_map: Dict[int, List[ExtractedFigure]] = {}  # page_0idx -> [figures]
+    fig_page_map: dict[int, list[ExtractedFigure]] = {}  # page_0idx -> [figures]
 
     for page_0idx in range(len(doc)):
         page = doc[page_0idx]
@@ -187,33 +94,27 @@ def generate_outline(pdf_path: str, output_dir: str = None, translate: bool = Fa
     # ── 4. 检测论文章节结构 ──────────────────────────
     sections = _detect_paper_sections(full_text, page_texts)
 
-    # ── 4.5 翻译章节标题和要点为中文 ─────────────────
-    # Optional translation is disabled by default so PDF-to-PPT does not require an API key.
-    if translate:
-        print("  Translating outline content to Chinese...")
-        sections = _translate_sections(sections)
-
     # ── 5. 将图片分配到各章节 ─────────────────────────
     _assign_figures_to_sections(sections, fig_page_map, len(doc))
 
     # ── 6. 生成 Markdown 文本 ─────────────────────────
     md_lines = [
-        f"# 【提纲草稿】请修改后保存，再告诉我生成PPT",
-        f"",
-        f"> ⚠️ 使用说明：",
-        f"> 1. 修改各章节标题和要点内容",
-        f"> 2. 图片已自动提取并嵌入，可删除不需要的图片行",
-        f"> 3. 图片引用格式 `[图N,页P]` 必须保留（PPT生成器使用）",
+        "# 【提纲草稿】请修改后保存，再告诉我生成PPT",
+        "",
+        "> ⚠️ 使用说明：",
+        "> 1. 修改各章节标题和要点内容",
+        "> 2. 图片已自动提取并嵌入，可删除不需要的图片行",
+        "> 3. 图片引用格式 `[图N,页P]` 必须保留（PPT生成器使用）",
         "> 4. 修改完成后保存文件，告诉我「开始生成PPT」",
-        f"",
-        f"## 基本信息",
+        "",
+        "## 基本信息",
         f"- 文章标题：{title}",
-        f"- 汇报人：（请填写）",
-        f"- 导师：（请填写）",
-        f"- 汇报时间：（请填写）",
-        f"",
-        f"## 提纲结构",
-        f"",
+        "- 汇报人：（请填写）",
+        "- 导师：（请填写）",
+        "- 汇报时间：（请填写）",
+        "",
+        "## 提纲结构",
+        "",
     ]
 
     for sec_idx, sec in enumerate(sections, 1):
@@ -228,28 +129,28 @@ def generate_outline(pdf_path: str, output_dir: str = None, translate: bool = Fa
             for item in sec_items:
                 md_lines.append(f"- {item}")
         else:
-            md_lines.append(f"- （请填写要点）")
+            md_lines.append("- （请填写要点）")
 
         # 图片：预览 + 引用标注
         if sec_figures:
-            md_lines.append(f"")
+            md_lines.append("")
             for ef in sec_figures:
                 # 用相对路径，方便markdown预览
                 rel_path = os.path.relpath(ef.path, output_dir).replace("\\", "/")
-                md_lines.append(f"<!-- 图片预览 -->")
+                md_lines.append("<!-- 图片预览 -->")
                 md_lines.append(f"![{ef.label}]({rel_path})")
                 md_lines.append(f"[{ef.label},页{ef.page + 1}]")
                 if ef.caption:
                     md_lines.append(f"*图注：{ef.caption}*")
 
-        md_lines.append(f"")
+        md_lines.append("")
 
     # 附录：全部图片列表
     if all_figures:
         md_lines += [
-            f"---",
-            f"## 附录：所有提取图片（供参考）",
-            f"",
+            "---",
+            "## 附录：所有提取图片（供参考）",
+            "",
         ]
         for ef in all_figures:
             rel_path = os.path.relpath(ef.path, output_dir).replace("\\", "/")
@@ -257,7 +158,7 @@ def generate_outline(pdf_path: str, output_dir: str = None, translate: bool = Fa
                 f"- **{ef.label}**（第{ef.page + 1}页）：`[{ef.label},页{ef.page + 1}]`"
             )
             md_lines.append(f"  ![]({rel_path})")
-            md_lines.append(f"")
+            md_lines.append("")
 
     # ── 7. 保存 .md 文件 ─────────────────────────────
     md_content = "\n".join(md_lines)
@@ -270,7 +171,7 @@ def generate_outline(pdf_path: str, output_dir: str = None, translate: bool = Fa
 
 
 def _extract_title(first_page_text: str) -> str:
-    lines = [l.strip() for l in first_page_text.split("\n") if len(l.strip()) > 10]
+    lines = [ln.strip() for ln in first_page_text.split("\n") if len(ln.strip()) > 10]
     return lines[0] if lines else "（未检测到标题）"
 
 
@@ -287,7 +188,7 @@ def _extract_fig_caption(page_text: str, fig_idx: int) -> str:
     return ""
 
 
-def _detect_paper_sections(full_text: str, page_texts: List[str]) -> List[Dict]:
+def _detect_paper_sections(full_text: str, page_texts: list[str]) -> list[dict]:
     """
     检测论文章节结构，提取各节标题和要点。
     优先识别标准学术论文结构（Introduction/Methods/Results/Discussion/Conclusion）
@@ -316,19 +217,19 @@ def _detect_paper_sections(full_text: str, page_texts: List[str]) -> List[Dict]:
             items = _extract_section_items(full_text, pattern)
             detected.append({"title": label, "items": items, "figures": []})
 
-    # 兜底：如果什么都没检测到，给通用结构
+    # 没有检测到任何章节结构：明确报错，而不是伪造占位章节生成空白 PPT
     if not detected:
-        detected = [
-            {"title": "研究背景与动机", "items": ["（请填写）"], "figures": []},
-            {"title": "研究方法", "items": ["（请填写）"], "figures": []},
-            {"title": "核心结果", "items": ["（请填写）"], "figures": []},
-            {"title": "总结与展望", "items": ["（请填写）"], "figures": []},
-        ]
+        raise ValueError(
+            "could not extract paper structure: 未能从 PDF 中识别出论文章节结构"
+            "（Abstract/Introduction/Methods/Results/Discussion/Conclusion 等）。\n"
+            "该 PDF 可能是扫描件、纯图片或非标准排版。请改用文本输入方式生成 PPT，"
+            "或手动整理提纲后再生成。"
+        )
 
     return detected
 
 
-def _extract_section_items(full_text: str, section_pattern: str) -> List[str]:
+def _extract_section_items(full_text: str, section_pattern: str) -> list[str]:
     """提取章节内主要内容，取到下一个章节标题前，最多8条有意义的句子"""
     m = re.search(section_pattern, full_text, re.IGNORECASE)
     if not m:
@@ -366,8 +267,8 @@ def _extract_section_items(full_text: str, section_pattern: str) -> List[str]:
 
 
 def _assign_figures_to_sections(
-    sections: List[Dict],
-    fig_page_map: Dict[int, List[ExtractedFigure]],
+    sections: list[dict],
+    fig_page_map: dict[int, list[ExtractedFigure]],
     total_pages: int,
 ):
     """
@@ -393,7 +294,7 @@ def _assign_figures_to_sections(
 
 def parse_outline_to_ppt_input(
     outline: str, pdf_path: str, output_dir: str = "figures"
-) -> Tuple[str, Dict[str, str]]:
+) -> tuple[str, dict[str, str]]:
     """
     解析用户修改后的提纲 Markdown，提取图片路径，
     返回 (ppt_text_input, fig_label_to_path_dict)
@@ -402,8 +303,7 @@ def parse_outline_to_ppt_input(
     1. 读取 md 里 ![图N](path) 格式 → 图片已提取，直接用路径，不重复截图
     2. 兜底：遇到 [图N,页P] 且路径不存在时，才从 PDF 重新截图
     """
-    outline_dir = os.path.dirname(os.path.abspath(pdf_path)) if pdf_path else "."
-    label_to_path: Dict[str, str] = {}
+    label_to_path: dict[str, str] = {}
 
     # ── 1. 优先读取 ![图N](path) 格式（generate_outline 已提取好的图）────
     for m in re.finditer(r"!\[([^\]]+)\]\(([^)]+)\)", outline):
@@ -422,7 +322,7 @@ def parse_outline_to_ppt_input(
 
     # ── 2. 兜底：[图N,页P] 且该图还没有路径时，从 PDF 重新截图 ────────
     fig_refs = re.findall(r"\[([图表Fig\.]+\d*)[,，]页?(\d+)\]", outline)
-    missing_fig_map: Dict[str, int] = {}
+    missing_fig_map: dict[str, int] = {}
     for label, page_str in fig_refs:
         if label not in label_to_path:
             missing_fig_map[label] = int(page_str)
@@ -440,7 +340,7 @@ def parse_outline_to_ppt_input(
     return ppt_text, label_to_path
 
 
-def _outline_to_ppt_text(outline: str, label_to_path: Dict[str, str]) -> str:
+def _outline_to_ppt_text(outline: str, label_to_path: dict[str, str]) -> str:
     """将提纲 Markdown 转为 aut_sci_ppt 识别的文本格式"""
     lines_out = []
     section_num = 0
@@ -536,7 +436,6 @@ def auto_generate_ppt(
     advisor: str = "",
     date: str = "",
     direction: str = "",
-    translate: bool = False,
 ) -> str:
     """
     全自动：PDF → PPT，跳过用户编辑提纲步骤。
@@ -558,9 +457,9 @@ def auto_generate_ppt(
     if not os.path.exists(pdf_path):
         raise FileNotFoundError(f"PDF 文件不存在: {pdf_path}")
 
-    # Step 1: 生成提纲（自动提取内容+图片+翻译）
-    print(f"  ⏳ Step 1/3: 从 PDF 提取内容和图片...")
-    md_path = generate_outline(pdf_path, translate=translate)
+    # Step 1: 生成提纲（自动提取内容+图片）
+    print("  ⏳ Step 1/3: 从 PDF 提取内容和图片...")
+    md_path = generate_outline(pdf_path)
     print(f"  ✅ 提纲已生成: {md_path}")
 
     # Step 2: 读取提纲并补充用户信息（不等用户编辑）
@@ -576,7 +475,7 @@ def auto_generate_ppt(
         outline_text = outline_text.replace("汇报时间：（请填写）", f"汇报时间：{date}")
 
     # Step 3: 解析提纲，关联图片路径
-    print(f"  ⏳ Step 2/3: 解析提纲并关联图片...")
+    print("  ⏳ Step 2/3: 解析提纲并关联图片...")
     outline_dir = os.path.dirname(md_path)
     figures_dir = os.path.join(outline_dir, "figures")
     ppt_text, label_to_path = parse_outline_to_ppt_input(
@@ -601,7 +500,7 @@ def auto_generate_ppt(
         pdf_name = os.path.splitext(os.path.basename(pdf_path))[0]
         output_path = os.path.join(outline_dir, f"{pdf_name}_汇报.pptx")
 
-    print(f"  ⏳ Step 3/3: 生成 PPT...")
+    print("  ⏳ Step 3/3: 生成 PPT...")
     agent = PPTAgent()
     result = agent.generate(ppt_text, output_path)
     print(f"  ✅ PPT 生成完成: {result}")

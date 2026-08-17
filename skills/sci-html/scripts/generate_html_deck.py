@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Compatibility wrapper for the sci-html CLI."""
-from pathlib import Path
 import sys
+from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 SRC = ROOT / "src"

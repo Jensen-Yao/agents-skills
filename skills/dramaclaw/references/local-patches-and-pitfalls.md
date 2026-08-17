@@ -90,6 +90,10 @@
 | 前端 | 5174 | `F:\DramaClaw\启动 DramaClaw.cmd`（双击；GBK 编码） |
 | NewAPI | 3000 | `F:\DramaClaw\启动 NewAPI.cmd` / `runtime\new-api.exe`（SQLite 数据 `state\newapi\one-api.db`） |
 | 嵌入服务 | 11435 | llama-server（bge-m3，NewAPI `DC-openai` 渠道 → `DC-cognee-embedding`） |
+| 本地 TTS | 11436 | CosyVoice3-0.5B（`D:\Desktop\模型管理`，Python 看门狗 `service\watchdog_tts.py`，OpenAI 兼容 `/v1/audio/speech`；DramaClaw 经 `INDEXTTS2_PROVIDER=local` 直连，参考音频 data:URL 克隆，失败回退 Edge TTS） |
+
+- **本地 TTS 细节（2026-08-16 部署）**：模型 `D:\Desktop\模型管理\CosyVoice3-0.5B`（Fun-CosyVoice3-0.5B 全量，GPU torch 2.7.1+cu128 装在其独立 venv `D:\Desktop\模型管理\venv`，注意该 venv 需 `setuptools<81` 提供 pkg_resources、需 pyarrow、pyworld 用 stub）；推理要点：**CosyVoice3 零样本的 prompt_text 必须含 `<|endofprompt|>` 标记**，前端传参考音频**文件路径**而非张量；当前 fp32（`COSYVOICE_FP16=1` 可试 fp16），RTF≈1.5（8GB 显存 RTX 5060）。
+- **模型目录整理（2026-08-16）**：`D:\Desktop\模型管理` 根目录的散装 Python 包（transformers/tokenizers/httpx 等 58 项）移入 `pylibs\`（若其他项目依赖原导入路径需加 `pylibs` 到 sys.path）；`musicgen-small` 移入 `models\`；Ollama 模型从 `E:\Ollama\Models` 迁至 `ollama\models`（原路径留 junction + 用户环境变量 `OLLAMA_MODELS` 已指新路径）；LM Studio 的 `C:\Users\18052\.lmstudio\models` 为空（其模型实际在 `.lmstudio\extensions`，未动），已建空 junction。用户自己的 `skills`、`promote`（文档）、快捷方式未动。
 
 - Python 环境：`F:\DramaClaw\.venv`（Python 3.12，`D:\Python\Python312`）。**用户规则（2026-08-16）：优先用 uv**——CLI 用 `uv run novelvideo ...`，依赖管理用 `uv sync`。uv 已配置可用：`%APPDATA%\uv\uv.toml` 设阿里云镜像 `index-url` + `python-preference="only-system"` + `python-downloads="never"`，用户环境变量 `UV_HTTP_TIMEOUT=60`/`UV_CONNECT_TIMEOUT=15`/`UV_RETRIES=5`；`uv sync --dry-run` 实测 42s 解析 238 包。注意：首次真实 `uv sync` 会规范化 `uv.lock` 元数据并移除 .venv 里的 pip（无害）。例外：长驻 API 服务仍由看门狗直接跑 `.venv\Scripts\novelvideo.exe`（服务进程不走 uv run 包装层）。
 - 依赖已装全：`pip check` 通过；曾用国内镜像 + `uv.lock` 导出精确版本安装（详见 requirements.runtime.txt）。

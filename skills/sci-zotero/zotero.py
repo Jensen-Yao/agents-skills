@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Zotero CLI — interact with Zotero libraries via the Web API v3.
 
-Skill-local .env values:
+~/.aut_sci_write/.env values:
     ZOTERO_API_KEY   — API key (required; create at zotero.org/settings/keys/new)
     ZOTERO_USER_ID   — Numeric user ID for personal library
     ZOTERO_GROUP_ID  — Numeric group ID (use instead of USER_ID for group libraries)
@@ -31,7 +31,6 @@ import hashlib
 import json
 import os
 import re
-import shutil
 import sys
 import tempfile
 import time
@@ -45,45 +44,75 @@ API_BASE = "https://api.zotero.org"
 SCRIPT_DIR = Path(__file__).resolve().parent
 ROOT_DIR = SCRIPT_DIR.parent
 
+# Maximum size for a downloaded PDF (guards against disk-fill / SSRF abuse).
+_MAX_PDF_BYTES = 100 * 1024 * 1024  # 100 MB
 
-def _load_env_file(path):
-    values = {}
+
+class ZoteroError(Exception):
+    """Raised on a configuration, API, or network failure.
+
+    Helpers raise this instead of calling sys.exit() so the module can be used
+    as a library; the CLI entry point (main) catches it and exits with code 1.
+    """
+
+
+def _init_shared_env():
+    """Import unified env config from _shared module."""
+    import importlib.util
+    shared_path = ROOT_DIR / "skills" / "_shared" / "env_config.py"
+    if not shared_path.exists():
+        shared_path = SCRIPT_DIR.parent / "_shared" / "env_config.py"
+    if shared_path.exists():
+        spec = importlib.util.spec_from_file_location("_shared.env_config", shared_path)
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        return mod
+    return None
+
+
+_ENV_MOD = _init_shared_env()
+
+
+def _parse_env_file(path: Path) -> dict:
+    """Parse a .env file into a dict. Fallback when _shared is unavailable."""
+    env = {}
     if not path.exists():
-        return values
+        return env
     try:
-        with path.open("r", encoding="utf-8") as f:
-            for raw_line in f:
-                line = raw_line.strip()
-                if not line or line.startswith("#") or "=" not in line:
-                    continue
-                key, value = line.split("=", 1)
-                values[key.strip()] = value.strip().strip('"').strip("'")
-    except OSError as exc:
-        print(f"Warning: failed to load local env from {path}: {exc}", file=sys.stderr)
-    return values
+        for line in path.read_text(encoding="utf-8").splitlines():
+            line = line.strip()
+            if not line or line.startswith("#"):
+                continue
+            m = re.match(r"^([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.*?)$", line)
+            if m:
+                env[m.group(1)] = m.group(2).strip().strip("\"'")
+    except OSError:
+        pass
+    return env
 
 
-LOCAL_ENV = {}
-for _env_path in (ROOT_DIR / ".env", ROOT_DIR / "skills" / "sci-zotero" / ".env"):
-    LOCAL_ENV.update(_load_env_file(_env_path))
+def get_config_value(name: str, default: str = "") -> str:
+    if _ENV_MOD:
+        return _ENV_MOD.get_env_value(name, default)
+    env_file = Path.home() / ".aut_sci_write" / ".env"
+    val = _parse_env_file(env_file).get(name)
+    if val:
+        return val
+    return os.environ.get(name, default)
 
 
-def get_config_value(name, default=""):
-    return LOCAL_ENV.get(name) or os.environ.get(name, default)
-
-
-def get_config():
+def get_config() -> tuple[str, str]:
     api_key = get_config_value("ZOTERO_API_KEY")
     if not api_key:
-        print("Error: ZOTERO_API_KEY is not configured in skills/sci-zotero/.env", file=sys.stderr)
-        print("Create a key at https://www.zotero.org/settings/keys/new", file=sys.stderr)
-        sys.exit(1)
+        raise ZoteroError(
+            "ZOTERO_API_KEY is not configured in ~/.aut_sci_write/.env\n"
+            "Create a key at https://www.zotero.org/settings/keys/new"
+        )
 
     user_id = get_config_value("ZOTERO_USER_ID")
     group_id = get_config_value("ZOTERO_GROUP_ID")
     if not user_id and not group_id:
-        print("Error: Set ZOTERO_USER_ID or ZOTERO_GROUP_ID", file=sys.stderr)
-        sys.exit(1)
+        raise ZoteroError("Set ZOTERO_USER_ID or ZOTERO_GROUP_ID")
 
     prefix = f"/users/{user_id}" if user_id else f"/groups/{group_id}"
     return api_key, prefix
@@ -93,7 +122,14 @@ _MAX_RETRIES = 2
 _RETRY_CODES = {429, 503}
 
 
-def api_request(path, api_key, method="GET", data=None, content_type=None, params=None):
+def api_request(
+    path: str,
+    api_key: str,
+    method: str = "GET",
+    data=None,
+    content_type: str | None = None,
+    params: dict | None = None,
+) -> tuple[str, dict]:
     """Make a Zotero API request with retry on transient failures. Returns (response_body, headers)."""
     url = API_BASE + path
     if params:
@@ -130,16 +166,14 @@ def api_request(path, api_key, method="GET", data=None, content_type=None, param
                 print(f"⚠  HTTP {e.code} — retrying in {delay}s...", file=sys.stderr)
                 time.sleep(delay)
                 continue
-            print(f"API Error {e.code}: {e.reason}", file=sys.stderr)
-            sys.exit(1)
+            raise ZoteroError(f"API Error {e.code}: {e.reason}")
         except urllib.error.URLError as e:
             if attempt < _MAX_RETRIES:
                 delay = (attempt + 1) * 2
                 time.sleep(delay)
                 continue
-            print(f"Network error: {e.reason}", file=sys.stderr)
-            sys.exit(1)
-    sys.exit(1)
+            raise ZoteroError(f"Network error: {e.reason}")
+    raise ZoteroError("API request failed after retries")
 
 
 def api_get_json(path, api_key, params=None):
@@ -255,18 +289,16 @@ def cmd_children(args):
         print(f"[{key}] {item_type}: {title}")
 
 
-def _external_get_json(url):
+def _external_get_json(url: str) -> dict:
     """GET an external (non-Zotero) URL and return parsed JSON."""
     req = urllib.request.Request(url, headers={"User-Agent": "zotero-cli/1.0"})
     try:
         with urllib.request.urlopen(req, timeout=30) as resp:
             return json.loads(resp.read().decode("utf-8"))
     except urllib.error.HTTPError as e:
-        print(f"External API error {e.code}: {url}", file=sys.stderr)
-        sys.exit(1)
+        raise ZoteroError(f"External API error {e.code}: {url}")
     except urllib.error.URLError as e:
-        print(f"Network error: {e.reason}", file=sys.stderr)
-        sys.exit(1)
+        raise ZoteroError(f"Network error: {e.reason}")
 
 
 def _get_item_template(api_key, item_type):
@@ -315,8 +347,7 @@ def cmd_add_isbn(args):
     data = _external_get_json(ol_url)
     book = data.get(f"ISBN:{isbn}")
     if not book:
-        print(f"ISBN {isbn} not found in Open Library", file=sys.stderr)
-        sys.exit(1)
+        raise ZoteroError(f"ISBN {isbn} not found in Open Library")
     template = _get_item_template(api_key, "book")
     template["title"] = book.get("title", "")
     template["ISBN"] = isbn
@@ -344,13 +375,12 @@ def cmd_add_pmid(args):
     pmid = args.identifier.strip()
     esummary_url = (
         f"https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi"
-        f"?db=pubmed&id={pmid}&retmode=json"
+        f"?db=pubmed&id={urllib.parse.quote(pmid, safe='')}&retmode=json"
     )
     data = _external_get_json(esummary_url)
     article = data.get("result", {}).get(pmid, {})
     if not article:
-        print(f"PMID {pmid} not found", file=sys.stderr)
-        sys.exit(1)
+        raise ZoteroError(f"PMID {pmid} not found")
     template = _get_item_template(api_key, "journalArticle")
     template["title"] = article.get("title", "")
     template["publicationTitle"] = article.get("fulljournalname", "")
@@ -412,8 +442,7 @@ def cmd_crossref(args):
         with open(args.file, encoding="utf-8") as f:
             citations = [line.strip() for line in f if line.strip()]
     except OSError as e:
-        print(f"Cannot read file: {e}", file=sys.stderr)
-        sys.exit(1)
+        raise ZoteroError(f"Cannot read file: {e}")
     print("Fetching library items...")
     library_items = paginate_all(f"{prefix}/items/top", api_key)
     library_titles = {
@@ -426,7 +455,7 @@ def cmd_crossref(args):
         cr_url = f"https://api.crossref.org/works?query={query}&rows=1"
         try:
             data = _external_get_json(cr_url)
-        except SystemExit:
+        except ZoteroError:
             missing.append(citation)
             continue
         cr_items = data.get("message", {}).get("items", [])
@@ -470,7 +499,7 @@ def cmd_find_dois(args):
         cr_url = f"https://api.crossref.org/works?query={query}&rows=1"
         try:
             data = _external_get_json(cr_url)
-        except SystemExit:
+        except ZoteroError:
             continue
         cr_items = data.get("message", {}).get("items", [])
         if not cr_items:
@@ -487,8 +516,57 @@ def cmd_find_dois(args):
     print(f"\nTotal updated: {len(updated)}")
 
 
-def cmd_fetch_pdfs(args):
+def _download_pdf(url: str, max_bytes: int = _MAX_PDF_BYTES) -> bytes:
+    """Download a PDF from an untrusted URL into a temp file and return its bytes.
+
+    Guards against abuse: rejects responses that advertise an HTML content type,
+    and aborts (raising ZoteroError) if the download exceeds ``max_bytes``. Uses a
+    temp file so the bytes never need to be fully buffered until validated.
+    """
+    req = urllib.request.Request(url, headers={"User-Agent": "zotero-cli/1.0"})
+    tmp_fd, tmp_path = tempfile.mkstemp(suffix=".pdf")
+    os.close(tmp_fd)
+    try:
+        with urllib.request.urlopen(req, timeout=60) as resp:
+            content_type = (resp.headers.get("Content-Type") or "").lower()
+            # Reject obvious non-PDF responses (e.g. an HTML landing/login page).
+            if "application/pdf" not in content_type and (
+                "text/html" in content_type or "application/xhtml" in content_type
+            ):
+                raise ZoteroError(
+                    f"Unexpected content type '{content_type}' (not a PDF)"
+                )
+
+            total = 0
+            with open(tmp_path, "wb") as fh:
+                while True:
+                    chunk = resp.read(64 * 1024)
+                    if not chunk:
+                        break
+                    total += len(chunk)
+                    if total > max_bytes:
+                        raise ZoteroError(
+                            f"PDF exceeds size cap of {max_bytes} bytes; aborting"
+                        )
+                    fh.write(chunk)
+
+        with open(tmp_path, "rb") as fh:
+            return fh.read()
+    finally:
+        if os.path.exists(tmp_path):
+            os.unlink(tmp_path)
+
+
+def cmd_fetch_pdfs(args) -> None:
     api_key, prefix = get_config()
+    unpaywall_email = get_config_value("UNPAYWALL_EMAIL") or get_config_value(
+        "NCBI_EMAIL"
+    )
+    if not unpaywall_email:
+        raise ZoteroError(
+            "Unpaywall requires a real contact email. Set UNPAYWALL_EMAIL "
+            "(or NCBI_EMAIL) in ~/.aut_sci_write/.env"
+        )
     print("Fetching items without PDF attachments...")
     items = paginate_all(f"{prefix}/items/top", api_key)
     no_pdf = []
@@ -514,11 +592,11 @@ def cmd_fetch_pdfs(args):
         doi = d.get("DOI", "")
         unpaywall_url = (
             f"https://api.unpaywall.org/v2/{urllib.parse.quote(doi, safe='')}"
-            f"?email=zotero@example.com"
+            f"?email={urllib.parse.quote(unpaywall_email, safe='')}"
         )
         try:
             oa_data = _external_get_json(unpaywall_url)
-        except SystemExit:
+        except ZoteroError:
             failed.append(fmt_item_short(item))
             continue
         best_oa = oa_data.get("best_oa_location") or {}
@@ -527,21 +605,11 @@ def cmd_fetch_pdfs(args):
             failed.append(fmt_item_short(item))
             continue
         try:
-            tmp_fd, tmp_path = tempfile.mkstemp(suffix=".pdf")
-            os.close(tmp_fd)
-            pdf_req = urllib.request.Request(
-                pdf_url, headers={"User-Agent": "zotero-cli/1.0"}
-            )
-            with urllib.request.urlopen(pdf_req, timeout=60) as resp:
-                with open(tmp_path, "wb") as fh:
-                    shutil.copyfileobj(resp, fh)
-        except Exception as e:
+            pdf_bytes = _download_pdf(pdf_url)
+        except (ZoteroError, OSError, urllib.error.URLError) as e:
             print(f"Download failed for {d['key']}: {e}", file=sys.stderr)
             failed.append(fmt_item_short(item))
             continue
-        with open(tmp_path, "rb") as fh:
-            pdf_bytes = fh.read()
-        os.unlink(tmp_path)
         md5 = hashlib.md5(pdf_bytes).hexdigest()
         filename = re.sub(r'[\\/:*?"<>|]', "_", d.get("title", d["key"])[:60]) + ".pdf"
         attachment_template = _get_item_template(api_key, "attachment")
@@ -589,7 +657,7 @@ def cmd_fetch_pdfs(args):
             f"filename=\"{filename}\"\r\nContent-Type: application/pdf\r\n\r\n"
         )
         prefix_bytes = "\r\n".join(parts_enc).encode("utf-8")
-        suffix_bytes = f"\r\n--{boundary}--\r\n".encode("utf-8")
+        suffix_bytes = f"\r\n--{boundary}--\r\n".encode()
         upload_body = prefix_bytes + pdf_bytes + suffix_bytes
         upload_req = urllib.request.Request(
             upload_url,
@@ -622,7 +690,7 @@ def cmd_fetch_pdfs(args):
         print(f"  {entry}")
 
 
-def main():
+def main() -> None:
     parser = argparse.ArgumentParser(description="Zotero CLI")
     subparsers = parser.add_subparsers(dest="command")
 
@@ -682,7 +750,11 @@ def main():
     }
 
     if args.command in commands:
-        commands[args.command](args)
+        try:
+            commands[args.command](args)
+        except ZoteroError as exc:
+            print(f"Error: {exc}", file=sys.stderr)
+            sys.exit(1)
     else:
         parser.print_help()
 

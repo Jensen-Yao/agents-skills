@@ -1,0 +1,18 @@
+{
+    "Advanced Materials": {"JCR": "Q1", "IF": 29.4, "Partition": "材料科学1区 Top", "Publisher": "Wiley"},
+    "Nature": {"JCR": "Q1", "IF": 64.8, "Partition": "综合性期刊1区 Top", "Publisher": "Springer Nature"},
+    "Science": {"JCR": "Q1", "IF": 56.9, "Partition": "综合性期刊1区 Top", "Publisher": "AAAS"},
+    "Nature Photonics": {"JCR": "Q1", "IF": 35.0, "Partition": "物理与天体物理1区", "Publisher": "Springer Nature"},
+    "Nature Physics": {"JCR": "Q1", "IF": 19.6, "Partition": "物理与天体物理1区", "Publisher": "Springer Nature"},
+    "Nano Energy": {"JCR": "Q1", "IF": 16.8, "Partition": "材料科学1区", "Publisher": "Elsevier"},
+    "ACS Omega": {"JCR": "Q2", "IF": 4.1, "Partition": "化学3区", "Publisher": "ACS"},
+    "Ceramics International": {"JCR": "Q1", "IF": 5.2, "Partition": "材料科学2区", "Publisher": "Elsevier"},
+    "Journal of Luminescence": {"JCR": "Q2", "IF": 3.6, "Partition": "物理3区", "Publisher": "Elsevier"},
+    "CrystEngComm": {"JCR": "Q2", "IF": 3.1, "Partition": "化学3区", "Publisher": "RSC"},
+    "Colloids and Surfaces A": {"JCR": "Q2", "IF": 5.2, "Partition": "化学2区", "Publisher": "Elsevier"},
+    "J. Phys. Chem. Lett.": {"JCR": "Q1", "IF": 6.4, "Partition": "化学2区", "Publisher": "ACS"},
+    "J. Am. Ceram. Soc.": {"JCR": "Q2", "IF": 3.9, "Partition": "材料科学3区", "Publisher": "Wiley"},
+    "Optical Materials": {"JCR": "Q2", "IF": 3.9, "Partition": "材料科学3区", "Publisher": "Elsevier"},
+    "Laser & Photonics Rev.": {"JCR": "Q1", "IF": 11.0, "Partition": "物理与天体物理1区", "Publisher": "Wiley"},
+    "Adv. Optical Materials": {"JCR": "Q1", "IF": 9.0, "Partition": "材料科学2区", "Publisher": "Wiley"}
+}

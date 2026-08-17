@@ -5,13 +5,13 @@ A **style preset** is a named JSON file capturing a user's visual preferences �
 Read this file when:
 - The user asks to "learn", "save", "remember", or "extract" a style from a file
 - The user wants to manage existing presets (list, set default, delete, rename)
-- You've resolved an active preset in step 0.5 and need the application rules
+- You've resolved an active preset in Step 0 and need the application rules
 - You need to validate a preset file before loading it
 
 ## Locations and lookup order
 
 1. `~/.drawio-skill/styles/<name>.json` — user presets (survive `git pull`).
-2. `<this-skill-dir>/styles/built-in/<name>.json` — built-ins shipped with the skill (`default`, `corporate`, `handdrawn`).
+2. `<this-skill-dir>/styles/built-in/<name>.json` — built-ins shipped with the skill (`default`, `corporate`, `handdrawn`, `colorblind-safe` — Okabe-Ito palette, distinguishable under color-vision deficiency, thicker strokes; `dark` — dark fills + page background, light strokes, needs the `extras.fontColor`/`edgeColor`/`background` rules below).
 
 A user preset shadows a built-in of the same name.
 
@@ -21,7 +21,9 @@ Only user presets can have `"default": true`. When the user says *"make `<built-
 
 ## Applying a preset
 
-When SKILL.md's step 0.5 identified a preset, it fully replaces the built-in palette, shape keywords, edge defaults, and font for this diagram — do not mix values from the built-in color table.
+> **Existing diagrams:** these rules apply at generation time. To re-theme a `.drawio` that already exists, run `python3 scripts/restyle.py diagram.drawio --preset <name>` — it applies the palette (hue-mapped), font, and extras without touching layout or edge routing.
+
+When SKILL.md's Step 0 identified a preset, it fully replaces the built-in palette, shape keywords, edge defaults, and font for this diagram — do not mix values from the built-in color table.
 
 **Color lookup.** For each role a shape plays (service / database / queue / gateway / error / external / security), resolve `preset.roles[role]` to a slot name, then `preset.palette[<slot>]` to the `(fillColor, strokeColor)` pair. If `roles[role]` is unset or the resolved slot is `null`, follow this fallback ladder:
 
@@ -42,6 +44,9 @@ When SKILL.md's step 0.5 identified a preset, it fully replaces the built-in pal
 **Extras.**
 - `preset.extras.sketch === true` → append `sketch=1` to every vertex style and every edge style.
 - `preset.extras.globalStrokeWidth !== 1` (any value other than the drawio default of 1, including `0.5`) → append `strokeWidth=<n>` to every vertex style and every edge style.
+- `preset.extras.fontColor` (present) → append `fontColor=<hex>` to every vertex and container style. Required for dark palettes — without it, dark fills render unreadable black text.
+- `preset.extras.edgeColor` (present) → append `strokeColor=<hex>;fontColor=<hex>` to every edge style (edges otherwise default to black, invisible on dark backgrounds).
+- `preset.extras.background` (present) → set `background="<hex>"` on the `<mxGraphModel>` element, and export PNG **without** `-t` (transparent) so the background is actually painted — a dark diagram on a transparent PNG looks broken in white viewers.
 
 **Interaction with diagram-type presets** (ERD / UML / Sequence / ML / Flowchart). Diagram-type presets set structural style keywords that the user preset must preserve (e.g. ERD tables rely on `shape=table;startSize=30;container=1;childLayout=tableLayout;...`). The rule: keep the diagram-type preset's structural keywords, then layer the user preset's color / font / edge / extras on top. When a diagram-type preset hardcodes a color (`fillColor=#dae8fc`, etc.) that conflicts with the user preset, the user preset's color wins. Exception: `fillColor=none` is structural — do not replace it with a palette color.
 
@@ -58,7 +63,7 @@ When SKILL.md's step 0.5 identified a preset, it fully replaces the built-in pal
 1. **Load the extraction reference.** Read `references/style-extraction.md` into context.
 2. **Extract** following the XML path or image path procedure in the reference.
 3. **Normalize and build candidate.** Convert the user-provided preset name to lowercase. Use this normalized name for ALL file paths in this flow. Build the candidate preset JSON and write it to `/tmp/drawio-preset-<name>.json` (where `<name>` is the already-normalized name). Do **not** save to `~/.drawio-skill/styles/<name>.json` yet.
-4. **Render a sample** using the sample-diagram skeleton in `references/style-extraction.md`, parameterized by the candidate preset. Export PNG to `./preset-<name>-sample.png` using the same `draw.io -x -f png -e -s 2 -o ./preset-<name>-sample.png /tmp/drawio-preset-<name>.drawio` command the main workflow uses.
+4. **Render a sample** using the sample-diagram skeleton in `references/style-extraction.md`, parameterized by the candidate preset. Export PNG to `./preset-<name>-sample.png` using the same `drawio -x -f png -e -s 2 -o ./preset-<name>-sample.png /tmp/drawio-preset-<name>.drawio` command the main workflow uses, then run `repair_png.py` on it (see the Rendering the sample steps in `style-extraction.md`).
 5. **Show the user:**
    - Preset summary table (palette hex values, shapes per role, font, edge style, extras).
    - The sample PNG path (and embed the image if the environment supports it).

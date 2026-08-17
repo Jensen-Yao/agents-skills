@@ -2,13 +2,12 @@
 PPT Agent 主入口
 """
 
-import os
-from typing import Dict, Optional, List
+
 from .config import Config, default_config
-from .models import ParsedData, Page
-from .parser.text_parser import TextParser, parse_user_input
-from .paginator.smart_paginator import SmartPaginator, smart_paginate
-from .generator.pptx_generator import PPTXGenerator, generate_ppt
+from .generator.pptx_generator import PPTXGenerator
+from .models import ParsedData
+from .paginator.smart_paginator import SmartPaginator
+from .parser.text_parser import TextParser
 
 
 class PPTAgent:
@@ -112,7 +111,7 @@ class PPTAgent:
         return output_file
 
     def generate_from_structured(
-        self, data: Dict, output_path: str = "output.pptx"
+        self, data: dict, output_path: str = "output.pptx"
     ) -> str:
         """
         从结构化数据生成PPT
@@ -138,7 +137,7 @@ class PPTAgent:
         self.logger.info(f"PPT生成成功: {output_file}")
         return output_file
 
-    def _dict_to_parsed_data(self, data: Dict) -> ParsedData:
+    def _dict_to_parsed_data(self, data: dict) -> ParsedData:
         """将字典转换为ParsedData"""
         from .models import CoverData
 
@@ -157,7 +156,7 @@ class PPTAgent:
 
         return parsed
 
-    def preview(self, user_input: str) -> List[Dict]:
+    def preview(self, user_input: str) -> list[dict]:
         """
         预览生成的页面结构（不生成文件）
 

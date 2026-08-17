@@ -15,14 +15,13 @@ from __future__ import annotations
 import argparse
 import logging
 import os
-import sys
 import traceback
 
-from sci_figure.figure_extractor import FigureExtractor
-from sci_figure.subfigure_splitter import SubfigureSplitter
-from sci_figure.image_processor import ImageProcessor
 from sci_figure.annotator import PageAnnotator
+from sci_figure.figure_extractor import FigureExtractor
+from sci_figure.image_processor import ImageProcessor
 from sci_figure.pdf_parser import PDFParser
+from sci_figure.subfigure_splitter import SubfigureSplitter
 from sci_figure.utils import setup_logger, validate_pdf_path
 
 

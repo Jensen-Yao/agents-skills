@@ -22,6 +22,17 @@
   .arch h2 { font-size:20px; margin-bottom:14px; }
   .arch pre { color:#cdd6f4; font-size:13px; line-height:1.7; font-family:ui-monospace,Consolas,monospace; overflow-x:auto; }
   .toolbar { display:flex; flex-direction:column; gap:12px; margin:32px 0 18px; }
+  .update-status { display:flex; align-items:center; gap:12px; min-height:58px; margin:0 0 30px; padding:12px 16px; border:1px solid var(--line); border-radius:10px; background:rgba(255,255,255,.025); }
+  .update-status .status-dot { width:9px; height:9px; border-radius:50%; background:#97a1ba; flex:none; }
+  .update-status .status-copy { display:flex; flex:1; flex-direction:column; gap:3px; min-width:0; }
+  .update-status strong { font-size:14px; color:var(--text); }
+  .update-status .status-detail { color:var(--muted); font-size:12px; line-height:1.45; overflow-wrap:anywhere; }
+  .update-status a { flex:none; font-size:12px; text-decoration:none; }
+  .update-status.current { border-color:rgba(52,199,89,.32); background:rgba(52,199,89,.06); }
+  .update-status.current .status-dot { background:#34c759; }
+  .update-status.available { border-color:rgba(245,158,11,.42); background:rgba(245,158,11,.08); }
+  .update-status.available .status-dot { background:#f59e0b; }
+  .update-status.unavailable { border-color:rgba(148,163,184,.32); background:rgba(148,163,184,.06); }
   .searchbox {
     width:100%; padding:14px 18px; border-radius:14px; border:1px solid var(--line);
     background:var(--panel); color:var(--text); font-size:15px; outline:none;
@@ -75,12 +86,21 @@
   </div>
   <div class="hero">
     <div>
-      <span class="badge">🧠 <span class="zh">140+ 技能</span><span class="en">140+ skills</span></span>
+      <span class="badge">🧠 <span class="zh">150+ 技能</span><span class="en">150+ skills</span></span>
       <span class="badge">📄 SKILL.md</span>
       <span class="badge">🤖 DeepSeek Harness / Claude Code</span>
     </div>
     <h1><span class="zh">智能体技能库</span><span class="en">Agents Skills</span></h1>
     <p class="sub"><span class="zh">个人 Agent 技能库 —— 研究、开发、设计、文档、部署…… 各领域专家指令随取随用。输入关键词或点分类即可实时筛选。</span><span class="en">Personal agent skills library — research, development, design, docs, deployment... Type a keyword or pick a category to filter live.</span></p>
+  </div>
+
+  <div class="update-status checking" id="updateStatus" role="status" aria-live="polite">
+    <span class="status-dot" aria-hidden="true"></span>
+    <div class="status-copy">
+      <strong id="updateTitle" data-zh="正在检查更新" data-en="Checking for updates">正在检查更新</strong>
+      <span class="status-detail" id="updateDetail" data-zh="正在读取仓库的更新状态……" data-en="Reading the repository update status…">正在读取仓库的更新状态……</span>
+    </div>
+    <a id="updateLink" href="https://github.com/Jensen-Yao/agents-skills/issues" target="_blank" rel="noopener" hidden>查看 Issue ↗</a>
   </div>
 
   <div class="arch">
@@ -246,6 +266,17 @@
     <div class="card" data-name="whisper" data-zh="OpenAI 的通用语音识别模型。支持 99 种语言、转写、翻译成英语和语种识别。提供从 tiny 到 large 的六种尺寸。用于语音转文字、播客转写或多语言音频处理，最适合稳健的多语言 ASR。" data-en="OpenAI&#39;s general-purpose speech recognition model. Supports 99 languages, transcription, translation to English, and language identification. Six model sizes from tiny (39M params) to large (1550M params). Use for speech-to-text, podcast transcription, or multilingual audio processing. Best for robust, multilingual ASR."><div class="cardtop"><h3>whisper</h3><span class="cat">工具与CLI</span></div><p class="zh">OpenAI 的通用语音识别模型。支持 99 种语言、转写、翻译成英语和语种识别。提供从 tiny 到 large 的六种尺寸。用于语音转文字、播客转写或多语言音频处理，最适合稳健的多语言 ASR。</p><p class="en">OpenAI&#39;s general-purpose speech recognition model. Supports 99 languages, transcription, translation to English, and language identification. Six model sizes from tiny (39M params) to large (1550M params). Use for speech-to-text, podcast transcription, or multilingual audio processing. Best for robust, multilingual ASR.</p></div>
     <div class="card" data-name="windows-deployment-cli-locations" data-zh="定位并调用此 Windows 工作站上已安装的部署与数据库工具，尤其是 Supabase CLI、Netlify CLI、Neon CLI、Vercel CLI、Cloudflare Wrangler、Railway CLI、PostgreSQL 和 Docker 检查。当任务需要这些命令之一、命令不在 PATH 中、需要检查工具是否已安装或在安装另一个副本之前使用。" data-en="Locate and invoke the deployment and database tools installed on this Windows workstation, especially Supabase CLI, Netlify CLI, Neon CLI, Vercel CLI, Cloudflare Wrangler, Railway CLI, PostgreSQL, and Docker checks. Use when a task needs one of these commands, when a command is not on PATH, when checking whether a tool is installed, or before installing another copy."><div class="cardtop"><h3>windows-deployment-cli-locations</h3><span class="cat">工具与CLI</span></div><p class="zh">定位并调用此 Windows 工作站上已安装的部署与数据库工具，尤其是 Supabase CLI、Netlify CLI、Neon CLI、Vercel CLI、Cloudflare Wrangler、Railway CLI、PostgreSQL 和 Docker 检查。当任务需要这些命令之一、命令不在 PATH 中、需要检查工具是否已安装或在安装另一个副本之前使用。</p><p class="en">Locate and invoke the deployment and database tools installed on this Windows workstation, especially Supabase CLI, Netlify CLI, Neon CLI, Vercel CLI, Cloudflare Wrangler, Railway CLI, PostgreSQL, and Docker checks. Use when a task needs one of these commands, when a command is not on PATH, when checking whether a tool is installed, or before installing another copy.</p></div>
     <div class="card" data-name="winui-app" data-zh="使用 C# 和 Windows App SDK 引导、开发和设计现代 WinUI 3 桌面应用，参考微软官方指南、WinUI Gallery 模式、Windows App SDK 示例和 CommunityToolkit 组件。当创建全新应用、为 WinUI 准备机器、评审、重构、规划、排障、环境检查，或配置 WinUI 3 的 XAML、控件、导航、窗口、主题、无障碍、响应式、性能、部署及相关 Windows 应用设计与开发工作时使用。" data-en="Bootstrap, develop, and design modern WinUI 3 desktop applications with C# and the Windows App SDK using official Microsoft guidance, WinUI Gallery patterns, Windows App SDK samples, and CommunityToolkit components. Use when creating a brand new app, preparing a machine for WinUI, reviewing, refactoring, planning, troubleshooting, environment-checking, or setting up WinUI 3 XAML, controls, navigation, windowing, theming, accessibility, responsiveness, performance, deployment, or related Windows app design and development work."><div class="cardtop"><h3>winui-app</h3><span class="cat">工具与CLI</span></div><p class="zh">使用 C# 和 Windows App SDK 引导、开发和设计现代 WinUI 3 桌面应用，参考微软官方指南、WinUI Gallery 模式、Windows App SDK 示例和 CommunityToolkit 组件。当创建全新应用、为 WinUI 准备机器、评审、重构、规划、排障、环境检查，或配置 WinUI 3 的 XAML、控件、导航、窗口、主题、无障碍、响应式、性能、部署及相关 Windows 应用设计与开发工作时使用。</p><p class="en">Bootstrap, develop, and design modern WinUI 3 desktop applications with C# and the Windows App SDK using official Microsoft guidance, WinUI Gallery patterns, Windows App SDK samples, and CommunityToolkit components. Use when creating a brand new app, preparing a machine for WinUI, reviewing, refactoring, planning, troubleshooting, environment-checking, or setting up WinUI 3 XAML, controls, navigation, windowing, theming, accessibility, responsiveness, performance, deployment, or related Windows app design and development work.</p></div>
+    <div class="card" data-name="baseline-ui" data-zh="快速清理 AI 生成界面的间距、层级、排版和小型布局问题。当界面需要一轮快速整理或打磨时使用。" data-en="Quickly cleans up AI-generated UI by fixing spacing, hierarchy, typography, and small layout issues. Use for a fast polish pass."><div class="cardtop"><h3>baseline-ui</h3><span class="cat">设计与前端</span></div><p class="zh">快速清理 AI 生成界面的间距、层级、排版和小型布局问题。当界面需要一轮快速整理或打磨时使用。</p><p class="en">Quickly cleans up AI-generated UI by fixing spacing, hierarchy, typography, and small layout issues. Use for a fast polish pass.</p></div>
+    <div class="card" data-name="create-design-md" data-zh="根据现有产品仓库或公开网站创建或更新 DESIGN.md，记录经过证据验证的设计语言、设计令牌与实现指导。当需要为编码智能体补充持久化 UI 上下文时使用。" data-en="Creates or updates DESIGN.md from a product repository or public website, recording evidence-based design language, tokens, and implementation guidance. Use when giving coding agents persistent UI context."><div class="cardtop"><h3>create-design-md</h3><span class="cat">设计与前端</span></div><p class="zh">根据现有产品仓库或公开网站创建或更新 DESIGN.md，记录经过证据验证的设计语言、设计令牌与实现指导。当需要为编码智能体补充持久化 UI 上下文时使用。</p><p class="en">Creates or updates DESIGN.md from a product repository or public website, recording evidence-based design language, tokens, and implementation guidance. Use when giving coding agents persistent UI context.</p></div>
+    <div class="card" data-name="diagram-design" data-zh="创建带品牌感的架构图、流程图、时序图、状态机、ER 图、时间线、泳道图、矩阵和数据流图，并可将 draw.io 或 Mermaid 源文件重绘为独立 HTML、SVG 或 PNG。" data-en="Creates branded architecture, flowchart, sequence, state, ER, timeline, swimlane, matrix, and data-flow diagrams, and redraws draw.io or Mermaid sources as standalone HTML, SVG, or PNG."><div class="cardtop"><h3>diagram-design</h3><span class="cat">设计与前端</span></div><p class="zh">创建带品牌感的架构图、流程图、时序图、状态机、ER 图、时间线、泳道图、矩阵和数据流图，并可将 draw.io 或 Mermaid 源文件重绘为独立 HTML、SVG 或 PNG。</p><p class="en">Creates branded architecture, flowchart, sequence, state, ER, timeline, swimlane, matrix, and data-flow diagrams, and redraws draw.io or Mermaid sources as standalone HTML, SVG, or PNG.</p></div>
+    <div class="card" data-name="fixing-accessibility" data-zh="审计并修复 HTML 无障碍问题，包括 ARIA 标签、键盘导航、焦点管理、颜色对比度和表单错误。当添加交互控件、表单、对话框或检查 WCAG 合规性时使用。" data-en="Audits and fixes HTML accessibility issues including ARIA labels, keyboard navigation, focus management, contrast, and form errors. Use for interactive controls, forms, dialogs, or WCAG reviews."><div class="cardtop"><h3>fixing-accessibility</h3><span class="cat">设计与前端</span></div><p class="zh">审计并修复 HTML 无障碍问题，包括 ARIA 标签、键盘导航、焦点管理、颜色对比度和表单错误。当添加交互控件、表单、对话框或检查 WCAG 合规性时使用。</p><p class="en">Audits and fixes HTML accessibility issues including ARIA labels, keyboard navigation, focus management, contrast, and form errors. Use for interactive controls, forms, dialogs, or WCAG reviews.</p></div>
+    <div class="card" data-name="fixing-metadata" data-zh="审计并修复页面元数据，包括标题、描述、规范链接、Open Graph、Twitter 卡片、favicon、JSON-LD 和 robots 指令。当需要 SEO 或社交分享预览时使用。" data-en="Audits and fixes page metadata including titles, descriptions, canonical URLs, Open Graph, Twitter cards, favicons, JSON-LD, and robots directives. Use for SEO or social previews."><div class="cardtop"><h3>fixing-metadata</h3><span class="cat">设计与前端</span></div><p class="zh">审计并修复页面元数据，包括标题、描述、规范链接、Open Graph、Twitter 卡片、favicon、JSON-LD 和 robots 指令。当需要 SEO 或社交分享预览时使用。</p><p class="en">Audits and fixes page metadata including titles, descriptions, canonical URLs, Open Graph, Twitter cards, favicons, JSON-LD, and robots directives. Use for SEO or social previews.</p></div>
+    <div class="card" data-name="fixing-motion-performance" data-zh="审计并修复动画性能问题，包括布局抖动、合成属性、滚动关联动效和模糊效果。当动画卡顿或转场不流畅时使用。" data-en="Audits and fixes animation performance issues including layout thrashing, compositor properties, scroll-linked motion, and blur effects. Use when motion stutters or transitions jank."><div class="cardtop"><h3>fixing-motion-performance</h3><span class="cat">设计与前端</span></div><p class="zh">审计并修复动画性能问题，包括布局抖动、合成属性、滚动关联动效和模糊效果。当动画卡顿或转场不流畅时使用。</p><p class="en">Audits and fixes animation performance issues including layout thrashing, compositor properties, scroll-linked motion, and blur effects. Use when motion stutters or transitions jank.</p></div>
+    <div class="card" data-name="improve-ui" data-zh="基于产品自身的设计证据审计现有界面，识别已验证的 UI 问题，并为另一个智能体编写可独立执行的改进计划；保持产品身份且只读产品源代码。" data-en="Audits an existing product surface against its own design evidence, identifies verified UI problems, and writes self-contained plans for another agent while preserving the product identity."><div class="cardtop"><h3>improve-ui</h3><span class="cat">设计与前端</span></div><p class="zh">基于产品自身的设计证据审计现有界面，识别已验证的 UI 问题，并为另一个智能体编写可独立执行的改进计划；保持产品身份且只读产品源代码。</p><p class="en">Audits an existing product surface against its own design evidence, identifies verified UI problems, and writes self-contained plans for another agent while preserving the product identity.</p></div>
+    <div class="card" data-name="local-models" data-zh="按需操作本机托管的 CosyVoice3、bge-m3、Ollama、MusicGen 和 LM Studio 等模型服务。仅在任务真正需要本地模型时加载或启动资源。" data-en="Operates locally hosted CosyVoice3, bge-m3, Ollama, MusicGen, and LM Studio services on demand. Load or start them only when a task actually needs local models."><div class="cardtop"><h3>local-models</h3><span class="cat">工具与CLI</span></div><p class="zh">按需操作本机托管的 CosyVoice3、bge-m3、Ollama、MusicGen 和 LM Studio 等模型服务。仅在任务真正需要本地模型时加载或启动资源。</p><p class="en">Operates locally hosted CosyVoice3, bge-m3, Ollama, MusicGen, and LM Studio services on demand. Load or start them only when a task actually needs local models.</p></div>
+    <div class="card" data-name="ui-skills-root" data-zh="UI 任务的路由层，使用 ui-skills CLI 选择最小且最合适的 UI Skills 上下文，再进入实现阶段。" data-en="Routes UI work through the ui-skills CLI, selecting the smallest useful UI Skills context before implementation."><div class="cardtop"><h3>ui-skills-root</h3><span class="cat">设计与前端</span></div><p class="zh">UI 任务的路由层，使用 ui-skills CLI 选择最小且最合适的 UI Skills 上下文，再进入实现阶段。</p><p class="en">Routes UI work through the ui-skills CLI, selecting the smallest useful UI Skills context before implementation.</p></div>
+    <div class="card" data-name="windows-ios-cicd" data-zh="在没有本机 Mac/Xcode 的 Windows 上，通过 XcodeGen、Swift Package、GitHub Actions macOS CI 和 XCUITest 完成 iOS/watchOS 的构建、测试、截图验证与分发。" data-en="Builds, tests, visually verifies, and distributes iOS/watchOS apps from Windows without a local Mac or Xcode, using XcodeGen, Swift Package, macOS GitHub Actions CI, and XCUITest."><div class="cardtop"><h3>windows-ios-cicd</h3><span class="cat">工具与CLI</span></div><p class="zh">在没有本机 Mac/Xcode 的 Windows 上，通过 XcodeGen、Swift Package、GitHub Actions macOS CI 和 XCUITest 完成 iOS/watchOS 的构建、测试、截图验证与分发。</p><p class="en">Builds, tests, visually verifies, and distributes iOS/watchOS apps from Windows without a local Mac or Xcode, using XcodeGen, Swift Package, macOS GitHub Actions CI, and XCUITest.</p></div>
+  </div>
   <div class="empty" id="empty"><span class="zh">没有匹配的技能</span><span class="en">No matching skills</span></div>
 
   <div class="modal" id="modal" onclick="if(event.target===this)closeModal()">
@@ -280,7 +311,7 @@
     if (/^(accelerate|deepspeed|megatron|moe|openrlhf|trl|unsloth|vllm|sglang|llama|gguf|gptq|awq|bitsandbytes|hqq|speculative|flash|torchforge|torchtitan|nanogpt|litgpt|axolotl|peft|grpo|verl|slime|miles|simpo|distributed|long-context|mamba|rwkv|knowledge|model-|quantiz|openpi|openvla)/.test(n)) return 'ml';
     if (/^(lm-evaluation|bigcode|nemo-evaluator|evaluating)/.test(n)) return 'eval';
     if (/^(autoresearch|brainstorming|creative-thinking|ml-paper|systems-paper|presenting)/.test(n)) return 'research';
-    if (/^(apple|app-shell|emil|animation|improve-animations|review-animations|find-animation|drawio|prototype|pick-ui|chinese-plot|academic-plotting)/.test(n)) return 'design';
+    if (/^(apple|app-shell|baseline-ui|create-design-md|diagram-design|emil|animation|fixing-|improve-ui|improve-animations|review-animations|find-animation|drawio|prototype|pick-ui|chinese-plot|academic-plotting|ui-skills-root)/.test(n)) return 'design';
     if (/^(chroma|faiss|pinecone|qdrant|sentence|ray-data|nemo-curator|llamaindex|sparse-autoencoder|transformer-lens|pyvene|nnsight)/.test(n)) return 'data';
     if (/^(constitutional|prompt-guard|llamaguard|nemo-guardrails|bugbounty)/.test(n)) return 'safety';
     if (/^(cosmos-policy)/.test(n)) return 'robotics';
@@ -323,6 +354,7 @@
     document.getElementById('btn-zh').classList.toggle('active', l==='zh');
     document.getElementById('btn-en').classList.toggle('active', l==='en');
     filter();
+    renderUpdateStatus();
     try{ localStorage.setItem('agents-skills-lang', l); }catch(e){}
   }
   document.getElementById('search').addEventListener('input', function(){ state.q = this.value; filter(); });
@@ -363,8 +395,47 @@
     openModal(card.dataset.name, card.dataset.zh, card.dataset.en);
   });
   document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeModal(); });
+  var updateState = { status:'checking', issue:null };
+  function setStatusText(id, zh, en){
+    var el = document.getElementById(id);
+    el.dataset.zh = zh;
+    el.dataset.en = en;
+    el.textContent = document.documentElement.lang==='en' ? en : zh;
+  }
+  function renderUpdateStatus(){
+    var box = document.getElementById('updateStatus');
+    var link = document.getElementById('updateLink');
+    box.className = 'update-status ' + updateState.status;
+    if(updateState.status==='checking'){
+      setStatusText('updateTitle', '正在检查更新', 'Checking for updates');
+      setStatusText('updateDetail', '正在读取仓库的更新状态……', 'Reading the repository update status…');
+      link.hidden = true;
+    } else if(updateState.status==='current'){
+      setStatusText('updateTitle', '技能库当前是最新的', 'Skill library is current');
+      setStatusText('updateDetail', 'README、Pages 和已配置上游均未发现待处理变化。', 'README, Pages, and configured upstreams have no pending changes.');
+      link.hidden = true;
+    } else if(updateState.status==='available'){
+      setStatusText('updateTitle', '发现技能更新', 'Skill updates are available');
+      setStatusText('updateDetail', updateState.issue && updateState.issue.title ? updateState.issue.title : '打开待办 Issue 查看需要同步的内容。', updateState.issue && updateState.issue.title ? updateState.issue.title : 'Open the tracked issue to see what needs syncing.');
+      link.href = updateState.issue && updateState.issue.html_url ? updateState.issue.html_url : 'https://github.com/Jensen-Yao/agents-skills/issues';
+      link.textContent = document.documentElement.lang==='en' ? 'View issue ↗' : '查看 Issue ↗';
+      link.hidden = false;
+    } else {
+      setStatusText('updateTitle', '更新状态暂时不可用', 'Update status unavailable');
+      setStatusText('updateDetail', 'GitHub Issues API 暂时无法访问，请稍后重试。', 'The GitHub Issues API is temporarily unavailable. Please try again later.');
+      link.hidden = true;
+    }
+  }
+  function checkUpdates(){
+    fetch('https://api.github.com/repos/Jensen-Yao/agents-skills/issues?state=open&labels=skill-update&per_page=1', { headers:{ Accept:'application/vnd.github+json' } })
+      .then(function(response){ if(!response.ok) throw new Error(String(response.status)); return response.json(); })
+      .then(function(issues){ updateState = { status: issues.length ? 'available' : 'current', issue: issues[0] || null }; renderUpdateStatus(); })
+      .catch(function(){ updateState = { status:'unavailable', issue:null }; renderUpdateStatus(); });
+  }
   buildChips();
   filter();
+  renderUpdateStatus();
+  checkUpdates();
   try{ if(localStorage.getItem('agents-skills-lang')==='en') setLang('en'); }catch(e){}
 </script>
 </body>

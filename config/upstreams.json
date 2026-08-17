@@ -1,0 +1,62 @@
+{
+  "version": 1,
+  "repositories": [
+    {
+      "repository": "Orchestra-Research/AI-research-SKILLs",
+      "url": "https://github.com/Orchestra-Research/AI-research-SKILLs.git",
+      "discover": {
+        "include_installed_only": true,
+        "exclude": []
+      }
+    },
+    {
+      "repository": "ibelick/ui-skills",
+      "url": "https://github.com/ibelick/ui-skills.git",
+      "skills": {
+        "baseline-ui": "skills/baseline-ui",
+        "create-design-md": "skills/create-design-md",
+        "fixing-accessibility": "skills/fixing-accessibility",
+        "fixing-metadata": "skills/fixing-metadata",
+        "fixing-motion-performance": "skills/fixing-motion-performance",
+        "improve-ui": "skills/improve-ui"
+      }
+    },
+    {
+      "repository": "ShZhao27208/Aut_Sci_Write",
+      "url": "https://github.com/ShZhao27208/Aut_Sci_Write.git",
+      "skills": {
+        "sci-extract": "skills/sci-extract",
+        "sci-figure": "skills/sci-figure",
+        "sci-html": "skills/sci-html",
+        "sci-ppt": "skills/sci-ppt",
+        "sci-review": "skills/sci-review",
+        "sci-search": "skills/sci-search",
+        "sci-zotero": "skills/sci-zotero"
+      }
+    },
+    {
+      "repository": "Agents365-ai/drawio-skill",
+      "url": "https://github.com/Agents365-ai/drawio-skill.git",
+      "skills": {
+        "drawio-skill": "skills/drawio-skill"
+      }
+    },
+    {
+      "repository": "cathrynlavery/diagram-design",
+      "url": "https://github.com/cathrynlavery/diagram-design.git",
+      "skills": {
+        "diagram-design": "skills/diagram-design"
+      }
+    },
+    {
+      "repository": "openai/skills",
+      "url": "https://github.com/openai/skills.git",
+      "skills": {
+        "cli-creator": "skills/.curated/cli-creator",
+        "hatch-pet": "skills/.curated/hatch-pet",
+        "playwright": "skills/.curated/playwright",
+        "winui-app": "skills/.curated/winui-app"
+      }
+    }
+  ]
+}

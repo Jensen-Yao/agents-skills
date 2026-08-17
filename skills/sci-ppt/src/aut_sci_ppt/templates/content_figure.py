@@ -1,12 +1,15 @@
 """
 图文页 - 终版：溢出保护 + 填满 + 左右/上下自动布局
 """
-from .base import BaseTemplate, hex_to_rgb
-from pptx.util import Inches, Pt
-from pptx.oxml.ns import qn
-from pptx.enum.text import PP_ALIGN
+import os
+import re
+
 from lxml import etree
-import re, os
+from pptx.enum.text import PP_ALIGN
+from pptx.oxml.ns import qn
+from pptx.util import Inches, Pt
+
+from .base import BaseTemplate, hex_to_rgb
 
 
 def _set_lnsp(tf, pt_val):
@@ -95,7 +98,6 @@ class ContentFigureTemplate(BaseTemplate):
         n      = len(texts)
 
         # 先给图片分配 55% 高度，文字用剩余
-        img_avail = avail * 0.55 - CAP_H
         txt_avail = avail * 0.45 - 0.12
 
         fs, heights = _calc(texts, txt_avail, cw)

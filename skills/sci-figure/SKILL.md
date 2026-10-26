@@ -1,6 +1,6 @@
 ---
 name: sci-figure
-description: Extracts figures and sub-figures from academic PDF papers. Supports Fig/Figure, Scheme, Chart, Supplementary Figure, Extended Data Figure (Nature), and Chinese equivalents (图/方案/示意图/附图/补充图). Sub-figure label recognition supports (a)/(A)/a)/(i)/(1)/a. formats. High-quality PNG output at configurable DPI. Use when user asks to "extract figure", "截取文献图片", "提取子图", "get figure from paper", "Scheme", "方案图", "补充图", "Supplementary Figure", or "Extended Data".
+description: "Extracts figures and sub-figures from academic PDF papers. Supports Fig/Figure, Scheme, Chart, Supplementary Figure, Extended Data Figure (Nature), and Chinese equivalents (图/方案/示意图/附图/补充图). Sub-figure label recognition supports (a)/(A)/a)/(i)/(1)/a. formats. High-quality PNG output at configurable DPI. Use when user asks to \"extract figure\", \"截取文献图片\", \"提取子图\", \"get figure from paper\", \"Scheme\", \"方案图\", \"补充图\", \"Supplementary Figure\", or \"Extended Data\". For creating new figures (rather than extracting from a PDF), figure-router selects the right creator skill."
 author: Shuo Zhao         
 license: AGPL-3.0-or-later
 copyright: © 2026 Shuo Zhao. All rights reserved.

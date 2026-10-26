@@ -83,6 +83,93 @@
         "description": "Review a specific animation or motion change against a high craft and performance bar. Run only when explicitly invoked; do not use for general UI review, broad audits, or implementation.",
         "disable-model-invocation": true
       }
+    },
+    "ppt-master": {
+      "frontmatter": {
+        "description": "AI-driven presentation workflow for generating editable PPTX decks and slides, reconstructing page visuals, creating reusable Brand/Style/Layout/Deck workspaces, filling native PPTX templates, and enhancing finished PPTX files. Use when the user asks to create, generate, reconstruct, regenerate, beautify, redesign, template, fill, or enhance a presentation, PPT, PPTX, slide deck, or courseware — including adding narration or animation to one — requests a presentation-authored narrated/self-running video, or mentions ppt-master. Routing: selected by ppt-router for general editable-PPTX workflows (generate, beautify, template fill, narrated decks) or by explicit user invocation; Chinese academic paper-to-PPT rebuilds belong to scholar-ppt-cn and conference-talk decks to presenting-conference-talks.",
+        "disable-model-invocation": true
+      }
+    },
+    "scholar-ppt-cn": {
+      "frontmatter": {
+        "description": "Use this skill when a user wants to create, restyle, or rebuild a Chinese academic PowerPoint from papers, theses, reports, figures, notes, reference templates, screenshots, or visual mockups. The workflow keeps the user interface simple while restoring useful planning. First create a production planning table that maps each slide to narrative section, source asset, source-asset geometry, core message, and detailed layout archetype. Then create a mockup family + variants blueprint that groups planned slides into reusable visual families and assigns concrete variants. Visual samples and editable PPTX are generated only after this family blueprint is established. Template DNA controls visual identity; layout archetypes and mockup family variants control page structure; approved mockups override fallback layouts. Routing: selected by ppt-router for Chinese academic paper/thesis/report-to-PPT rebuilds or by explicit user invocation.",
+        "disable-model-invocation": true
+      }
+    },
+    "sci-ppt": {
+      "frontmatter": {
+        "description": "Generate professional academic PowerPoint (PPTX) presentations from paper PDFs, structured outlines, or plain text. Use for thesis defense, seminar reports, literature presentations, and graduate school applications. Supports automatic figure extraction, LaTeX formula rendering, and bilingual (Chinese/English) layouts. Routing: selected by ppt-router for slides from a paper PDF (thesis defense, seminar, literature presentation) or by explicit user invocation; bilingual layouts with LaTeX formulas are this skill's specialty.",
+        "disable-model-invocation": true
+      }
+    },
+    "presenting-conference-talks": {
+      "frontmatter": {
+        "description": "Generates conference presentation slides (Beamer LaTeX PDF and editable PPTX) from a compiled paper with speaker notes and talk script. Use when preparing oral talks, spotlight presentations, or invited talks for ML and systems conferences. Routing: selected by ppt-router for conference oral/spotlight/invited-talk decks with speaker notes or by explicit user invocation.",
+        "disable-model-invocation": true
+      }
+    },
+    "academic-plotting": {
+      "frontmatter": {
+        "description": "Generates publication-quality figures for ML papers from research context. Given a paper section or description, extracts system components and relationships to generate architecture diagrams via Gemini. Given experiment results or data, auto-selects chart type and generates data-driven figures via matplotlib/seaborn. Use when creating any figure for a conference paper. Routing: selected by figure-router for publication data charts from experiment results and ML architecture diagrams or by explicit user invocation.",
+        "disable-model-invocation": true
+      }
+    },
+    "diagram-design": {
+      "frontmatter": {
+        "description": "Create branded architecture, architecture delta, IT current-state, flowchart, sequence, state machine, ER/data model, timeline, swimlane, quadrant, radar/spider, polar chart (polar/radial lollipop), loop/flywheel, nested, tree, org chart, layer stack, exploded axonometric, axonometric plan, Venn, pyramid/funnel, treemap and marimekko, heatmap, bar and dumbbell, waterfall, line (slopegraph, ridgeline, streamgraph, bump), Gantt and scatter charts (bubble, beeswarm), high-level, process, medallion, data flow, DP integration, DP security matrix, Sankey, fishbone, Wardley map, kanban, user journey, service blueprint, deployment, dependency graph, UML class, story map, or database schema diagrams as HTML/SVG/PNG, with .drawio, Mermaid, and .excalidraw import, plus lifecycle phase maps, block decomposition trees, and onboarding guidance. Routing: selected by figure-router for branded diagram families rendered as HTML or by explicit user invocation; when an editable .drawio file is required use drawio-skill instead.",
+        "disable-model-invocation": true
+      }
+    },
+    "drawio-skill": {
+      "frontmatter": {
+        "description": "Create and edit draw.io/diagrams.net diagrams as editable `.drawio` files. Covers architecture, UML/ERD/sequence, BPMN, network, and swimlane views authored from a description or converted from code, IaC, SQL, and API schemas, plus sync, query, test, review, export, and publish of existing diagrams. Use when the user asks for draw.io/diagrams.net or an editable diagram; prefer Mermaid/PlantUML when diagrams-as-code is enough. Routing: selected by figure-router when an editable .drawio file is required or by explicit user invocation.",
+        "disable-model-invocation": true
+      }
+    },
+    "ccf-visual-composer": {
+      "frontmatter": {
+        "description": "Render and redesign scientific figures, visual tables, and method/architecture diagrams from supplied content, including biological data. Use for 绘图美化, 排版, 配色, GPT Image 2 generation, pure SVG, and editable SVG/PDF/PPTX. Preserve values and topology. Experiment evidence design belongs to ccf-experiment-designer; manuscript rewriting and PDF-to-writing exemplars are separate. Routing: owns figures inside CCFA pipelines (ccfa.yaml or ccf-* context); for standalone figure requests outside CCFA, figure-router selects among academic-plotting, diagram-design, drawio-skill, and this skill."
+      }
+    },
+    "ccf-paper-writer": {
+      "frontmatter": {
+        "description": "Draft, revise, polish, compress, or presentation-adapt CCF manuscript prose. Use for 写作, 润色论文, research documents to complete papers, 完整初稿, 实验留空, 改写, 压缩论文, abstracts, sections, and slides. Draft content before fitting pages; preserve evidence and format. Assessment without rewriting belongs to ccf-paper-reviewer; rebuttal belongs to ccf-rebuttal-writer. Routing: primary for manuscripts inside CCFA pipelines (ccfa.yaml or ccf-* context); for one-off ML/AI papers outside CCFA prefer ml-paper-writing, and systems-paper-writing for systems venues."
+      }
+    },
+    "ml-paper-writing": {
+      "frontmatter": {
+        "description": "Write publication-ready ML/AI papers for NeurIPS, ICML, ICLR, ACL, AAAI, COLM. Use when drafting papers from research repos, structuring arguments, verifying citations, or preparing camera-ready submissions. For systems venues (OSDI, NSDI, ASPLOS, SOSP), use systems-paper-writing instead. For manuscripts inside the CCFA pipeline (ccfa.yaml or ccf-* context) prefer ccf-paper-writer."
+      }
+    },
+    "systems-paper-writing": {
+      "frontmatter": {
+        "description": "Comprehensive guide for writing systems papers targeting OSDI, SOSP, ASPLOS, NSDI, and EuroSys. Provides paragraph-level structural blueprints, writing patterns, venue-specific checklists, reviewer guidelines, LaTeX templates, and conference deadlines. Use this skill for all systems conference paper writing. For manuscripts inside the CCFA pipeline (ccfa.yaml or ccf-* context) prefer ccf-paper-writer."
+      }
+    },
+    "ccf-paper-reviewer": {
+      "frontmatter": {
+        "description": "Review manuscript claims, evidence, and writing without rewriting. Use for 文章审核, 审稿, 稿件有什么硬伤, 结论站得住吗, 投稿成熟度, writing review, and version comparison. Return a structured scientific or writing review; scores need not be explicitly requested. Concept-only judgment belongs to ccf-idea-reviewer even with a full PDF; requested prose edits belong to ccf-paper-writer. Routing: reviews your own manuscript inside CCFA pipelines; reading or critiquing external supplied papers belongs to sci-extract, and one-off rebuttals or response letters outside CCFA may use sci-review."
+      }
+    },
+    "ccf-literature-searcher": {
+      "frontmatter": {
+        "description": "Find and verify external literature, prior art, datasets, benchmarks, and citation candidates. Use for 文献检索, 相关工作, benchmark搜索, and research opportunity maps. Recurring recent-paper watch belongs to ccf-literature-monitor; existing-citation audits, manuscript assessment, and result schemas have separate owners. Routing: for related-work, benchmark, and citation sweeps inside CCFA pipelines; quick one-off academic lookups may use sci-search instead."
+      }
+    },
+    "sci-review": {
+      "frontmatter": {
+        "description": "Specialized workflows for drafting, refining, and responding to academic literature reviews and peer review feedback. Use this skill for literature review outlines, research-gap synthesis, reviewer rebuttals, response letters, and academic writing tone repair. For rebuttals and response letters inside the CCFA pipeline prefer ccf-rebuttal-writer."
+      }
+    },
+    "sci-search": {
+      "frontmatter": {
+        "description": "Academic paper search and metrics analysis. Searches arXiv, PubMed, Web of Science, Springer Nature, Scopus, Semantic Scholar, and OpenAlex simultaneously with journal impact factor data. Triggers on requests to search for papers or find literature. For related-work and benchmark sweeps inside the CCFA pipeline prefer ccf-literature-searcher."
+      }
+    },
+    "sci-figure": {
+      "frontmatter": {
+        "description": "Extracts figures and sub-figures from academic PDF papers. Supports Fig/Figure, Scheme, Chart, Supplementary Figure, Extended Data Figure (Nature), and Chinese equivalents (图/方案/示意图/附图/补充图). Sub-figure label recognition supports (a)/(A)/a)/(i)/(1)/a. formats. High-quality PNG output at configurable DPI. Use when user asks to \"extract figure\", \"截取文献图片\", \"提取子图\", \"get figure from paper\", \"Scheme\", \"方案图\", \"补充图\", \"Supplementary Figure\", or \"Extended Data\". For creating new figures (rather than extracting from a PDF), figure-router selects the right creator skill."
+      }
     }
   },
   "reference_only": {

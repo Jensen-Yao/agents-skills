@@ -1,6 +1,6 @@
 ---
 name: sci-ppt
-description: Generate professional academic PowerPoint (PPTX) presentations from paper PDFs, structured outlines, or plain text. Use for thesis defense, seminar reports, literature presentations, and graduate school applications. Supports automatic figure extraction, LaTeX formula rendering, and bilingual (Chinese/English) layouts.
+description: "Generate professional academic PowerPoint (PPTX) presentations from paper PDFs, structured outlines, or plain text. Use for thesis defense, seminar reports, literature presentations, and graduate school applications. Supports automatic figure extraction, LaTeX formula rendering, and bilingual (Chinese/English) layouts. Routing: selected by ppt-router for slides from a paper PDF (thesis defense, seminar, literature presentation) or by explicit user invocation; bilingual layouts with LaTeX formulas are this skill's specialty."
 author: Shuo Zhao         
 license: MIT
 copyright: © 2026 Shuo Zhao. All rights reserved.   
@@ -20,6 +20,7 @@ triggers:
   - make presentation
   - create slides
   - paper to ppt
+disable-model-invocation: true
 ---
 
 # Sci-PPT —  Academic Auto-PPT Agent

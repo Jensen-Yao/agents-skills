@@ -1,6 +1,6 @@
 ---
 name: ccf-literature-searcher
-description: "Find and verify external literature, prior art, datasets, benchmarks, and citation candidates. Use for 文献检索, 相关工作, benchmark搜索, and research opportunity maps. Recurring recent-paper watch belongs to ccf-literature-monitor; existing-citation audits, manuscript assessment, and result schemas have separate owners."
+description: "Find and verify external literature, prior art, datasets, benchmarks, and citation candidates. Use for 文献检索, 相关工作, benchmark搜索, and research opportunity maps. Recurring recent-paper watch belongs to ccf-literature-monitor; existing-citation audits, manuscript assessment, and result schemas have separate owners. Routing: for related-work, benchmark, and citation sweeps inside CCFA pipelines; quick one-off academic lookups may use sci-search instead."
 metadata:
   ccf_skill_controls:
     handoff_question_mode: partial

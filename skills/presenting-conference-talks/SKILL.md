@@ -1,11 +1,12 @@
 ---
 name: presenting-conference-talks
-description: Generates conference presentation slides (Beamer LaTeX PDF and editable PPTX) from a compiled paper with speaker notes and talk script. Use when preparing oral talks, spotlight presentations, or invited talks for ML and systems conferences.
+description: "Generates conference presentation slides (Beamer LaTeX PDF and editable PPTX) from a compiled paper with speaker notes and talk script. Use when preparing oral talks, spotlight presentations, or invited talks for ML and systems conferences. Routing: selected by ppt-router for conference oral/spotlight/invited-talk decks with speaker notes or by explicit user invocation."
 version: 1.0.0
 author: Orchestra Research
 license: MIT
 tags: [Presenting Conference Talks, Beamer, PPTX, Slides, Speaker Notes, OSDI, SOSP, ASPLOS, NeurIPS, ICML]
 dependencies: [python-pptx>=0.6.21]
+disable-model-invocation: true
 ---
 
 # Presenting Conference Talks: From Paper to Slides

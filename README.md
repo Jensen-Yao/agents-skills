@@ -2,10 +2,10 @@
 
 <div align="center">
 
-**个人 Agent 技能库 —— 166 个活动 SKILL.md 技能，桌面端与手机端共用**<br>
-*Personal agent skills library — 166 active SKILL.md skills shared across desktop and mobile*
+**个人 Agent 技能库 —— 167 个活动 SKILL.md 技能，桌面端与手机端共用**<br>
+*Personal agent skills library — 167 active SKILL.md skills shared across desktop and mobile*
 
-[![Skills](https://img.shields.io/badge/skills-166-blue.svg)](#-技能索引-skill-index)
+[![Skills](https://img.shields.io/badge/skills-167-blue.svg)](#-技能索引-skill-index)
 [![SKILL.md](https://img.shields.io/badge/format-SKILL.md-purple.svg)](#-技能格式-skill-format)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![DSH](https://img.shields.io/badge/DeepSeek%20Harness-4D6BFE.svg)](https://github.com/deepseek-ai/deepseek-harness)
@@ -61,6 +61,8 @@ python scripts/apply_skill_overrides.py
 
 UI 技能由 `ui-skills-root` 作为唯一自动入口；其余 UI 专项技能只在显式调用或被路由器选中时使用。`emil-design-eng` 保留为 `REFERENCE.md` 供查阅，但不注册为活动技能。
 
+演示文稿与图表任务分别由 `ppt-router` 与 `figure-router` 作为唯一自动入口；相应专项技能只在被路由器选中或显式调用时使用。*Presentation and figure tasks route through `ppt-router` and `figure-router` respectively; specialists run only when selected by the router or explicitly invoked.*
+
 *`ui-skills-root` is the sole automatic UI entry. Other UI skills run only when explicitly invoked or selected by the router. `emil-design-eng` remains available as `REFERENCE.md`, but is not registered as an active skill.*
 
 ## 📄 技能格式 · Skill Format
@@ -85,8 +87,8 @@ description: Apply Apple's interface and physical-motion principles... Use only 
 
 ## 🗂 技能索引 · Skill Index
 
-共 **166** 个活动技能，按类分组；**点击技能名查看完整 SKILL.md**；在线检索版（关键词搜索 + 分类筛选）：https://jensen-yao.github.io/agents-skills/
-*166 active skills grouped by category. Click a skill name to view its full SKILL.md; searchable online at the link above.*
+共 **167** 个活动技能，按类分组；**点击技能名查看完整 SKILL.md**；在线检索版（关键词搜索 + 分类筛选）：https://jensen-yao.github.io/agents-skills/
+*167 active skills grouped by category. Click a skill name to view its full SKILL.md; searchable online at the link above.*
 
 ### 学术文献 (19)
 
@@ -230,9 +232,8 @@ description: Apply Apple's interface and physical-motion principles... Use only 
 
 - [**`cosmos-policy`**](skills/cosmos-policy/SKILL.md) — 在 LIBERO 和 RoboCasa 仿真环境中评估 NVIDIA Cosmos Policy。当为机器人操作评估配置 cosmos-policy、使用 EGL 渲染运行无头 GPU 评估，或在集群或本地 GPU 机器上分析推理延迟时使用。
 
-### 框架与平台 (13)
+### 框架与平台 (12)
 
-- [**`autogpt`**](skills/autogpt/SKILL.md) — 用于构建和部署持续性智能体的自主 AI 智能体平台。当创建可视化工作流智能体、部署持久运行的自主智能体或构建复杂的多步骤 AI 自动化系统时使用。
 - [**`crewai`**](skills/crewai/SKILL.md) — 面向自主 AI 协作的多智能体编排框架。当构建由专职智能体组成的团队协作处理复杂任务、需要带记忆的基于角色的智能体协作，或需要顺序与分层执行的生产工作流时使用。不依赖 LangChain，精简而快速。
 - [**`dspy`**](skills/dspy/SKILL.md) — 使用声明式编程构建复杂 AI 系统，自动优化提示词，用 DSPy 创建模块化 RAG 系统和智能体——斯坦福 NLP 的系统化 LM 编程框架。
 - [**`guidance`**](skills/guidance/SKILL.md) — 用正则和文法控制 LLM 输出，保证生成的 JSON、XML、代码有效，强制结构化格式，并用 Guidance 构建多步骤工作流——微软研究院的受约束生成框架。
@@ -246,7 +247,7 @@ description: Apply Apple's interface and physical-motion principles... Use only 
 - [**`tensorboard`**](skills/tensorboard/SKILL.md) — 使用 TensorBoard 可视化训练指标、用直方图调试模型、比较实验、可视化模型图和性能剖析——Google 的 ML 可视化工具包。
 - [**`weights-and-biases`**](skills/weights-and-biases/SKILL.md) — 使用 W&amp;B 自动记录并追踪 ML 实验、实时可视化训练、通过 sweep 优化超参数并管理模型注册表——协作式 MLOps 平台。
 
-### 工具与CLI (35)
+### 工具与CLI (37)
 
 - [**`0-autoresearch-skill`**](skills/0-autoresearch-skill/SKILL.md) — 使用双循环架构编排端到端的自主 AI 研究项目：内循环以明确的优化目标快速迭代实验，外循环综合结果、识别模式并引导研究方向。路由到领域专属技能执行，通过 Claude Code /loop 和 OpenClaw heartbeat 支持智能体持续运行，并产出研究演示文稿和论文。当启动研究项目、运行自主实验或管理多假设研究任务时使用。
 - [**`a-evolve`**](skills/a-evolve/SKILL.md) — 提供使用 LLM 驱动的进化算法在任意领域自动进化与优化 AI 智能体的指导。当构建自我改进的智能体、针对基准优化智能体提示词和技能，或实现自动化智能体评估循环时使用。
@@ -257,10 +258,10 @@ description: Apply Apple's interface and physical-motion principles... Use only 
 - [**`cli-creator`**](skills/cli-creator/SKILL.md) — 基于 API 文档、OpenAPI 规范、现有 curl 示例、SDK、Web 应用、管理工具或本地脚本，为 Codex 构建可组合的 CLI。当用户希望 Codex 创建命令行工具时使用，该工具可在任意仓库中运行、提供可组合的读写命令、返回稳定 JSON、管理认证，并可搭配配套技能使用。
 - [**`clip`**](skills/clip/SKILL.md) — OpenAI 的连接视觉与语言的模型。支持零样本图像分类、图文匹配和跨模态检索。基于 4 亿图文对训练。用于图像搜索、内容审核或无需微调的视觉-语言任务，最适合通用图像理解。
 - [**`dramaclaw`**](skills/dramaclaw/SKILL.md) — 按照官方工作流操作、检查、配置、排障并继续 DramaClaw 项目。当用户提及 DramaClaw、NovelVideo、虾导、虾料、虾塘、虾镜、虾画、虾格、虾条、项目同步、模型或存储配置、角色、身份、肖像、场景、道具、配音、剧集、剧本、分镜草图、首帧、音频、视频、合成、项目状态、恢复与继续，或要求生成或修复 DramaClaw 作品时使用。
+- [**`figure-router`**](skills/figure-router/SKILL.md) — 科研/技术图表创作的唯一自动路由入口：按输出格式精确选择一个创作技能（academic-plotting 实验数据图、diagram-design 品牌化 HTML 图表、drawio-skill 可编辑 .drawio、ccf-visual-composer CCFA 管线内图表），PDF 取图交给 sci-figure。自身不画图。
 - [**`hatch-pet`**](skills/hatch-pet/SKILL.md) — 根据角色美术、生成图像、品牌线索或视觉参考，创建、修复、验证、视觉质检并打包兼容 Codex 的动画宠物和宠物精灵表。本技能组合已安装的 imagegen 系统技能进行视觉生成，并使用内置脚本确定性组装精灵表。
 - [**`huggingface-tokenizers`**](skills/huggingface-tokenizers/SKILL.md) — 为研究与生产优化的高速 tokenizer。基于 Rust 的实现可在 20 秒内完成 1GB 文本的切分。支持 BPE、WordPiece 和 Unigram 算法。可训练自定义词表、追踪对齐、处理 padding 与截断。与 transformers 无缝集成。当需要高性能分词或自定义 tokenizer 训练时使用。
 - [**`imagegen`**](skills/imagegen/SKILL.md) — 当任务受益于 AI 生成的位图视觉内容（如照片、插图、纹理、精灵图、模型稿或透明背景抠图）时，生成或编辑栅格图像。若任务更适合编辑现有 SVG、矢量或代码原生资产、扩展现有图标或标志体系，或直接在 HTML、CSS、canvas 中构建视觉，则不要使用。
-- [**`image-gen-fuck`**](skills/image-gen-fuck/SKILL.md) — imagegen 的辅助工作流，用于 Codex 需要高质量图像生成但内置 image_gen 工具不可用或未暴露的场景。与 imagegen 配合使用，通过单独的临时绘图 API key 运行已安装的 image_gen.py CLI，且不改变 Codex 桌面或聊天模型的 API 配置。
 - [**`karpathy-guidelines`**](skills/karpathy-guidelines/SKILL.md) — 减少常见 LLM 编码错误的行为准则。当编写、评审或重构代码时使用，以避免过度复杂化、做精准改动、显式暴露假设并定义可验证的成功标准。
 - [**`lambda-labs`**](skills/lambda-labs/SKILL.md) — 用于 ML 训练和推理的预留与按需 GPU 云实例。当需要可通过简单 SSH 访问的专用 GPU 实例、持久化文件系统或用于大规模训练的高性能多节点集群时使用。
 - [**`libreoffice-local-install`**](skills/libreoffice-local-install/SKILL.md) — 使用本机已安装的 LibreOffice 进行 CLI 文档转换、PDF 导出、渲染、打印和 Office 格式自动化。在记录的可执行文件可用时，不要下载或重装 LibreOffice。
@@ -270,10 +271,13 @@ description: Apply Apple's interface and physical-motion principles... Use only 
 - [**`modal`**](skills/modal/SKILL.md) — 用于运行 ML 工作负载的无服务器 GPU 云平台。当需要按需访问 GPU 而无需管理基础设施、将 ML 模型部署为 API，或运行自动扩展的批处理任务时使用。
 - [**`officecli`**](skills/officecli/SKILL.md) — 使用 officecli 命令行工具创建、分析、校对和修改 Office 文档（docx、xlsx、pptx）。当用户想要创建、检查、核对格式、查找问题、添加图表或修改 Office 文档时使用。
 - [**`playwright`**](skills/playwright/SKILL.md) — 当任务需要通过 playwright-cli 或内置包装脚本从终端自动化真实浏览器（导航、表单填写、快照、截图、数据提取、UI 流程调试）时使用。
+- [**`ppt-master`**](skills/ppt-master/SKILL.md) — AI 驱动的可编辑 PPTX 工作流：生成幻灯片、重建页面视觉、Brand/Style/Layout/Deck 工作区、原生模板填充、成品美化、旁白/动画与自播放视频。由 ppt-router 选中或显式调用。
+- [**`ppt-router`**](skills/ppt-router/SKILL.md) — 演示文稿任务的唯一自动路由入口：按需求精确选择一个专项技能（scholar-ppt-cn 中文学术重建、sci-ppt 答辩/组会 PDF 转幻灯、ppt-master 通用可编辑 PPTX、presenting-conference-talks 会议宣讲），或让位给 harness 原生演示技能。自身不产出幻灯片。
 - [**`pytorch-fsdp2`**](skills/pytorch-fsdp2/SKILL.md) — 为训练脚本添加 PyTorch FSDP2（fully_shard），包含正确的初始化、分片、混合精度与卸载配置和分布式 checkpoint。当模型超出单卡显存，或需要基于 DTensor 配合 DeviceMesh 分片时使用。
 - [**`pytorch-lightning`**](skills/pytorch-lightning/SKILL.md) — 高层 PyTorch 框架，提供 Trainer 类、自动分布式训练（DDP、FSDP、DeepSpeed）、回调系统和极简样板代码。同一份代码可从笔记本扩展到超级计算机。当想要内置最佳实践的简洁训练循环时使用。
 - [**`ray-train`**](skills/ray-train/SKILL.md) — 跨集群的分布式训练编排。可将 PyTorch、TensorFlow、HuggingFace 从笔记本扩展到数千节点。内置基于 Ray Tune 的超参数调优、容错和弹性扩展。当跨多台机器训练超大规模模型或运行分布式超参数搜索时使用。
 - [**`saelens`**](skills/saelens/SKILL.md) — 提供使用 SAELens 训练和分析稀疏自编码器（SAE）的指导，将神经网络激活分解为可解释的特征。当发现可解释特征、分析叠加现象或研究语言模型中的单语义表征时使用。
+- [**`scholar-ppt-cn`**](skills/scholar-ppt-cn/SKILL.md) — 从论文、学位论文、报告、图表、笔记、模板、截图或视觉稿创建、改版或重建中文学术 PPT：先生成逐页规划表与视觉族蓝图，再产出可编辑成品。由 ppt-router 选中或显式调用。
 - [**`segment-anything`**](skills/segment-anything/SKILL.md) — 具备零样本迁移能力的图像分割基础模型。当需要用点、框或掩码作为提示分割图像中的任意物体，或自动生成图像中所有物体的掩码时使用。
 - [**`skypilot`**](skills/skypilot/SKILL.md) — 面向 ML 工作负载的多云编排，带自动成本优化。当需要跨多个云运行训练或批处理任务、利用支持自动恢复的 spot 实例，或跨提供商优化 GPU 成本时使用。
 - [**`stable-diffusion`**](skills/stable-diffusion/SKILL.md) — 通过 HuggingFace Diffusers 使用 Stable Diffusion 模型进行 SOTA 文生图。当从文本提示生成图像、进行图生图转换、图像修补或构建自定义扩散流水线时使用。

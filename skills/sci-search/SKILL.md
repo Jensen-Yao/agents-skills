@@ -1,6 +1,6 @@
 ---
 name: sci-search
-description: Academic paper search and metrics analysis. Searches arXiv, PubMed, Web of Science, Springer Nature, Scopus, Semantic Scholar, and OpenAlex simultaneously with journal impact factor data. Triggers on requests to search for papers or find literature.
+description: "Academic paper search and metrics analysis. Searches arXiv, PubMed, Web of Science, Springer Nature, Scopus, Semantic Scholar, and OpenAlex simultaneously with journal impact factor data. Triggers on requests to search for papers or find literature. For related-work and benchmark sweeps inside the CCFA pipeline prefer ccf-literature-searcher."
 author: Shuo Zhao         
 license: MIT
 copyright: © 2026 Shuo Zhao. All rights reserved. 

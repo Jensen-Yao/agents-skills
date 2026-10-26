@@ -1,6 +1,6 @@
 ---
 name: ccf-visual-composer
-description: "Render and redesign scientific figures, visual tables, and method/architecture diagrams from supplied content, including biological data. Use for 绘图美化, 排版, 配色, GPT Image 2 generation, pure SVG, and editable SVG/PDF/PPTX. Preserve values and topology. Experiment evidence design belongs to ccf-experiment-designer; manuscript rewriting and PDF-to-writing exemplars are separate."
+description: "Render and redesign scientific figures, visual tables, and method/architecture diagrams from supplied content, including biological data. Use for 绘图美化, 排版, 配色, GPT Image 2 generation, pure SVG, and editable SVG/PDF/PPTX. Preserve values and topology. Experiment evidence design belongs to ccf-experiment-designer; manuscript rewriting and PDF-to-writing exemplars are separate. Routing: owns figures inside CCFA pipelines (ccfa.yaml or ccf-* context); for standalone figure requests outside CCFA, figure-router selects among academic-plotting, diagram-design, drawio-skill, and this skill."
 metadata:
   ccf_skill_controls:
     handoff_question_mode: partial

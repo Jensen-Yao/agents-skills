@@ -1,6 +1,6 @@
 ---
 name: ccf-paper-writer
-description: "Draft, revise, polish, compress, or presentation-adapt CCF manuscript prose. Use for 写作, 润色论文, research documents to complete papers, 完整初稿, 实验留空, 改写, 压缩论文, abstracts, sections, and slides. Draft content before fitting pages; preserve evidence and format. Assessment without rewriting belongs to ccf-paper-reviewer; rebuttal belongs to ccf-rebuttal-writer."
+description: "Draft, revise, polish, compress, or presentation-adapt CCF manuscript prose. Use for 写作, 润色论文, research documents to complete papers, 完整初稿, 实验留空, 改写, 压缩论文, abstracts, sections, and slides. Draft content before fitting pages; preserve evidence and format. Assessment without rewriting belongs to ccf-paper-reviewer; rebuttal belongs to ccf-rebuttal-writer. Routing: primary for manuscripts inside CCFA pipelines (ccfa.yaml or ccf-* context); for one-off ML/AI papers outside CCFA prefer ml-paper-writing, and systems-paper-writing for systems venues."
 metadata:
   ccf_skill_controls:
     handoff_question_mode: partial

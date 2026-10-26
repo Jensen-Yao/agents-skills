@@ -1,6 +1,6 @@
 ---
 name: sci-review
-description: Specialized workflows for drafting, refining, and responding to academic literature reviews and peer review feedback. Use this skill for literature review outlines, research-gap synthesis, reviewer rebuttals, response letters, and academic writing tone repair.
+description: "Specialized workflows for drafting, refining, and responding to academic literature reviews and peer review feedback. Use this skill for literature review outlines, research-gap synthesis, reviewer rebuttals, response letters, and academic writing tone repair. For rebuttals and response letters inside the CCFA pipeline prefer ccf-rebuttal-writer."
 author: Shuo Zhao
 license: MIT
 copyright: Copyright 2026 Shuo Zhao. All rights reserved.

@@ -1,6 +1,6 @@
 ---
 name: ccf-paper-reviewer
-description: "Review manuscript claims, evidence, and writing without rewriting. Use for 文章审核, 审稿, 稿件有什么硬伤, 结论站得住吗, 投稿成熟度, writing review, and version comparison. Return a structured scientific or writing review; scores need not be explicitly requested. Concept-only judgment belongs to ccf-idea-reviewer even with a full PDF; requested prose edits belong to ccf-paper-writer."
+description: "Review manuscript claims, evidence, and writing without rewriting. Use for 文章审核, 审稿, 稿件有什么硬伤, 结论站得住吗, 投稿成熟度, writing review, and version comparison. Return a structured scientific or writing review; scores need not be explicitly requested. Concept-only judgment belongs to ccf-idea-reviewer even with a full PDF; requested prose edits belong to ccf-paper-writer. Routing: reviews your own manuscript inside CCFA pipelines; reading or critiquing external supplied papers belongs to sci-extract, and one-off rebuttals or response letters outside CCFA may use sci-review."
 metadata:
   ccf_skill_controls:
     handoff_question_mode: partial

@@ -1,0 +1,976 @@
+#!/usr/bin/env python3
+"""Validate current CCFA structure without rewriting files."""
+
+from __future__ import annotations
+
+import ast
+import contextlib
+import copy
+import io
+import json
+import os
+import re
+import runpy
+import subprocess
+import sys
+import tempfile
+from pathlib import Path
+from unittest.mock import patch
+
+import yaml
+
+
+ROOT = Path(__file__).resolve().parents[2]
+EXPECTED_SKILLS = {
+    "ccf-humanization",
+    "ccf-common",
+    "ccf-experiment-designer",
+    "ccf-idea-optimizer",
+    "ccf-idea-reviewer",
+    "ccf-integrity-auditor",
+    "ccf-literature-monitor",
+    "ccf-literature-searcher",
+    "ccf-visual-composer",
+    "ccf-paper-reviewer",
+    "ccf-paper-writer",
+    "ccf-pipeline-orchestrator",
+    "ccf-project-scaffolder",
+    "ccf-rebuttal-writer",
+    "ccf-skill-forger",
+    "ccf-submission-checker",
+    "ccf-paper-to-exemplar",
+}
+
+
+def read(path: Path) -> str:
+    return path.read_text(encoding="utf-8-sig")
+
+
+def frontmatter(path: Path) -> dict:
+    text = read(path)
+    if not text.startswith("---\n"):
+        raise ValueError("missing opening frontmatter")
+    end = text.find("\n---", 4)
+    if end == -1:
+        raise ValueError("missing closing frontmatter")
+    try:
+        result = yaml.safe_load(text[4:end])
+    except yaml.YAMLError as exc:
+        raise ValueError(f"invalid YAML: {exc}") from exc
+    if not isinstance(result, dict):
+        raise ValueError("frontmatter must be a mapping")
+    for key in ("name", "description"):
+        if not isinstance(result.get(key), str) or not result[key].strip():
+            raise ValueError(f"{key} must be a nonempty string")
+    metadata = result.get("metadata")
+    controls = metadata.get("ccf_skill_controls") if isinstance(metadata, dict) else None
+    required = {"handoff_question_mode", "respect_session_denylists", "protect_idea_scope_in_writing", "private_material_safety", "shared_controls"}
+    if not isinstance(controls, dict) or not required.issubset(controls):
+        raise ValueError("missing shared ccf_skill_controls fields")
+    if controls["handoff_question_mode"] not in {"partial", "full", "off"}:
+        raise ValueError("invalid handoff_question_mode")
+    for key in ("respect_session_denylists", "protect_idea_scope_in_writing"):
+        if not isinstance(controls[key], bool):
+            raise ValueError(f"{key} must be a YAML boolean")
+    for key in ("private_material_safety", "shared_controls"):
+        if not isinstance(controls[key], str) or not controls[key].strip():
+            raise ValueError(f"{key} must be a nonempty string")
+    result["shared_controls"] = controls["shared_controls"]
+    return result
+
+
+def fail(errors: list[str], message: str) -> None:
+    errors.append(message)
+
+
+def check_skills(errors: list[str]) -> list[str]:
+    names: list[str] = []
+    # Runtime skills are repository-root ccf-* packages. Experiment outputs may
+    # contain temporary Codex homes and third-party plugin caches; those are
+    # evidence artifacts rather than members of the CCFA family.
+    for directory in sorted(ROOT.glob("ccf-*")):
+        path = directory / "SKILL.md"
+        if not path.is_file():
+            continue
+        rel = path.relative_to(ROOT).as_posix()
+        try:
+            fm = frontmatter(path)
+        except ValueError as exc:
+            fail(errors, f"{rel}: {exc}")
+            continue
+        name = fm["name"]
+        names.append(name)
+        if not re.fullmatch(r"ccf-[a-z0-9]+(?:-[a-z0-9]+)*", name) or len(name) > 64 or name != directory.name:
+            fail(errors, f"{rel}: invalid skill name or directory mismatch: {name}")
+        shared = fm.get("shared_controls")
+        if shared:
+            target = (path.parent / shared).resolve()
+            try:
+                target.relative_to(ROOT.resolve())
+            except ValueError:
+                fail(errors, f"{rel}: shared_controls points outside repo: {shared}")
+            if not target.exists():
+                fail(errors, f"{rel}: shared_controls target missing: {shared}")
+        agent = directory / "agents" / "openai.yaml"
+        if agent.is_file():
+            try:
+                config = yaml.safe_load(read(agent))
+                interface = config.get("interface", {}) if isinstance(config, dict) else {}
+                prompt = interface.get("default_prompt", "")
+                if not isinstance(prompt, str) or f"${name}" not in prompt:
+                    fail(errors, f"{agent.relative_to(ROOT)}: missing own skill in default_prompt")
+                if not isinstance(prompt, str) or not all(token in prompt for token in ("$ccf-humanization", "$ccf-common")):
+                    fail(errors, f"{agent.relative_to(ROOT)}: default_prompt must expose both family preflights")
+                for sibling in re.findall(r"\$(ccf-[a-z0-9-]+)", prompt if isinstance(prompt, str) else ""):
+                    if sibling not in EXPECTED_SKILLS:
+                        fail(errors, f"{agent.relative_to(ROOT)}: unknown skill {sibling}")
+            except yaml.YAMLError as exc:
+                fail(errors, f"{agent.relative_to(ROOT)}: invalid YAML: {exc}")
+    if len(names) != len(set(names)):
+        seen = set()
+        dupes = sorted({name for name in names if name in seen or seen.add(name)})
+        fail(errors, f"duplicate skill names: {', '.join(dupes)}")
+    actual = set(names)
+    if actual != EXPECTED_SKILLS:
+        extra = sorted(actual - EXPECTED_SKILLS)
+        missing = sorted(EXPECTED_SKILLS - actual)
+        if extra:
+            fail(errors, "unexpected runtime skills: " + ", ".join(extra))
+        if missing:
+            fail(errors, "missing expected runtime skills: " + ", ".join(missing))
+    return names
+
+
+def check_registry(skill_names: list[str], errors: list[str]) -> None:
+    registry = ROOT / "ccf-common" / "references" / "skill-trigger-registry.yaml"
+    if not registry.is_file():
+        fail(errors, "missing skill-trigger-registry.yaml")
+        return
+    try:
+        data = yaml.safe_load(read(registry))
+        entries = data["skills"]
+        registered_order = [entry["name"] for entry in entries]
+    except (yaml.YAMLError, KeyError, TypeError) as exc:
+        fail(errors, f"invalid trigger registry: {exc}")
+        return
+    registered = set(registered_order)
+    missing = sorted(set(skill_names) - registered)
+    if missing:
+        fail(errors, "registry missing skills: " + ", ".join(missing))
+    if registered - set(skill_names) or len(registered_order) != len(registered):
+        fail(errors, "registry contains unknown or duplicate skills")
+    for entry in entries:
+        for key in ("trigger", "exclude", "handoff"):
+            if not isinstance(entry.get(key), str) or not entry[key].strip():
+                fail(errors, f"{entry['name']}: missing registry {key}")
+        for sibling in re.findall(r"ccf-[a-z0-9-]+", entry.get("handoff", "")):
+            if sibling not in EXPECTED_SKILLS:
+                fail(errors, f"{entry['name']}: unknown handoff {sibling}")
+    if not registered_order or registered_order[0] != "ccf-humanization":
+        fail(errors, "ccf-humanization must be the first registry entry")
+    if data.get("runtime_skill_count") != len(EXPECTED_SKILLS):
+        fail(errors, "skill-trigger-registry runtime_skill_count must be 17")
+
+
+def check_venue_guides(errors: list[str]) -> None:
+    legacy = ROOT / "ccf-conference-skills"
+    if legacy.exists() and list(legacy.rglob("SKILL.md")):
+        fail(errors, "legacy ccf-conference-skills/**/SKILL.md still exists")
+    guide_root = ROOT / "ccf-paper-writer" / "references" / "venue-guides"
+    index = guide_root / "index.md"
+    if not index.is_file():
+        fail(errors, "missing venue-guides/index.md")
+        return
+    text = read(index)
+    rows = [line for line in text.splitlines() if line.startswith("| [")]
+    if len(rows) < 100:
+        fail(errors, f"venue index too small: {len(rows)} rows")
+    for slug in ("cvpr", "neurips", "sigmod"):
+        guide = guide_root / f"{slug}.md"
+        if not guide.is_file():
+            fail(errors, f"missing venue guide: {slug}")
+            continue
+        guide_text = read(guide)
+        if "ccf-latex-templates" not in guide_text:
+            fail(errors, f"{slug} guide lacks template path")
+    for match in re.findall(r"`(ccf-latex-templates/[^`]+)`", text):
+        candidate = ROOT / match
+        if not candidate.exists():
+            fail(errors, f"template path missing: {match}")
+
+
+def check_required_files(errors: list[str]) -> None:
+    required = [
+        "docs/SKILLS_CATALOG.md",
+        "docs/ARCHITECTURE.md",
+        "docs/INSTALLATION_MATRIX.md",
+        "docs/INSTALLATION_MATRIX.zh-CN.md",
+        "docs/INSTALLATION_MATRIX.zh-TW.md",
+        "AGENT_GUIDE.md",
+        "CHANGELOG.md",
+        "demo/attention-is-all-you-need/README.md",
+        "demo/attention-is-all-you-need/ccfa.yaml",
+        "demo/attention-is-all-you-need/skill-self-tests.md",
+        "demo/attention-is-all-you-need/artifacts/00-original-paper-reading.md",
+        "demo/attention-is-all-you-need/artifacts/01-idea-document.md",
+        "demo/attention-is-all-you-need/artifacts/02-iclr-closed-loop-skill-run.md",
+        "demo/attention-is-all-you-need/artifacts/03-idea-review.md",
+        "demo/attention-is-all-you-need/artifacts/03-writing-draft.md",
+        "demo/attention-is-all-you-need/artifacts/04-review-and-rebuttal.md",
+        "demo/attention-is-all-you-need/artifacts/05-submission-check.md",
+        "demo/attention-is-all-you-need/artifacts/06-family-self-audit.md",
+        "demo/attention-is-all-you-need/artifacts/official-data.md",
+        "demo/attention-is-all-you-need/artifacts/result-tables.md",
+        "demo/attention-is-all-you-need/visual-composer/README.md",
+        "demo/attention-is-all-you-need/visual-composer/plot_demo.py",
+        "demo/attention-is-all-you-need/visual-composer/figures/translation_bleu_lollipop.svg",
+        "demo/attention-is-all-you-need/visual-composer/figures/training_schedule_slopegraph.svg",
+        "demo/attention-is-all-you-need/visual-composer/figures/configuration_ratio_heatmap.svg",
+        "demo/attention-is-all-you-need/visual-composer/figures/base_big_small_multiples.svg",
+        "demo/attention-is-all-you-need/paper/attention_iclr_submission.tex",
+        "demo/attention-is-all-you-need/paper/iclr2026_conference.sty",
+        "ccf-common/references/artifact-contracts.md",
+        "ccf-common/references/ccfa-yaml-contract.md",
+        "ccf-common/references/preferences.md",
+        "ccf-common/scripts/preferences.py",
+        "ccf-common/scripts/test_preferences.py",
+        "ccf-common/references/continuity.md",
+        "ccf-common/scripts/continuity.py",
+        "ccf-common/scripts/test_continuity.py",
+        "ccf-common/scripts/test_configurator.js",
+        "ccf-common/assets/configurator/index.html",
+        "ccf-common/assets/configurator/styles.css",
+        "ccf-common/assets/configurator/app.js",
+        "ccf-visual-composer/resources/python/ccfa_plot_recipes.py",
+        "ccf-visual-composer/scripts/test_plot_recipes.py",
+        "ccf-visual-composer/references/python-plot-recipes.md",
+        "ccf-visual-composer/references/plot-inspiration-map.md",
+        "ccf-visual-composer/references/architecture-diagram-generation.md",
+        "ccf-humanization/references/humanization-policy.md",
+        "ccf-humanization/references/experiment-discipline.md",
+        "ccf-paper-writer/references/output-style-policy.md",
+        "ccf-paper-writer/references/research-writing-patterns.md",
+        "ccf-paper-writer/references/prose-quality-guardrails.md",
+        "ccf-paper-writer/scripts/check_prose_quality.py",
+        "ccf-paper-reviewer/references/version-comparison.md",
+        "ccf-paper-reviewer/scripts/validate_version_comparison.py",
+        "ccf-project-scaffolder/assets/ccfa.yaml",
+        ".codex-plugin/plugin.json",
+        ".claude-plugin/plugin.json",
+        ".github/workflows/validate.yml",
+    ]
+    for rel in required:
+        if not (ROOT / rel).exists():
+            fail(errors, f"missing required file: {rel}")
+    for rel in (".codex-plugin/plugin.json", ".claude-plugin/plugin.json"):
+        path = ROOT / rel
+        if path.exists():
+            try:
+                json.loads(read(path))
+            except json.JSONDecodeError as exc:
+                fail(errors, f"{rel}: invalid JSON: {exc}")
+    for key in (
+        "architecture",
+        "workflow",
+        "review-boundaries",
+        "catalog",
+        "routing",
+        "artifacts",
+        "installation",
+        "demo-attention",
+    ):
+        for suffix in ("", ".zh-CN", ".zh-TW"):
+            rel = f"assets/ccfa-skills-{key}{suffix}.svg"
+            path = ROOT / rel
+            if not path.is_file() or "<svg" not in read(path):
+                fail(errors, f"missing or invalid SVG: {rel}")
+
+
+def check_resources_and_scripts(errors: list[str]) -> None:
+    """Check executable syntax and concrete resource links, not prose wording."""
+    scripts = set(ROOT.glob("ccf-*/scripts/*.py")) | set(ROOT.glob("ccf-*/resources/python/*.py")) | set(ROOT.glob("tools/*.py"))
+    for path in sorted(scripts):
+        try:
+            ast.parse(read(path), filename=str(path.relative_to(ROOT)))
+        except (SyntaxError, UnicodeError) as exc:
+            fail(errors, f"{path.relative_to(ROOT)}: invalid Python: {exc}")
+    for path in sorted(ROOT.glob("ccf-*/SKILL.md")):
+        for token in re.findall(r"`([^`\n]+)`", read(path)):
+            if any(char in token for char in "*<> |"):
+                continue
+            if not token.startswith(("references/", "scripts/", "assets/", "resources/", "../")):
+                continue
+            if not token.endswith((".md", ".py", ".yaml", ".json")):
+                continue
+            target = (path.parent / token).resolve()
+            if not target.is_relative_to(ROOT.resolve()) or not target.is_file():
+                fail(errors, f"{path.relative_to(ROOT)}: missing or external resource: {token}")
+
+
+def check_text_encodings(errors: list[str]) -> None:
+    """Reject damaged maintained text without guessing or rewriting its encoding."""
+    suffixes = {".md", ".py", ".yaml", ".yml", ".json", ".svg", ".tex", ".bib", ".cls", ".sty", ".txt", ".rst", ".bst", ".csv", ".toml", ".ps1", ".sh", ".cfg", ".def", ".dtx", ".bbx", ".cbx", ".xml", ".html", ".css", ".js", ".ts", ".lua", ".ist", ".bbl", ".latex"}
+    excluded = {".git", "output", "ccfa-workfiles", "__pycache__", ".pytest_cache", "node_modules", ".venv", "venv"}
+    for directory, children, filenames in os.walk(ROOT):
+        children[:] = [name for name in children if name not in excluded]
+        for filename in filenames:
+            path = Path(directory) / filename
+            if path.suffix.lower() not in suffixes:
+                continue
+            try:
+                text = read(path)
+            except UnicodeError as exc:
+                fail(errors, f"{path.relative_to(ROOT)}: invalid UTF-8: {exc}")
+                continue
+            if "\ufffd" in text:
+                fail(errors, f"{path.relative_to(ROOT)}: contains U+FFFD replacement characters; inspect the source")
+
+
+def check_encoding_regressions(errors: list[str]) -> None:
+    """Exercise actual UTF-8 pipes/files under legacy standard-stream encodings."""
+    try:
+        prose = ROOT / "ccf-paper-writer/scripts/check_prose_quality.py"
+        review = ROOT / "ccf-paper-reviewer/scripts/validate_version_comparison.py"
+        phrase = "为避免审稿人对中文𠮷🔬的质疑"
+        payload = (phrase + "，我们核对了繁體中文与简体中文。\n").encode("utf-8")
+        with tempfile.TemporaryDirectory(prefix="ccfa-encoding-") as temporary:
+            work = Path(temporary).resolve()
+            if not work.is_relative_to(Path(tempfile.gettempdir()).resolve()):
+                raise ValueError("encoding fixture escaped the managed temporary root")
+            source = work / "中文稿件𠮷.md"
+            source.write_bytes(b"\xef\xbb\xbf" + payload)
+
+            def run(script, arguments=(), data=None, legacy="gbk"):
+                env = dict(os.environ, PYTHONIOENCODING=legacy, PYTHONUTF8="0")
+                result = subprocess.run([sys.executable, str(script), *map(str, arguments)], input=data, capture_output=True, env=env, timeout=30)
+                return result.returncode, result.stdout.decode("utf-8"), result.stderr.decode("utf-8")
+
+            for legacy in ("ascii", "gbk"):
+                for arguments, data in ((("--format", "json"), payload), ((source, "--format", "json"), None)):
+                    code, out, err = run(prose, arguments, data, legacy)
+                    if code or err or not any(item.get("text") == phrase for item in json.loads(out)["issues"]):
+                        raise AssertionError(f"Chinese prose changed through {legacy} file/pipe I/O")
+            code, _, err = run(prose, ("--format", "json"), "中文".encode("gbk"))
+            if code != 2 or "Cannot read UTF-8 input" not in err:
+                raise AssertionError("invalid UTF-8 input was silently accepted or replaced")
+
+            # A BOM must not turn a valid JSON document into an input error.
+            comparison = work / "复审输入𠮷.json"
+            comparison.write_bytes(b"\xef\xbb\xbf{}")
+            for arguments, data in (((comparison, "--format", "json"), None), (("--format", "json"), comparison.read_bytes())):
+                code, out, err = run(review, arguments, data)
+                findings = json.loads(out)["errors"]
+                if code != 1 or err or not findings or any(item.startswith("input error:") for item in findings):
+                    raise AssertionError("UTF-8 BOM JSON did not reach comparison validation")
+            code, out, err = run(review, ("--report", "--format", "json"), ("## 1. 错误标题𠮷🔬\n中文内容\n").encode("utf-8"), "ascii")
+            if code != 1 or err or "错误标题𠮷🔬" not in out:
+                raise AssertionError("Chinese review diagnostics did not survive redirected UTF-8 output")
+
+            registry = work / "中文来源𠮷.yaml"
+            registry.write_bytes(b"\xef\xbb\xbf" + "sources: []\n".encode("utf-8"))
+            code, out, err = run(ROOT / "ccf-common/scripts/check_sources.py", (registry,), legacy="ascii")
+            if code or err or registry.name not in out:
+                raise AssertionError("registry CLI lost a Chinese path or rejected a UTF-8 BOM")
+
+            # The repository checker must catch both invalid bytes and already-lost text.
+            source.write_bytes(b"\xff")
+            replacement = work / "lost.md"
+            replacement.write_bytes("lost \ufffd text".encode("utf-8"))
+            cache = work / "ccfa-workfiles" / "literature" / "fixture" / "cache"
+            cache.mkdir(parents=True)
+            (cache / "raw-extraction.md").write_bytes(b"\xff")
+            detected = []
+            with patch.dict(check_text_encodings.__globals__, {"ROOT": work}):
+                check_text_encodings(detected)
+            if not any("invalid UTF-8" in item for item in detected) or not any("U+FFFD" in item for item in detected):
+                raise AssertionError("encoding checker missed a damaged text fixture")
+            if any("raw-extraction.md" in item for item in detected):
+                raise AssertionError("working cache was treated as maintained skill text")
+    except Exception as exc:
+        fail(errors, f"encoding regression failed: {type(exc).__name__}: {exc}")
+
+
+def check_project_and_plugins(errors: list[str]) -> None:
+    required = {"version", "project", "target_venue", "stage", "artifacts", "claims", "experiments", "reviews", "revision_ledger", "submission_checks"}
+    for rel in ("ccf-project-scaffolder/assets/ccfa.yaml", "demo/attention-is-all-you-need/ccfa.yaml"):
+        try:
+            state = yaml.safe_load(read(ROOT / rel))
+            if not isinstance(state, dict) or not required.issubset(state):
+                fail(errors, f"{rel}: missing ccfa.yaml contract fields")
+        except (OSError, yaml.YAMLError) as exc:
+            fail(errors, f"{rel}: {exc}")
+    versions = []
+    for rel, root_key in ((".codex-plugin/plugin.json", "skills"), (".claude-plugin/plugin.json", "skills_root")):
+        try:
+            manifest = json.loads(read(ROOT / rel))
+            versions.append(manifest.get("version"))
+            location = manifest.get(root_key)
+            if not isinstance(location, str) or not location:
+                fail(errors, f"{rel}: missing explicit {root_key} path")
+                continue
+            base = (ROOT / location).resolve()
+            if not base.is_relative_to(ROOT.resolve()) or not base.is_dir():
+                fail(errors, f"{rel}: invalid skill root {location}")
+                continue
+            discovered = {path.parent.name for path in base.glob("*/SKILL.md")}
+            if discovered != EXPECTED_SKILLS:
+                fail(errors, f"{rel}: skill root does not expose the 17 family packages")
+            if rel.startswith(".claude-plugin"):
+                entries = manifest.get("entrypoints", [])
+                if not entries or entries[0] != "ccf-humanization" or set(entries) - EXPECTED_SKILLS:
+                    fail(errors, f"{rel}: invalid declared entrypoints")
+        except (OSError, json.JSONDecodeError, TypeError) as exc:
+            fail(errors, f"{rel}: {exc}")
+    if len(versions) == 2 and (not versions[0] or versions[0] != versions[1]):
+        fail(errors, "plugin release versions disagree")
+
+
+def check_prose_regressions(errors: list[str]) -> None:
+    """Exercise humanization signals and scientific-language exclusions in memory."""
+    path = ROOT / "ccf-paper-writer/scripts/check_prose_quality.py"
+    try:
+        inspect = runpy.run_path(str(path), run_name="ccfa_prose_check")["inspect"]
+        candidates = [
+            "To address potential reviewer concerns, we include an ablation.",
+            "We do not claim to solve every task.",
+            "The result might potentially suggest a useful relation.",
+            "为避免审稿人质疑，我们加入消融实验。",
+            "我们并不试图解决所有问题。",
+            "We make no claims about broad applicability.",
+        ]
+        for text in candidates:
+            result = inspect(text, "paragraph")
+            if not any(item["code"] == "defensive_framing" for item in result["issues"]):
+                fail(errors, "prose checker missed a defensive-language regression case")
+        factual = "We use only training labels. The bound does not hold when the stated assumption fails. The observations suggest a relation; causality remains untested. Robust optimization minimizes the worst-case loss."
+        if any(item["code"] == "defensive_framing" for item in inspect(factual, "paper")["issues"]):
+            fail(errors, "prose checker treats legitimate scientific scope or uncertainty as defensive")
+        table = "| Purpose | Method |\n| --- | --- |\n| 为避免审稿人质疑，我们加入消融实验。 | 12% |"
+        table_hits = [item for item in inspect(table, "paragraph")["issues"] if item["code"] == "defensive_framing"]
+        if len(table_hits) != 1 or table_hits[0].get("line") != 3:
+            fail(errors, "prose checker missed authored table-cell prose or lost its source line")
+        expressions = (
+            ("我们构建一个可验证、可实现的框架。", "capability_label_cluster"),
+            ("为了保险起见，我们只在现有模型上增加一个小模块。", "decision_justification"),
+            ("为求稳妥，再增加十组边界实验。", "decision_justification"),
+        )
+        for candidate, code in expressions:
+            hits = [item for item in inspect(candidate, "paragraph")["issues"] if item["code"] == code]
+            if len(hits) != 1 or hits[0]["severity"] != "advisory" or hits[0].get("line") != 1:
+                fail(errors, f"prose checker lost contextual {code} candidate")
+            if any(item["code"] == code for item in inspect(f"```text\n{candidate}\n```", "paragraph")["issues"]):
+                fail(errors, f"prose checker scans protected code for {code}")
+        necessary = "该方案在离线设置中可实现，因为索引已经给定。相关性不能证明干预有效。相比全量搜索，索引减少了候选数。"
+        if any(item["code"] in {"capability_label_cluster", "decision_justification", "repeated_contrast", "defensive_framing"} for item in inspect(necessary, "paragraph")["issues"]):
+            fail(errors, "prose checker treats a useful technical property, causal boundary or isolated comparison as empty defense")
+        quoted = '```text\nWe do not claim to solve every task.\n```\n> We do not claim to solve every task.\n\\begin{equation}a---b\\end{equation}\n% We do not claim to solve every task.\nWe do not claim to solve every task.'
+        findings = [item for item in inspect(quoted, "paper")["issues"] if item["code"] == "defensive_framing"]
+        if len(findings) != 1 or findings[0].get("line") != 7:
+            fail(errors, "prose checker lost source line locations or scanned code/math/quotes/comments")
+        if inspect(quoted, "paper")["em_dash_count"]:
+            fail(errors, "prose checker counts equation dashes as authored prose")
+        percentage = "Accuracy is 90%. We do not claim to solve every task."
+        if not any(item["code"] == "defensive_framing" for item in inspect(percentage, "paragraph")["issues"]):
+            fail(errors, "prose checker mistakes a Markdown percentage for a TeX comment")
+        if not any(item["code"] == "em_dash_limit" for item in inspect("A — B — C — D — E.", "paper")["issues"]):
+            fail(errors, "prose checker lost the full-paper punctuation preference")
+        selected_style = "A — B — C — D — E."
+        for selected_limit in (4, "off"):
+            if any(item["code"] == "em_dash_limit" for item in inspect(selected_style, "paper", em_dash_limit=selected_limit)["issues"]):
+                fail(errors, "prose checker overrides an explicitly selected punctuation convention")
+        if not any(item["code"] == "em_dash_limit" for item in inspect(selected_style, "paper", em_dash_limit=2)["issues"]):
+            fail(errors, "prose checker lost the explicit punctuation limit")
+        if not any(item["code"] == "defensive_framing" for item in inspect(selected_style + " We do not claim to solve all problems.", "paper", em_dash_limit="off")["issues"]):
+            fail(errors, "punctuation override disables unrelated prose diagnostics")
+        for selected_limit, expected_code in (("off", 0), ("4", 0), ("2", 1), ("-1", 2), ("unknown", 2)):
+            cli = subprocess.run([sys.executable, str(path), "--scope", "paper", "--format", "json", "--strict", "--em-dash-limit", selected_limit], input=selected_style, text=True, encoding="utf-8", capture_output=True)
+            if cli.returncode != expected_code:
+                fail(errors, f"prose CLI mishandles selected punctuation limit {selected_limit!r}")
+
+        signal_codes = {"semicolon_cluster", "semicolon_density", "repeated_contrast"}
+
+        def signals(text):
+            return [item for item in inspect(text, "paragraph")["issues"] if item["code"] in signal_codes]
+
+        for text in (
+            "The bound holds; equality requires the stated condition.",
+            "界限成立；等号要求给定条件。",
+            "We use current observations rather than future labels.",
+            "我们使用当前观测，而非未来标签。",
+            "word " * 160 + "; " + "word " * 160 + "; " + "word " * 160,
+        ):
+            if signals(text):
+                fail(errors, "prose checker overflags a short passage or isolated technical comparison")
+        for punctuation in (";", "；"):
+            text = "Context.\n\n" + punctuation.join(["保留当前状态", "读取局部记录", "更新节点表示", "预测目标标签"])
+            findings = signals(text)
+            if len(findings) != 1 or findings[0]["code"] != "semicolon_cluster" or findings[0]["severity"] != "advisory":
+                fail(errors, "prose checker missed a bilingual semicolon cluster")
+            elif len(findings[0]["locations"]) != 3 or any(loc["line"] != 3 or loc["column"] < 1 for loc in findings[0]["locations"]):
+                fail(errors, "prose checker lost punctuation source locations")
+        dense = "word " * 250 + "; " + "word " * 250 + ";"
+        findings = signals(dense)
+        if len(findings) != 1 or findings[0]["code"] != "semicolon_density" or findings[0]["count"] != 2:
+            fail(errors, "prose checker lost its sufficiently sized English density signal")
+        repeated = "We use local rather than global states; we keep recent rather than all records; we read current rather than future inputs; we predict labels."
+        chinese = "我们读取状态而不是标签。我们使用局部而非全局记录。这里不是未来信息而是当前观测。"
+        repeated_biqi = "比起更多数据，我们重视质量。相比更多模块，我们重视机制。相较更多实验，我们重视解释。"
+        for text in (repeated, chinese, repeated_biqi):
+            matches = [item for item in signals(text) if item["code"] == "repeated_contrast"]
+            if len(matches) != 1 or matches[0]["count"] != 3 or matches[0]["severity"] != "advisory":
+                fail(errors, "prose checker missed repeated bilingual contrast framing")
+        for newline in ("\n", "\r\n"):
+            for blank in ("", "  ", "\t"):
+                separated = (newline + blank + newline).join(["We use local rather than global states; the record is bounded."] * 3)
+                if signals(separated):
+                    fail(errors, "prose checker merges separate paragraphs across blank lines")
+        protected = [
+            f"```text\n{repeated}\n```", f"> {repeated}", f'“{repeated}”',
+            "$" + repeated + "$", "\\begin{equation}" + repeated + "\\end{equation}",
+            "\\citep{" + repeated + "}", "[@source; " + repeated + "]",
+        ]
+        if any(signals(text) for text in protected):
+            fail(errors, "prose checker scans punctuation or contrasts in protected source regions")
+        result = subprocess.run(
+            [sys.executable, str(path), "--scope", "paragraph", "--format", "json", "--strict"],
+            input=repeated.encode("utf-8"), capture_output=True, timeout=30,
+        )
+        report = json.loads(result.stdout.decode("utf-8"))
+        if result.returncode or result.stderr or any(item["severity"] != "advisory" for item in report["issues"]):
+            fail(errors, "prose checker treats contextual punctuation signals as strict failures")
+        if set(report) != {"scope", "word_count", "em_dash_count", "em_dash_limit", "issue_count", "issues"}:
+            fail(errors, "prose checker changed its top-level output contract")
+    except Exception as exc:
+        fail(errors, f"prose checker could not run regression cases: {type(exc).__name__}: {exc}")
+
+
+def check_review_regressions(errors: list[str]) -> None:
+    """Keep progress, readiness, and attributable regressions separate."""
+    try:
+        review_tools = runpy.run_path(str(ROOT / "ccf-paper-reviewer/scripts/validate_version_comparison.py"), run_name="ccfa_review_check")
+        validate = review_tools["validate"]
+        sample = {
+            "contract": {"id": "frozen", "venue": "test", "scale": "1-10", "dimensions": ["soundness"], "weights": {"soundness": 1}, "reviewer_roles": ["method"], "thresholds": {"ready": 6}, "evidence_standard": "supplied evidence"},
+            "relative_progress_scorecard": {"historical": {"soundness": 2}, "current": {"soundness": 3}, "deltas": {"soundness": 1}, "weighted_delta": 1, "classification": "improved"},
+            "absolute_readiness_scorecard": {"current_dimension_scores": {"soundness": 3}, "scale": "1-10", "stance": "not ready", "threshold": "6", "evidence_standard": "supplied evidence", "overall_score": 3},
+            "confidence_and_comparability": "Same contract; limited evidence.", "issues": [],
+        }
+        if validate(sample):
+            fail(errors, "review validator rejects progress that remains below readiness")
+        for value in (True, float("inf"), float("nan")):
+            for field in ("criterion", "overall"):
+                invalid_number = copy.deepcopy(sample)
+                readiness = invalid_number["absolute_readiness_scorecard"]
+                if field == "criterion":
+                    readiness["current_dimension_scores"]["soundness"] = value
+                else:
+                    readiness["overall_score"] = value
+                if not validate(invalid_number):
+                    fail(errors, f"review validator accepts a boolean/nonfinite readiness {field}")
+        missing = copy.deepcopy(sample)
+        del missing["absolute_readiness_scorecard"]
+        if not validate(missing):
+            fail(errors, "review validator accepts missing absolute readiness")
+        regression = copy.deepcopy(sample)
+        regression["relative_progress_scorecard"].update(historical={"soundness": 3}, current={"soundness": 2}, deltas={"soundness": -1}, weighted_delta=-1, classification="regressed")
+        if not validate(regression):
+            fail(errors, "review validator accepts an untraceable score decrease")
+        issue = {"id": "R1", "origin": "revision_regression", "applies_to": "current", "status": "unresolved", "affected_dimensions": ["soundness"], "evidence": "Current proof drops a necessary premise in step 2.", "score_effect": {"historical": 0, "current": -1}}
+        regression["issues"] = [issue]
+        if validate(regression):
+            fail(errors, "review validator rejects a traceable current-version regression")
+        for original, wrong_class in ((sample, "regressed"), (regression, "improved")):
+            mislabeled = copy.deepcopy(original)
+            mislabeled["relative_progress_scorecard"]["classification"] = wrong_class
+            if not validate(mislabeled):
+                fail(errors, "review validator accepts a progress classification opposite to its delta")
+        unchanged = copy.deepcopy(sample)
+        unchanged["relative_progress_scorecard"].update(current={"soundness": 2}, deltas={"soundness": 0}, weighted_delta=0, classification="unchanged")
+        if validate(unchanged):
+            fail(errors, "review validator rejects unchanged scores under legacy thresholds")
+        unchanged["relative_progress_scorecard"]["classification"] = "improved"
+        if not validate(unchanged):
+            fail(errors, "review validator accepts unchanged scores labeled improved")
+        for delta in (-0.25, 0.25):
+            neutral = copy.deepcopy(regression if delta < 0 else sample)
+            neutral["contract"]["thresholds"].update(regressed_below=-0.25, improved_above=0.25)
+            neutral["relative_progress_scorecard"].update(historical={"soundness": 3}, current={"soundness": 3 + delta}, deltas={"soundness": delta}, weighted_delta=delta, classification="unchanged")
+            if validate(neutral):
+                fail(errors, "review validator rejects a frozen neutral-band boundary")
+            neutral["relative_progress_scorecard"]["classification"] = "regressed" if delta < 0 else "improved"
+            if not validate(neutral):
+                fail(errors, "review validator ignores the declared progress thresholds")
+            outside = copy.deepcopy(neutral)
+            outside["relative_progress_scorecard"].update(current={"soundness": 3 + 2 * delta}, deltas={"soundness": 2 * delta}, weighted_delta=2 * delta)
+            if validate(outside):
+                fail(errors, "review validator rejects progress outside a frozen neutral band")
+        for thresholds in ({"improved_above": "0.25"}, {"improved_above": float("nan")}, {"improved_above": True}, {"improved_above": -0.25}, {"regressed_below": 0.25}):
+            invalid_threshold = copy.deepcopy(sample)
+            invalid_threshold["contract"]["thresholds"].update(thresholds)
+            if not validate(invalid_threshold):
+                fail(errors, "review validator accepts an invalid progress threshold")
+        issue["origin"] = "previously_undetected"
+        if not validate(regression):
+            fail(errors, "review validator penalizes only the current version for a latent shared issue")
+
+        criteria = review_tools["_canonical_criteria"]()
+        independent_readiness = copy.deepcopy(sample)
+        independent_readiness["absolute_readiness_scorecard"].update(
+            rubric="generic-7", current_dimension_scores={key: 4 for key, _, _ in criteria})
+        independent_readiness["absolute_readiness_scorecard"]["current_dimension_scores"]["ethics_limitations"] = "N/A"
+        if validate(independent_readiness):
+            fail(errors, "review validator forces a new readiness rubric into the frozen historical dimensions")
+        invalid_readiness = copy.deepcopy(independent_readiness)
+        invalid_readiness["absolute_readiness_scorecard"]["current_dimension_scores"]["ethics_limitations"] = 0
+        if not validate(invalid_readiness):
+            fail(errors, "review validator accepts zero as unassessed generic readiness")
+
+        check_report = review_tools["validate_report"]
+        finding = """### C001: A located concern
+Type: clarification
+Severity: major
+Location: Section 3, paragraph 2
+Evidence: The claim has two possible readings.
+Countercheck: The supplied appendix resolves one reading but not the other.
+Judgment: Clarification could change the assessment.
+Criterion: Soundness
+Resolution: Identify which reading the claim asserts.
+Status: unresolved
+"""
+
+        def report(mode="scientific", detail="detailed", no_scores=False, chinese=False):
+            parts = ["# Review fixture"]
+            headings = review_tools["_profile_headings"](mode, detail)
+            for number, labels in headings:
+                english = next(label for label in labels if label.isascii())
+                label = next(label for label in labels if not label.isascii() and " / " not in label) if chinese else english
+                parts.append(f"## {number}. {label}")
+                concern_section = 3 if detail == "brief" else 5 if mode == "writing" else 6
+                ratings_section = 4 if detail == "brief" else 7 if mode == "writing" else 12
+                if number == concern_section:
+                    parts.append(finding)
+                elif number == ratings_section:
+                    table = ["| Dimension | Judgment | Confidence | Evidence basis | Deduction / score-change condition |" if no_scores else
+                             "| Dimension | Score (1-5) | Confidence (1-5) | Evidence basis | Deduction / score-change condition |",
+                             "| --- | --- | --- | --- | --- |"]
+                    for key, english_label, chinese_label in criteria:
+                        dimension = chinese_label if chinese else english_label
+                        score = "Supported" if no_scores else "4"
+                        confidence = "Well checked" if no_scores else "4"
+                        if key == "ethics_limitations":
+                            score = confidence = "N/A"
+                        table.append(f"| {dimension} | {score} | {confidence} | Section 3; [C001] | Reassess after clarification. |")
+                    table.append("**Overall:** evidence-limited stance | **Scholarly Confidence:** moderate" if no_scores else
+                                 "**Overall:** 6 | **Scholarly Confidence:** 4")
+                    if mode == "writing":
+                        parts.append("Writing criteria are not scientifically scored in this fixture.")
+                    elif mode == "version-comparison":
+                        parts.extend(["### Relative Progress / 相对进步", "Historical dimensions remain frozen.",
+                                      "### Absolute Readiness / 绝对成熟度", "\n".join(table),
+                                      "### Confidence And Comparability / 置信度与可比性", "Separate evidence coverage."])
+                    elif detail == "brief":
+                        parts.append(table[-1])
+                    else:
+                        parts.append("\n".join(table))
+                else:
+                    parts.append("Scope-specific structural fixture; see [C001].")
+            return "\n\n".join(parts) + "\n"
+
+        good = report()
+        bold_fields = finding
+        bilingual_fields = finding
+        chinese_fields = finding
+        for key, chinese in review_tools["FINDING_FIELDS"].items():
+            label = key.title()
+            bold_fields = bold_fields.replace(f"{label}:", f"- **{label}:**")
+            bilingual_fields = bilingual_fields.replace(f"{label}:", f"- **{chinese} / {label}:**")
+            chinese_fields = chinese_fields.replace(f"{label}:", f"**{chinese}：**")
+        comparison_confidence = report(mode="version-comparison").replace(" | **Scholarly Confidence:** 4", "").replace(
+            "Separate evidence coverage.", "**Scholarly Confidence:** 4\nSeparate evidence coverage.")
+        compound_findings = "\n".join(finding.replace("C001", identity) for identity in ("R1-C1", "R1-C2", "AC-C1"))
+        compound_report = good.replace(finding, compound_findings).replace("[C001]", "[R1-C1], [R1-C2]; [AC-C1]。")
+        valid_profiles = [
+            (good, {}), (report(mode="full"), {"mode": "full"}),
+            (report(chinese=True), {}),
+            (good.replace(finding, bold_fields), {}),
+            (good.replace(finding, bilingual_fields).replace("**Overall:**", "**Overall / 总分:**").replace("**Scholarly Confidence:**", "**总体置信度 / Scholarly Confidence:**"), {}),
+            (good.replace(finding, chinese_fields), {}),
+            (report(no_scores=True), {"no_scores": True}),
+            (report(mode="writing"), {"mode": "writing"}),
+            (report(detail="brief"), {"detail": "brief"}),
+            (report(mode="writing", detail="brief"), {"mode": "writing", "detail": "brief"}),
+            (report(mode="version-comparison"), {"mode": "version-comparison"}),
+            (comparison_confidence, {"mode": "version-comparison"}),
+            (report(mode="version-comparison", detail="brief"), {"mode": "version-comparison", "detail": "brief"}),
+            (good.replace("C001", "R1"), {}),
+            (compound_report, {}),
+            (good.replace("# Review fixture", "# Review fixture\n\n```text\n## 99. Quoted heading\n[C999]\n```\n> [C998]"), {}),
+            (good.replace("| Novelty | 4 |", "| Originality | 3.5 |"), {"rubric": "external"}),
+        ]
+        for text, options in valid_profiles:
+            findings = check_report(text, **options)
+            if findings:
+                fail(errors, f"review report validator rejects a valid profile {options}: {findings}")
+        invalid_reports = {
+            "renamed heading": good.replace("## 2. Expected Review Outcome", "## 2. Different heading"),
+            "reordered heading": good.replace("## 2. Expected Review Outcome", "## 5. Strengths"),
+            "missing section": good.replace("## 3. Desk Rejection Assessment", "### Desk Rejection Assessment"),
+            "empty section": good.replace("## 3. Desk Rejection Assessment\n\nScope-specific structural fixture; see [C001].", "## 3. Desk Rejection Assessment"),
+            "undefined ID": good + "\nSee [C999].\n",
+            "duplicate ID": good.replace(finding, finding + "\n" + finding),
+            "undefined compound ID": good.replace("C001", "R1-C1") + "\nSee [R1-C99].\n",
+            "duplicate compound ID": compound_report.replace("R1-C2", "R1-C1"),
+            "missing evidence field": good.replace("Evidence: The claim has two possible readings.\n", ""),
+            "unsupported finding type": good.replace("Type: clarification", "Type: definitely_wrong"),
+            "invalid severity": good.replace("Severity: major", "Severity: severe"),
+            "zero criterion": good.replace("| Novelty | 4 |", "| Novelty | 0 |"),
+            "fractional criterion": good.replace("| Novelty | 4 |", "| Novelty | 3.5 |"),
+            "missing dimension": "\n".join(line for line in good.splitlines() if not line.startswith("| Novelty |")),
+            "alias dimension": good.replace("| Novelty |", "| Originality |"),
+            "invented dimension": good.replace("| Novelty |", "| Quality |"),
+            "wrong table width": good.replace("| Novelty | 4 | 4 |", "| Novelty | 4 |"),
+            "broken separator": good.replace("| --- | --- | --- | --- | --- |", "| - | - | - | - | - |"),
+            "N/A as zero": good.replace("| N/A | N/A |", "| 0 | N/A |"),
+            "N/A decorated with zero": good.replace("| N/A | N/A |", "| N/A (0) | N/A |"),
+            "zero overall": good.replace("**Overall:** 6", "**Overall:** 0"),
+            "missing overall": good.replace("**Overall:** 6 | ", ""),
+            "missing overall confidence": good.replace(" | **Scholarly Confidence:** 4", ""),
+            "empty overall confidence": good.replace("**Scholarly Confidence:** 4", "**Scholarly Confidence:**"),
+            "fractional overall": good.replace("**Overall:** 6", "**Overall:** 6.5"),
+            "out-of-range confidence": good.replace("**Scholarly Confidence:** 4", "**Scholarly Confidence:** 6"),
+        }
+        for label, text in invalid_reports.items():
+            if not check_report(text):
+                fail(errors, f"review report validator accepts {label}")
+        if not check_report(good, no_scores=True):
+            fail(errors, "review report validator accepts numeric scores in a qualitative report")
+        if not check_report(report(mode="version-comparison").replace("### Absolute Readiness / 绝对成熟度", "### Combined score"), mode="version-comparison"):
+            fail(errors, "review report validator accepts fused comparison scorecard headings")
+    except Exception as exc:
+        fail(errors, f"review validator could not run regression cases: {type(exc).__name__}: {exc}")
+
+
+def check_artifact_regressions(errors: list[str]) -> None:
+    """Exercise current-file updates in one managed temporary directory."""
+    try:
+        plots = runpy.run_path(str(ROOT / "ccf-visual-composer/resources/python/ccfa_plot_recipes.py"), run_name="ccfa_plot_check")
+        convert = runpy.run_path(str(ROOT / "ccf-paper-to-exemplar/scripts/convert.py"), run_name="ccfa_convert_check")
+        svg = '<svg xmlns="http://www.w3.org/2000/svg"><text>Current figure 中文𠮷🔬與繁體</text></svg>'
+        with tempfile.TemporaryDirectory(prefix="ccfa-validation-") as temporary:
+            work = Path(temporary).resolve()
+            if not work.is_relative_to(Path(tempfile.gettempdir()).resolve()):
+                raise ValueError("validation directory escaped the managed temporary root")
+            target = work / "figures" / "中文图𠮷.svg"
+            save = plots["save_svg"]
+            save(svg, target)
+            if target.read_text(encoding="utf-8") != svg:
+                raise AssertionError("SVG export changed the authoring content")
+            with patch.dict(save.__globals__, {"replace": lambda *args: (_ for _ in ()).throw(AssertionError("unchanged SVG was rewritten"))}):
+                save(svg, target)
+            try:
+                save("<svg>", target)
+            except Exception as exc:
+                if type(exc).__name__ != "ParseError":
+                    raise
+            else:
+                raise AssertionError("invalid SVG replaced the usable figure")
+            with patch.dict(save.__globals__, {"replace": lambda *args: (_ for _ in ()).throw(OSError("simulated export failure"))}):
+                try:
+                    save(svg.replace("Current", "Changed"), target)
+                except OSError:
+                    pass
+                else:
+                    raise AssertionError("failed SVG publication was reported successful")
+            if target.read_text(encoding="utf-8") != svg or list(target.parent.glob("*.tmp")):
+                raise AssertionError("failed SVG publication damaged the current file or left temporary output")
+            save(svg.replace("Current", "Changed"), target)
+            if len(list(target.parent.iterdir())) != 1 or "Changed" not in target.read_text(encoding="utf-8"):
+                raise AssertionError("SVG iteration did not replace the single canonical artifact")
+
+            source = work / "论文𠮷.pdf"
+            source.write_bytes(b"fixture; extraction is supplied by the test")
+            cards = work / "cards"
+            cards.mkdir()
+            card = cards / "论文𠮷.md"
+            card.write_text("# Completed analysis\nRetain the supplied writing insight.\n", encoding="utf-8")
+            cache = work / "cache"
+            main = convert["main"]
+            output = io.StringIO()
+            argv = ["convert.py", str(source), "--output-dir", str(cards), "--full-text", "--full-text-dir", str(cache)]
+            with patch.object(sys, "argv", argv), patch.dict(main.__globals__, {"_check_pymupdf": lambda: None, "extract_text": lambda path: "## Page 1\n\nAbstract\nCurrent source. 中文𠮷🔬與繁體。"}), contextlib.redirect_stdout(output):
+                if main() != 0:
+                    raise AssertionError("exemplar refresh failed")
+            if not card.read_text(encoding="utf-8").startswith("# Completed analysis"):
+                raise AssertionError("extraction overwrote a completed exemplar card")
+            extracted = cache / "论文𠮷.full.md"
+            if not extracted.is_file() or (cards / "论文𠮷.full.md").exists():
+                raise AssertionError("explicit extraction cache location was ignored")
+            previous = extracted.read_text(encoding="utf-8")
+            if "中文𠮷🔬與繁體" not in previous:
+                raise AssertionError("exemplar extraction changed Chinese text")
+            write = convert["write_current"]
+            with patch.dict(write.__globals__, {"replace": lambda *args: (_ for _ in ()).throw(OSError("simulated text export failure"))}):
+                try:
+                    write(extracted, "new extraction")
+                except OSError:
+                    pass
+                else:
+                    raise AssertionError("failed text publication was reported successful")
+            if extracted.read_text(encoding="utf-8") != previous or list(cache.glob("*.tmp")):
+                raise AssertionError("failed text publication damaged the cache or left temporary output")
+    except Exception as exc:
+        fail(errors, f"artifact regression failed: {type(exc).__name__}: {exc}")
+
+
+def check_path_privacy_regressions(errors: list[str]) -> None:
+    """Scan release candidates, preserving tracked files and Unicode paths."""
+    try:
+        privacy = runpy.run_path(str(ROOT / "ccf-common/scripts/check_path_privacy.py"), run_name="ccfa_privacy_check")
+        iterate = privacy["iter_files"]
+        patterns = privacy["default_patterns"]()
+        private_text = "C:/" + privacy["WIN_HOME_DIR"] + "/fixture-person/private-paper.md\n"
+
+        def leaks(root, **options):
+            return {
+                path.relative_to(root).as_posix()
+                for path in iterate(root, **options)
+                if any(pattern.search(privacy["read_text"](path) or "") for _, pattern in patterns)
+            }
+
+        with tempfile.TemporaryDirectory(prefix="ccfa-privacy-validation-") as temporary:
+            work = Path(temporary)
+            exported = work / "导出目录"
+            exported.mkdir()
+            (exported / "文档.md").write_text(private_text, encoding="utf-8")
+            (exported / ".gitignore").write_text("*.md\n", encoding="utf-8")
+            if leaks(exported) != {"文档.md"}:
+                raise AssertionError("exported tree fallback skipped a real text file")
+            with patch.object(subprocess, "run", side_effect=FileNotFoundError("Git unavailable")):
+                if leaks(exported) != {"文档.md"}:
+                    raise AssertionError("missing Git prevented filesystem fallback")
+
+            repository = work / "项目𠮷"
+            repository.mkdir()
+            try:
+                initialized = subprocess.run(["git", "-C", str(repository), "init", "--quiet"], capture_output=True, timeout=15)
+            except FileNotFoundError:
+                # Exported installations may not have Git; fallback was tested.
+                return
+            if initialized.returncode:
+                raise AssertionError("temporary Git repository could not initialize")
+            (repository / ".gitignore").write_text("ignored/\ntracked-private.md\nnode_modules/\n", encoding="utf-8")
+            for relative in ("tracked-private.md", "untracked-private.md", "论文𠮷.md", "ignored/session.log", "node_modules/tracked.md"):
+                target = repository / relative
+                target.parent.mkdir(parents=True, exist_ok=True)
+                target.write_text(private_text, encoding="utf-8")
+            subprocess.run(
+                ["git", "-C", str(repository), "add", "-f", "--", "tracked-private.md", "node_modules/tracked.md"],
+                capture_output=True, timeout=15, check=True,
+            )
+            expected = {"tracked-private.md", "untracked-private.md", "论文𠮷.md", "node_modules/tracked.md"}
+            if leaks(repository) != expected:
+                raise AssertionError("Git inventory missed published files or included ignored working logs")
+            expanded = leaks(repository, include_ignored=True)
+            if "ignored/session.log" not in expanded or not expected.issubset(expanded):
+                raise AssertionError("explicit ignored-file scan skipped working logs or release candidates")
+            if leaks(repository / "ignored", include_ignored=True) != {"session.log"}:
+                raise AssertionError("explicit working-directory scan did not inspect its contents")
+    except Exception as exc:
+        fail(errors, f"path privacy regression failed: {type(exc).__name__}: {exc}")
+
+
+def check_markdown_link_regressions(errors: list[str]) -> None:
+    """Exclude ignored backups without hiding published links or encoding errors."""
+    try:
+        links = runpy.run_path(str(ROOT / "ccf-common/scripts/check_markdown_links.py"), run_name="ccfa_links_check")
+        check = links["check_links"]
+        candidates = links["markdown_candidates"]
+
+        def put(root, relative, text="[missing](absent.md)\n"):
+            target = root / relative
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_text(text, encoding="utf-8")
+
+        with tempfile.TemporaryDirectory(prefix="ccfa-links-validation-") as temporary:
+            work = Path(temporary)
+            exported = work / "导出𠮷"
+            exported.mkdir()
+            put(exported, "文档.md", "[目标](目标.md)\n")
+            put(exported, "目标.md", "# 有效目标\n")
+            put(exported, "broken.md")
+            put(exported, "ccfa-workfiles/task/installed-backup/partial.md")
+            put(exported, ".git/internal.md")
+            (exported / "invalid.md").write_bytes(b"\xff")
+            expected = {"文档.md", "目标.md", "broken.md", "invalid.md"}
+            if {path.relative_to(exported).as_posix() for path in candidates(exported)} != expected:
+                raise AssertionError("export fallback scanned generated workfiles or skipped real documents")
+            count, findings = check(exported)
+            if count != 2 or len(findings) != 2 or not any("broken.md: missing link" in finding for finding in findings) or not any("invalid.md: invalid UTF-8" in finding for finding in findings):
+                raise AssertionError("export fallback missed a broken link or strict UTF-8 failure")
+            with patch.object(subprocess, "run", side_effect=FileNotFoundError("Git unavailable")):
+                if check(exported) != (count, findings):
+                    raise AssertionError("missing Git prevented the same filesystem fallback")
+
+            repository = work / "项目𠮷"
+            repository.mkdir()
+            try:
+                initialized = subprocess.run(["git", "-C", str(repository), "init", "--quiet"], capture_output=True, timeout=15)
+            except FileNotFoundError:
+                return
+            if initialized.returncode:
+                raise AssertionError("temporary Git repository could not initialize")
+            put(repository, ".gitignore", "ccfa-workfiles/\nignored/\ntracked-ignored.md\n")
+            for relative in ("tracked-ignored.md", "untracked.md", "ccfa-workfiles/tracked.md", "ccfa-workfiles/task/installed-backup/partial.md", "ignored/partial.md"):
+                put(repository, relative)
+            put(repository, "文档.md", "[目标](目标.md)\n")
+            put(repository, "目标.md", "# 有效目标\n")
+            (repository / "invalid.md").write_bytes(b"\xff")
+            subprocess.run(
+                ["git", "-C", str(repository), "add", "-f", "--", "tracked-ignored.md", "ccfa-workfiles/tracked.md"],
+                capture_output=True, timeout=15, check=True,
+            )
+            expected = {"tracked-ignored.md", "untracked.md", "ccfa-workfiles/tracked.md", "文档.md", "目标.md", "invalid.md"}
+            if {path.relative_to(repository).as_posix() for path in candidates(repository)} != expected:
+                raise AssertionError("Git link inventory missed published files or included ignored backups")
+            count, findings = check(repository)
+            if count != 4 or len(findings) != 4:
+                raise AssertionError("Git link check missed tracked/untracked failures or scanned ignored backups")
+            for relative in ("tracked-ignored.md", "untracked.md", "ccfa-workfiles/tracked.md"):
+                if not any(f"{Path(relative)}: missing link" in finding for finding in findings):
+                    raise AssertionError(f"Git link check missed published broken link: {relative}")
+            if not any("invalid.md: invalid UTF-8" in finding for finding in findings):
+                raise AssertionError("Git link check accepted non-UTF-8 Markdown")
+    except Exception as exc:
+        fail(errors, f"Markdown link regression failed: {type(exc).__name__}: {exc}")
+
+
+def main() -> int:
+    # Standalone reports and redirected diagnostics use UTF-8 on every platform.
+    for stream in (sys.stdout, sys.stderr):
+        if hasattr(stream, "reconfigure"):
+            stream.reconfigure(encoding="utf-8", errors="strict")
+    errors: list[str] = []
+    names = check_skills(errors)
+    check_registry(names, errors)
+    check_venue_guides(errors)
+    check_required_files(errors)
+    check_resources_and_scripts(errors)
+    check_text_encodings(errors)
+    check_encoding_regressions(errors)
+    check_project_and_plugins(errors)
+    check_prose_regressions(errors)
+    check_review_regressions(errors)
+    check_artifact_regressions(errors)
+    check_path_privacy_regressions(errors)
+    check_markdown_link_regressions(errors)
+    if errors:
+        print("CCFA validation failed:")
+        for error in errors:
+            print(f"[ERROR] {error}")
+        return 1
+    print(f"CCFA validation passed. Skills: {len(names)}")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

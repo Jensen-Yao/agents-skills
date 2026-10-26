@@ -1,0 +1,1386 @@
+schema_version: 1
+registry_created_at: 2026-06-05
+default_stale_after_days:
+  official_policy: 90
+  review_guideline: 180
+  paper_or_proceeding: 365
+  background_method: 730
+  local_reference: 365
+sources:
+  - id: semantic-scholar-field-selection
+    title: Semantic Scholar Academic Graph API Tutorial
+    url: https://webflow.semanticscholar.org/product/api/tutorial
+    source_type: background_method
+    used_by: [ccf-literature-searcher, ccf-integrity-auditor]
+    recorded_at: 2026-10-15
+    verified_at: 2026-10-15
+    stale_after_days: 180
+    notes: Adapt stage-specific field projection and batched identifiers through available tools. Identity metadata does not establish claim support. No new API dependency or claimed cost reduction.
+  - id: paperqa-selective-evidence
+    title: PaperQA Scientific Document Retrieval And Multimodal Support
+    url: https://github.com/Future-House/paper-qa
+    source_type: background_method
+    used_by: [ccf-common, ccf-literature-searcher, ccf-paper-reviewer]
+    recorded_at: 2026-10-15
+    verified_at: 2026-10-15
+    stale_after_days: 180
+    notes: Adapt separation of source evidence and interpretation, source reuse, and optional page/image enrichment. Additional enrichment can add model calls. Do not import an index, vector database, agent loop, or entire runtime by default.
+  - id: mcp-selective-tool-discovery
+    title: MCP Client Best Practices
+    url: https://github.com/modelcontextprotocol/modelcontextprotocol/blob/main/docs/docs/2026-07-28/develop/clients/client-best-practices.mdx
+    source_type: background_method
+    used_by: [ccf-common, ccf-skill-forger]
+    recorded_at: 2026-10-15
+    verified_at: 2026-10-15
+    stale_after_days: 180
+    notes: Prefer host-native discovery when a large tool surface justifies it; small known tool sets can be used directly. No extra discovery agent or mandatory MCP integration.
+  - id: rtk-targeted-tool-output
+    title: RTK Command Output Filtering
+    url: https://github.com/rtk-ai/rtk
+    source_type: background_method
+    used_by: [ccf-common, ccf-skill-forger]
+    recorded_at: 2026-10-15
+    verified_at: 2026-10-15
+    stale_after_days: 180
+    notes: Reference for filtering, grouping, and deduplicating diagnostics while retaining needed original evidence. No code, proxy, dependency, or upstream savings percentage is imported.
+  - id: skill-creator-behavioral-comparison
+    title: Anthropic Skill Creator Evaluation Workflow
+    url: https://github.com/anthropics/skills/blob/main/skills/skill-creator/SKILL.md
+    source_type: background_method
+    used_by: [ccf-skill-forger]
+    recorded_at: 2026-10-15
+    verified_at: 2026-10-15
+    stale_after_days: 180
+    notes: Adapt representative trigger cases and old/new comparisons with observed quality, time, and token data during maintenance. No extra benchmark runs in ordinary user tasks, copied evaluator, or implied measured performance gain.
+  - id: orchestra-ml-paper-writing
+    title: Orchestra Research ML Paper Writing Skill
+    url: https://github.com/Orchestra-Research/AI-Research-SKILLs/blob/main/20-ml-paper-writing/ml-paper-writing/SKILL.md
+    source_type: background_method
+    used_by: [ccf-paper-writer, ccf-skill-forger]
+    recorded_at: 2026-09-23
+    verified_at: 2026-09-23
+    stale_after_days: 365
+    notes: Inspected version 1.2.0. Adapt complete-draft delivery, contribution-to-evidence mapping, thematic related work, and verified citations. Do not import fixed abstract sentence counts, early page quotas, compulsory single-contribution framing, copied prose, or source claims about reviewer behavior. Repository popularity is not evidence of writing quality.
+  - id: kdense-imrad-structure
+    title: K-Dense Scientific Writing Structure Reference
+    url: https://github.com/K-Dense-AI/scientific-agent-skills/blob/main/skills/scientific-writing/references/imrad_structure.md
+    source_type: background_method
+    used_by: [ccf-paper-writer, ccf-skill-forger]
+    recorded_at: 2026-09-23
+    verified_at: 2026-09-23
+    stale_after_days: 365
+    notes: Adapt section responsibilities and study-dependent structure. Do not force biomedical IMRaD details or a universal heading sequence on ML, theory, or benchmark papers. Local materials-to-manuscript rules govern content-first drafting and pending results.
+  - id: kdense-scientific-writing-principles
+    title: K-Dense Scientific Writing Principles
+    url: https://github.com/K-Dense-AI/scientific-agent-skills/blob/main/skills/scientific-writing/references/writing_principles.md
+    source_type: background_method
+    used_by: [ccf-paper-writer, ccf-skill-forger]
+    recorded_at: 2026-09-23
+    verified_at: 2026-09-23
+    stale_after_days: 365
+    notes: Use scientific clarity, logical organization, and accurate attribution as editing criteria; adapt to user style and preserve actual uncertainty and evidence. No source text or code is redistributed.
+  - id: ccf-directory
+    title: CCF Recommended International Academic Conference And Journal Directory
+    url: https://www.ccf.org.cn/Academic_Evaluation/By_category/
+    source_type: official_policy
+    used_by: [ccf-common, ccf-paper-writer]
+    recorded_at: 2026-06-05
+    verified_at: null
+    stale_after_days: 90
+    notes: Canonical CCF venue category source; verify before public claims.
+  - id: ccf-directory-mirror
+    title: Searchable CCF 2026 Directory Mirror
+    url: https://ccf.atom.im/
+    source_type: background_method
+    used_by: [ccf-paper-writer]
+    recorded_at: 2026-06-05
+    verified_at: null
+    stale_after_days: 180
+    notes: Convenience mirror only; not authoritative.
+  - id: aaai-26-main-track
+    title: AAAI-26 Main Technical Track Call
+    url: https://aaai.org/conference/aaai/aaai-26/main-technical-track-call/
+    source_type: official_policy
+    used_by: [ccf-paper-reviewer]
+    recorded_at: 2026-06-05
+    verified_at: null
+    stale_after_days: 90
+    notes: Use for AAAI significance, novelty, soundness, relevance, clarity, responsible research, and reproducibility criteria.
+  - id: aaai-26-submission
+    title: AAAI-26 Submission Instructions
+    url: https://aaai.org/conference/aaai/aaai-26/submission-instructions/
+    source_type: official_policy
+    used_by: [ccf-paper-reviewer]
+    recorded_at: 2026-06-05
+    verified_at: null
+    stale_after_days: 90
+    notes: Use for AAAI reproducibility and submission-policy checks.
+  - id: neurips-2026-reviewer-guidelines
+    title: NeurIPS 2026 Reviewer Guidelines
+    url: https://neurips.cc/Conferences/2026/ReviewerGuidelines
+    source_type: review_guideline
+    used_by: [ccf-paper-reviewer, ccf-idea-optimizer, ccf-idea-reviewer]
+    recorded_at: 2026-06-05
+    verified_at: 2026-09-16
+    stale_after_days: 180
+    notes: Use for quality, clarity, significance, originality, and contribution-type review framing.
+  - id: neurips-2024-reviewer-guidelines
+    title: NeurIPS 2024 Reviewer Guidelines
+    url: https://neurips.cc/Conferences/2024/ReviewerGuidelines
+    source_type: review_guideline
+    used_by: [ccf-paper-writer]
+    recorded_at: 2026-06-05
+    verified_at: null
+    stale_after_days: 365
+    notes: Legacy source record from writing-skill creation.
+  - id: icml-2024-reviewer-instructions
+    title: ICML 2024 Reviewer Instructions
+    url: https://icml.cc/Conferences/2024/ReviewerInstructions
+    source_type: review_guideline
+    used_by: [ccf-paper-writer]
+    recorded_at: 2026-06-05
+    verified_at: null
+    stale_after_days: 365
+    notes: Legacy source record from writing-skill creation.
+  - id: iclr-2026-reviewer-guide
+    title: ICLR 2026 Reviewer Guide
+    url: https://iclr.cc/Conferences/2026/ReviewerGuide
+    source_type: review_guideline
+    used_by: [ccf-paper-reviewer, ccf-idea-optimizer, ccf-idea-reviewer]
+    recorded_at: 2026-06-05
+    verified_at: 2026-09-16
+    stale_after_days: 180
+    notes: Use for ICLR value-to-community and new-knowledge framing.
+  - id: iclr-2026-author-guide
+    title: ICLR 2026 Author Guide
+    url: https://iclr.cc/Conferences/2026/AuthorGuide
+    source_type: venue_policy
+    used_by: [ccf-paper-writer, ccf-submission-checker]
+    recorded_at: 2026-06-06
+    verified_at: 2026-06-06
+    stale_after_days: 180
+    notes: Use for ICLR 2026 submission anonymity, page-limit, and author-format basics; recheck before real submission.
+  - id: iclr-2027-author-guidelines
+    title: ICLR 2027 Author Guidelines
+    url: https://iclr.cc/Conferences/2027/AuthorGuidelines
+    source_type: venue_policy
+    used_by: [ccf-paper-writer, ccf-submission-checker]
+    recorded_at: 2026-09-16
+    verified_at: 2026-10-19
+    stale_after_days: 30
+    notes: Exact-year submission rules; recheck at use time, especially dates and stage-specific requirements.
+  - id: iclr-2027-reviewer-guidelines
+    title: ICLR 2027 Reviewer Guidelines
+    url: https://iclr.cc/Conferences/2027/ReviewerGuidelines
+    source_type: review_guideline
+    used_by: [ccf-paper-reviewer]
+    recorded_at: 2026-09-16
+    verified_at: 2026-10-19
+    stale_after_days: 30
+    notes: Decision-relevant concise reviews and contribution-aware evidence; the FAQ deadline example conflicts with the Author Guidelines, so verify dates there.
+  - id: iclr-2027-ai-authors
+    title: ICLR 2027 AI Policy for Authors
+    url: https://iclr.cc/Conferences/2027/AIPolicyForAuthors
+    source_type: venue_policy
+    used_by: [ccf-paper-writer, ccf-submission-checker]
+    recorded_at: 2026-09-16
+    verified_at: 2026-10-19
+    stale_after_days: 30
+    notes: Use the full task list to distinguish required and recommended AI-use disclosures; preserve actual usage and verification facts.
+  - id: iclr-2027-ai-reviewers
+    title: ICLR 2027 AI Policy for Reviewers and Meta-Reviewers
+    url: https://iclr.cc/Conferences/2027/AIPolicyForReviewers
+    source_type: review_guideline
+    used_by: [ccf-paper-reviewer]
+    recorded_at: 2026-09-16
+    verified_at: 2026-10-19
+    stale_after_days: 30
+    notes: Official review assistance requires the human original assessment and disclosure of AI interactions; distinguish this context from author pre-review.
+  - id: iclr-2027-style-files
+    title: ICLR 2027 Official LaTeX Style Bundle
+    url: https://media.iclr.cc/Conferences/ICLR2027/iclr-2027-style-files.zip
+    source_type: venue_template
+    used_by: [ccf-paper-writer, ccf-submission-checker]
+    recorded_at: 2026-09-16
+    verified_at: 2026-10-19
+    stale_after_days: 30
+    notes: Inspected the official tex, sty, and bibliography style; fetch the full bundle for 2027 projects rather than renaming the local 2026 file.
+  - id: cvpr-2026-reviewer-guidelines
+    title: CVPR 2026 Reviewer Guidelines
+    url: https://cvpr.thecvf.com/Conferences/2026/ReviewerGuidelines
+    source_type: review_guideline
+    used_by: [ccf-paper-reviewer]
+    recorded_at: 2026-06-05
+    verified_at: null
+    stale_after_days: 180
+    notes: Use for CVPR review standards and responsible reviewing.
+  - id: cvpr-2026-reviewer-training
+    title: CVPR 2026 Reviewer Training Material
+    url: https://cvpr.thecvf.com/Conferences/2026/ReviewerTrainingMaterial
+    source_type: review_guideline
+    used_by: [ccf-paper-reviewer]
+    recorded_at: 2026-06-05
+    verified_at: null
+    stale_after_days: 180
+    notes: Use for standard review errors and discussion expectations.
+  - id: cvpr-2025-reviewer-guidelines
+    title: CVPR 2025 Reviewer Guidelines
+    url: https://cvpr.thecvf.com/Conferences/2025/ReviewerGuidelines
+    source_type: review_guideline
+    used_by: [ccf-paper-writer]
+    recorded_at: 2026-06-05
+    verified_at: null
+    stale_after_days: 365
+    notes: Legacy source record from writing-skill creation.
+  - id: acl-arr-review-form
+    title: ACL Rolling Review Review Form
+    url: https://aclrollingreview.org/reviewform
+    source_type: review_guideline
+    used_by: [ccf-paper-reviewer]
+    recorded_at: 2026-06-05
+    verified_at: null
+    stale_after_days: 180
+    notes: Use for soundness, usefulness, reproducibility, ethics, confidence, strengths, concerns, and questions.
+  - id: keshav-how-to-read-paper
+    title: S. Keshav, How To Read A Paper
+    url: https://www.cs.jhu.edu/~huang/cs624/spring22/readings/paper-reading.pdf
+    source_type: background_method
+    used_by: [ccf-paper-reviewer]
+    recorded_at: 2026-06-05
+    verified_at: null
+    stale_after_days: 730
+    notes: Used for three-pass reading and the five Cs.
+  - id: cmu-how-to-review-technical-paper
+    title: How To Review A Technical Paper
+    url: https://www.cs.cmu.edu/afs/cs/academic/class/15828-s98/www/review.html
+    source_type: background_method
+    used_by: [ccf-paper-reviewer]
+    recorded_at: 2026-06-05
+    verified_at: null
+    stale_after_days: 730
+    notes: Used for constructive technical review structure.
+  - id: plos-reviewer-feedback
+    title: PLOS How To Write A Peer Review
+    url: https://plos.org/resource/how-to-write-a-peer-review/
+    source_type: background_method
+    used_by: [ccf-paper-reviewer, ccf-idea-reviewer]
+    recorded_at: 2026-06-05
+    verified_at: null
+    stale_after_days: 365
+    notes: Use for peer-review process, paper-reading workflow, and specific actionable review feedback.
+  - id: springer-nature-how-to-peer-review
+    title: Springer Nature How To Peer Review
+    url: https://www.springernature.com/gp/reviewers/how-to-peer-review
+    source_type: background_method
+    used_by: [ccf-paper-reviewer, ccf-idea-reviewer]
+    recorded_at: 2026-06-05
+    verified_at: null
+    stale_after_days: 365
+    notes: Use for review structure, manuscript clarity, evidence, and reviewer responsibility scaffolding.
+  - id: acm-preparing-article-latex
+    title: ACM Preparing Your Article With LaTeX
+    url: https://authors.acm.org/proceedings/production-information/preparing-your-article-with-latex
+    source_type: official_policy
+    used_by: [ccf-paper-reviewer]
+    recorded_at: 2026-06-05
+    verified_at: null
+    stale_after_days: 180
+    notes: Use for ACM LaTeX template and proceedings-production checks; verify target conference rules separately.
+  - id: ieee-authoring-tools-templates
+    title: IEEE Authoring Tools And Templates
+    url: https://journals.ieeeauthorcenter.ieee.org/create-your-ieee-journal-article/authoring-tools-and-templates/
+    source_type: official_policy
+    used_by: [ccf-paper-reviewer]
+    recorded_at: 2026-06-05
+    verified_at: null
+    stale_after_days: 180
+    notes: Use for IEEE LaTeX/template and authoring-tool checks; verify target publication rules separately.
+  - id: cspaper-review
+    title: CSPaper Review
+    url: https://cspaper.org/op/20260212.0001v1
+    source_type: background_method
+    used_by: [ccf-paper-reviewer, ccf-idea-reviewer]
+    recorded_at: 2026-06-05
+    verified_at: 2026-09-06
+    stale_after_days: 365
+    notes: Public paper section 2 documents desk rejection assessment, expected review outcome, and critical reviewer ratings. Adapt that organization to manuscript and concept scope; do not copy score-conditioned role generation or claim CSPaper calibration.
+  - id: cspaper-review-rank
+    title: CSPaper Review Rank
+    url: https://cspaper.org/articles/introducing-review-rank
+    source_type: background_method
+    used_by: [ccf-paper-reviewer]
+    recorded_at: 2026-06-05
+    verified_at: 2026-09-06
+    stale_after_days: 365
+    notes: Rank depends on a real same-agent review cohort and frozen calibration. Omit percentiles, outperformed counts, and rank visualizations when no comparable corpus is available.
+  - id: stanford-agentic-reviewer
+    title: Stanford Agentic Reviewer Technical Overview
+    url: https://paperreview.ai/tech-overview
+    source_type: background_method
+    used_by: [ccf-paper-reviewer]
+    recorded_at: 2026-06-05
+    verified_at: 2026-06-05
+    stale_after_days: 365
+    notes: Use as workflow inspiration for PDF/venue intake, related-work search, multi-dimensional scoring, and review synthesis.
+  - id: openai-review-tool
+    title: OpenAIReview Automated Paper Review Tool
+    url: https://github.com/ChicagoHAI/OpenAIReview
+    source_type: background_method
+    used_by: [ccf-paper-reviewer]
+    recorded_at: 2026-06-05
+    verified_at: 2026-06-05
+    stale_after_days: 365
+    notes: Use as workflow inspiration for multi-input paper review and structured findings; not an authoritative scoring source.
+  - id: poldrack-ai-peer-review
+    title: AI Peer Review Tool
+    url: https://github.com/poldrack/ai-peer-review
+    source_type: background_method
+    used_by: [ccf-paper-reviewer]
+    recorded_at: 2026-06-05
+    verified_at: 2026-06-05
+    stale_after_days: 365
+    notes: Use as workflow inspiration for independent reviewers, meta-review, and concerns-table style synthesis.
+  - id: local-cspaper-review-format
+    title: Local CSPaper Reply Reference Format
+    url: local:private-reference/cspaper-reply-format
+    source_type: local_reference
+    used_by: [ccf-paper-reviewer]
+    recorded_at: 2026-06-05
+    verified_at: null
+    stale_after_days: 365
+    notes: Historical private format provenance only. Current runtime structure is self-contained in fixed-output-format.md and grounded in the public cspaper-review source; do not require this unavailable private file.
+  - id: darpa-heilmeier
+    title: DARPA Heilmeier Catechism
+    url: https://www.darpa.mil/about/heilmeier-catechism
+    source_type: background_method
+    used_by: [ccf-idea-optimizer, ccf-idea-reviewer]
+    recorded_at: 2026-06-05
+    verified_at: null
+    stale_after_days: 730
+    notes: Use as problem-clarity scaffold, not venue scoring.
+  - id: nsf-merit-review
+    title: NSF Merit Review Criteria
+    url: https://www.nsf.gov/bfa/dias/policy/merit_review/
+    source_type: background_method
+    used_by: [ccf-idea-optimizer, ccf-idea-reviewer]
+    recorded_at: 2026-06-05
+    verified_at: null
+    stale_after_days: 365
+    notes: Use as broad research judgment scaffold, not venue scoring.
+  - id: hamming-you-and-your-research
+    title: Richard Hamming, You And Your Research
+    url: https://www.cs.virginia.edu/~robins/YouAndYourResearch.html
+    source_type: background_method
+    used_by: [ccf-idea-optimizer]
+    recorded_at: 2026-06-05
+    verified_at: null
+    stale_after_days: 730
+    notes: Use for research taste and importance framing.
+  - id: academic-research-skills
+    title: Academic Research Skills
+    url: https://github.com/Imbad0202/academic-research-skills
+    source_type: background_method
+    used_by: [ccf-common, ccf-idea-optimizer, ccf-idea-reviewer, ccf-paper-writer, ccf-paper-reviewer]
+    recorded_at: 2026-06-05
+    verified_at: 2026-08-11
+    stale_after_days: 365
+    notes: Workflow reference for academic writing-quality checks and re-review precommitment. CCFA adapts compact principles for precise prose, stable criteria, and issue provenance without copying the repository's large artifact chain.
+  - id: skill-deslop
+    title: Skill Deslop For Scientific Writing
+    url: https://github.com/stephenturner/skill-deslop
+    source_type: background_method
+    used_by: [ccf-humanization, ccf-paper-writer]
+    recorded_at: 2026-08-11
+    verified_at: 2026-08-11
+    stale_after_days: 365
+    notes: Conceptual reference for removing formulaic scientific-writing patterns, filler, false agency, and repetitive sentence structures while preserving disciplinary conventions; do not copy wording or optimize for detector evasion.
+  - id: nature-skills
+    title: Nature Skills
+    url: https://github.com/Yuan1z0825/nature-skills
+    source_type: background_method
+    used_by: [ccf-common, ccf-paper-writer, ccf-paper-reviewer, ccf-visual-composer]
+    recorded_at: 2026-06-06
+    verified_at: 2026-08-12
+    stale_after_days: 365
+    notes: Related skill family for high-standard paper writing and style workflow comparison; not an authoritative CCF venue source.
+  - id: vercel-agent-skills-cli
+    title: Vercel Agent Skills CLI
+    url: https://github.com/vercel-labs/skills
+    source_type: background_method
+    used_by: [ccf-common, ccf-skill-forger]
+    recorded_at: 2026-08-12
+    verified_at: 2026-08-12
+    stale_after_days: 180
+    notes: Installation and update command reference for Codex, Claude Code, Cursor, Gemini CLI, and other Agent Skills clients.
+  - id: nature-figure-skill
+    title: Nature Figure Skill
+    url: https://github.com/Yuan1z0825/nature-skills/blob/main/skills/nature-figure/README.md
+    source_type: background_method
+    used_by: [ccf-experiment-designer, ccf-visual-composer]
+    recorded_at: 2026-07-08
+    verified_at: 2026-07-08
+    stale_after_days: 365
+    notes: Inspiration for figure contracts, panel maps, editable vector exports, source-data traceability, and render QA; not a venue policy source.
+  - id: deli-autoresearch-framework
+    title: Deli AutoResearch Framework
+    url: https://victorchen96.github.io/auto_research/framework.html
+    source_type: background_method
+    used_by: [ccf-common, ccf-paper-writer, ccf-visual-composer]
+    recorded_at: 2026-07-08
+    verified_at: 2026-07-08
+    stale_after_days: 365
+    notes: Workflow inspiration for file-backed state, anti-loop pivoting, separation of execution and evaluation, and direction diversity; not a scientific claim source.
+  - id: ggsci-palettes
+    title: Scientific Journal And Sci-Fi Themed Color Palettes For ggplot2
+    url: https://cran.r-project.org/web/packages/ggsci/vignettes/ggsci.html
+    source_type: background_method
+    used_by: [ccf-visual-composer]
+    recorded_at: 2026-07-08
+    verified_at: 2026-07-08
+    stale_after_days: 365
+    notes: Scientific journal themed palette reference; validate accessibility before final figures.
+  - id: fabio-crameri-scientific-colour-maps
+    title: Scientific Colour Maps
+    url: https://www.fabiocrameri.ch/colourmaps/
+    source_type: background_method
+    used_by: [ccf-visual-composer]
+    recorded_at: 2026-07-08
+    verified_at: 2026-07-08
+    stale_after_days: 365
+    notes: Perceptually uniform, color-vision-aware scientific color maps for ordered data.
+  - id: colorbrewer
+    title: ColorBrewer 2.0
+    url: https://colorbrewer2.org/
+    source_type: background_method
+    used_by: [ccf-visual-composer]
+    recorded_at: 2026-07-08
+    verified_at: 2026-07-08
+    stale_after_days: 365
+    notes: Categorical, sequential, and diverging palette reference with colorblind/print options.
+  - id: okabe-ito-cud
+    title: Color Universal Design And Okabe-Ito Palette
+    url: https://jfly.uni-koeln.de/color/
+    source_type: background_method
+    used_by: [ccf-visual-composer]
+    recorded_at: 2026-07-08
+    verified_at: 2026-07-08
+    stale_after_days: 365
+    notes: Color-vision accessible qualitative palette reference.
+  - id: nature-colour-misuse
+    title: The Misuse Of Colour In Science Communication
+    url: https://www.nature.com/articles/s41467-020-19160-7
+    source_type: paper_or_proceeding
+    used_by: [ccf-visual-composer]
+    recorded_at: 2026-07-08
+    verified_at: 2026-07-08
+    stale_after_days: 365
+    notes: Background warning against misleading scientific color maps and inaccessible color choices.
+  - id: matplotlib-gallery
+    title: Matplotlib Examples Gallery
+    url: https://matplotlib.org/stable/gallery/index.html
+    source_type: background_method
+    used_by: [ccf-visual-composer]
+    recorded_at: 2026-07-08
+    verified_at: 2026-07-08
+    stale_after_days: 365
+    notes: Broad plot taxonomy and source-code gallery used as conceptual inspiration only; CCFA bundled recipes are original.
+  - id: seaborn-gallery
+    title: Seaborn Example Gallery
+    url: https://seaborn.pydata.org/examples/index.html
+    source_type: background_method
+    used_by: [ccf-visual-composer]
+    recorded_at: 2026-07-08
+    verified_at: 2026-07-08
+    stale_after_days: 365
+    notes: Statistical visualization and small-multiple inspiration only; do not copy examples or datasets.
+  - id: plotly-python
+    title: Plotly Python Graphing Library
+    url: https://plotly.com/python/
+    source_type: background_method
+    used_by: [ccf-visual-composer]
+    recorded_at: 2026-07-08
+    verified_at: 2026-07-08
+    stale_after_days: 365
+    notes: Interactive and dashboard-oriented plotting inspiration; CCFA paper figures remain evidence-bound static/vector outputs unless interactivity is requested.
+  - id: bokeh-gallery
+    title: Bokeh Gallery
+    url: https://docs.bokeh.org/en/latest/docs/gallery.html
+    source_type: background_method
+    used_by: [ccf-visual-composer]
+    recorded_at: 2026-07-08
+    verified_at: 2026-07-08
+    stale_after_days: 365
+    notes: Linked-view and web-native visualization inspiration only.
+  - id: altair-gallery
+    title: Altair Example Gallery
+    url: https://altair-viz.github.io/gallery/index.html
+    source_type: background_method
+    used_by: [ccf-visual-composer]
+    recorded_at: 2026-07-08
+    verified_at: 2026-07-08
+    stale_after_days: 365
+    notes: Declarative grammar-of-graphics inspiration; use data/mark/encoding/transform thinking.
+  - id: plotnine
+    title: Plotnine Grammar Of Graphics For Python
+    url: https://github.com/has2k1/plotnine
+    source_type: background_method
+    used_by: [ccf-visual-composer]
+    recorded_at: 2026-07-08
+    verified_at: 2026-07-08
+    stale_after_days: 365
+    notes: Grammar-of-graphics layering and theme inspiration only.
+  - id: python-graph-gallery
+    title: The Python Graph Gallery
+    url: https://python-graph-gallery.com/
+    source_type: background_method
+    used_by: [ccf-visual-composer]
+    recorded_at: 2026-07-08
+    verified_at: 2026-07-08
+    stale_after_days: 365
+    notes: Chart taxonomy and data-to-viz routing inspiration only; do not copy gallery code.
+  - id: scientific-visualization-book
+    title: Scientific Visualization Python And Matplotlib
+    url: https://github.com/rougier/scientific-visualization-book
+    source_type: background_method
+    used_by: [ccf-visual-composer]
+    recorded_at: 2026-07-08
+    verified_at: 2026-07-08
+    stale_after_days: 365
+    notes: Publication-quality layout, annotation, typography, and scientific-visualization principles as conceptual inspiration only.
+  - id: scienceplots
+    title: SciencePlots
+    url: https://github.com/garrettj403/SciencePlots
+    source_type: background_method
+    used_by: [ccf-visual-composer]
+    recorded_at: 2026-07-08
+    verified_at: 2026-07-08
+    stale_after_days: 365
+    notes: Scientific-paper style inspiration; do not vendor styles or code.
+  - id: lovelyplots
+    title: LovelyPlots
+    url: https://github.com/killiansheriff/LovelyPlots
+    source_type: background_method
+    used_by: [ccf-visual-composer]
+    recorded_at: 2026-07-08
+    verified_at: 2026-07-08
+    stale_after_days: 365
+    notes: Editable scientific-figure style inspiration; do not vendor styles or code.
+  - id: auto-claude-research-in-sleep
+    title: Auto Claude Code Research In Sleep
+    url: https://github.com/wanshuiyin/Auto-claude-code-research-in-sleep
+    source_type: background_method
+    used_by: [ccf-common, ccf-idea-optimizer, ccf-idea-reviewer, ccf-pipeline-orchestrator, ccf-paper-reviewer]
+    recorded_at: 2026-06-05
+    verified_at: 2026-09-06
+    stale_after_days: 365
+    notes: Inspected skills/research-review/SKILL.md for primary-artifact verification and unresolved-issue follow-up. Adopt scoped concern continuity, not mandatory cross-model tools, experimental review of ideas, rejection-first prompts, or round-by-round file proliferation.
+  - id: research-paper-writing-skills-master-cai
+    title: Research Paper Writing Skills
+    url: https://github.com/Master-cai/Research-Paper-Writing-Skills
+    source_type: background_method
+    used_by: [ccf-common, ccf-paper-writer, ccf-paper-reviewer]
+    recorded_at: 2026-06-06
+    verified_at: 2026-06-06
+    stale_after_days: 365
+    notes: Related writing-skill repository used for feature-gap audit; not an authoritative venue source and not copied as text.
+  - id: ai-scientist
+    title: The AI Scientist
+    url: https://arxiv.org/abs/2408.06292
+    source_type: paper_or_proceeding
+    used_by: [ccf-idea-optimizer, ccf-idea-reviewer]
+    recorded_at: 2026-06-05
+    verified_at: null
+    stale_after_days: 365
+    notes: Automated research reference.
+  - id: llm-idea-generation-evaluation
+    title: LLM Research Idea Generation And Evaluation Studies
+    url: https://arxiv.org/abs/2409.04109
+    source_type: paper_or_proceeding
+    used_by: [ccf-idea-optimizer, ccf-idea-reviewer]
+    recorded_at: 2026-06-05
+    verified_at: null
+    stale_after_days: 365
+    notes: Automated research idea evaluation reference.
+  - id: llava-4d-openreview
+    title: LLaVA-4D OpenReview
+    url: https://openreview.net/forum?id=URpbmVEsqB
+    source_type: paper_or_proceeding
+    used_by: [ccf-paper-writer, ccf-visual-composer, ccf-skill-forger]
+    recorded_at: 2026-06-05
+    verified_at: null
+    stale_after_days: 365
+    notes: User-custom writing-format exemplar source record.
+  - id: llava-4d-arxiv
+    title: LLaVA-4D arXiv
+    url: https://arxiv.org/abs/2505.12253
+    source_type: paper_or_proceeding
+    used_by: [ccf-paper-writer, ccf-visual-composer, ccf-skill-forger]
+    recorded_at: 2026-06-05
+    verified_at: 2026-08-12
+    stale_after_days: 365
+    notes: User-custom writing-format exemplar source record.
+  - id: vggt-cvf
+    title: VGGT CVPR 2025 Open Access
+    url: https://openaccess.thecvf.com/content/CVPR2025/html/Wang_VGGT_Visual_Geometry_Grounded_Transformer_CVPR_2025_paper.html
+    source_type: paper_or_proceeding
+    used_by: [ccf-paper-writer]
+    recorded_at: 2026-06-05
+    verified_at: null
+    stale_after_days: 365
+    notes: User-custom writing-format exemplar and CVPR 2025 best-paper context source record.
+  - id: iclr-2026-outstanding-blog
+    title: ICLR 2026 Outstanding Papers Blog
+    url: https://blog.iclr.cc/2026/04/23/announcing-the-iclr-2026-outstanding-papers/
+    source_type: paper_or_proceeding
+    used_by: [ccf-paper-writer]
+    recorded_at: 2026-06-05
+    verified_at: null
+    stale_after_days: 365
+    notes: Verify before claiming award status publicly.
+  - id: iclr-2025-outstanding-blog
+    title: ICLR 2025 Outstanding Papers Blog
+    url: https://blog.iclr.cc/2025/04/22/announcing-the-outstanding-paper-awards-at-iclr-2025/
+    source_type: paper_or_proceeding
+    used_by: [ccf-paper-writer]
+    recorded_at: 2026-06-05
+    verified_at: null
+    stale_after_days: 365
+    notes: Verify before claiming award status publicly.
+  - id: iclr-2024-outstanding-blog
+    title: ICLR 2024 Outstanding Papers Blog
+    url: https://blog.iclr.cc/2024/05/06/iclr-2024-outstanding-paper-awards/
+    source_type: paper_or_proceeding
+    used_by: [ccf-paper-writer]
+    recorded_at: 2026-06-05
+    verified_at: null
+    stale_after_days: 365
+    notes: Verify before claiming award status publicly.
+  - id: cvpr-2025-best-papers
+    title: CVPR 2025 Best Papers And Demos
+    url: https://cvpr.thecvf.com/Conferences/2025/BestPapersDemos
+    source_type: paper_or_proceeding
+    used_by: [ccf-paper-writer]
+    recorded_at: 2026-06-05
+    verified_at: null
+    stale_after_days: 365
+    notes: Verify before claiming CVPR award status publicly.
+  - id: cvpr-2024-awards
+    title: CVPR 2024 Awards News
+    url: https://cvpr.thecvf.com/Conferences/2024/News/Awards
+    source_type: paper_or_proceeding
+    used_by: [ccf-paper-writer]
+    recorded_at: 2026-06-05
+    verified_at: null
+    stale_after_days: 365
+    notes: Verify before claiming CVPR award status publicly.
+  - id: cvf-awards-list
+    title: CVF Awards List
+    url: https://www.thecvf.com/?page_id=413
+    source_type: paper_or_proceeding
+    used_by: [ccf-paper-writer]
+    recorded_at: 2026-06-05
+    verified_at: null
+    stale_after_days: 365
+    notes: Award context source record.
+  - id: aaai-2025-every-bit-helps
+    title: Every Bit Helps, AAAI 2025
+    url: https://ojs.aaai.org/index.php/AAAI/article/view/33507
+    source_type: paper_or_proceeding
+    used_by: [ccf-paper-writer]
+    recorded_at: 2026-06-05
+    verified_at: null
+    stale_after_days: 365
+    notes: Exemplar source record.
+  - id: aaai-2024-gxvaes
+    title: GxVAEs, AAAI 2024
+    url: https://ojs.aaai.org/index.php/AAAI/article/view/29248
+    source_type: paper_or_proceeding
+    used_by: [ccf-paper-writer]
+    recorded_at: 2026-06-05
+    verified_at: null
+    stale_after_days: 365
+    notes: Exemplar source record.
+  - id: icml-2025-collabllm
+    title: CollabLLM, ICML 2025
+    url: https://proceedings.mlr.press/v267/wu25i.html
+    source_type: paper_or_proceeding
+    used_by: [ccf-paper-writer]
+    recorded_at: 2026-06-05
+    verified_at: null
+    stale_after_days: 365
+    notes: Exemplar source record.
+  - id: icml-2024-videopoet
+    title: VideoPoet, ICML 2024
+    url: https://proceedings.mlr.press/v235/kondratyuk24a.html
+    source_type: paper_or_proceeding
+    used_by: [ccf-paper-writer]
+    recorded_at: 2026-06-05
+    verified_at: null
+    stale_after_days: 365
+    notes: Exemplar source record.
+  - id: iccv-2025-brickgpt
+    title: BrickGPT, ICCV 2025
+    url: https://openaccess.thecvf.com/content/ICCV2025/html/Pun_Generating_Physically_Stable_and_Buildable_Brick_Structures_from_Text_ICCV_2025_paper.html
+    source_type: paper_or_proceeding
+    used_by: [ccf-paper-writer]
+    recorded_at: 2026-06-05
+    verified_at: null
+    stale_after_days: 365
+    notes: Exemplar source record.
+  - id: iccv-2023-passive-uwb
+    title: Passive Ultra-Wideband Single-Photon Imaging, ICCV 2023
+    url: https://openaccess.thecvf.com/content/ICCV2023/html/Wei_Passive_Ultra-Wideband_Single-Photon_Imaging_ICCV_2023_paper.html
+    source_type: paper_or_proceeding
+    used_by: [ccf-paper-writer]
+    recorded_at: 2026-06-05
+    verified_at: null
+    stale_after_days: 365
+    notes: Exemplar source record.
+  - id: eccv-2024-minimalist-vision
+    title: Minimalist Vision With Freeform Pixels, ECCV 2024
+    url: https://www.ecva.net/papers/eccv_2024/papers_ECCV/html/8113_ECCV_2024_paper.php
+    source_type: paper_or_proceeding
+    used_by: [ccf-paper-writer]
+    recorded_at: 2026-06-05
+    verified_at: null
+    stale_after_days: 365
+    notes: Exemplar source record.
+  - id: eccv-2022-partial-distance-correlation
+    title: Partial Distance Correlation In Deep Learning, ECCV 2022
+    url: https://www.ecva.net/papers/eccv_2022/papers_ECCV/papers/136860318.pdf
+    source_type: paper_or_proceeding
+    used_by: [ccf-paper-writer]
+    recorded_at: 2026-06-05
+    verified_at: null
+    stale_after_days: 365
+    notes: Exemplar source record.
+  - id: acmmm-2025-aff3dfunc
+    title: Open-Vocabulary 3D Affordance Understanding, ACM MM 2025
+    url: https://eprints.gla.ac.uk/360521/
+    source_type: paper_or_proceeding
+    used_by: [ccf-paper-writer]
+    recorded_at: 2026-06-05
+    verified_at: null
+    stale_after_days: 365
+    notes: Exemplar source record.
+  - id: acmmm-2024-speaker-to-dubber
+    title: From Speaker To Dubber, ACM MM 2024
+    url: https://openreview.net/pdf/c1a849c12d7b851fa543b7af787bbc8fc9a945b7.pdf
+    source_type: paper_or_proceeding
+    used_by: [ccf-paper-writer]
+    recorded_at: 2026-06-05
+    verified_at: null
+    stale_after_days: 365
+    notes: Exemplar source record.
+  - id: acl-2025-minilongbench
+    title: MiniLongBench, ACL 2025
+    url: https://aclanthology.org/2025.acl-long.560/
+    source_type: paper_or_proceeding
+    used_by: [ccf-paper-writer]
+    recorded_at: 2026-06-05
+    verified_at: null
+    stale_after_days: 365
+    notes: Exemplar source record.
+  - id: acl-2024-mission-impossible
+    title: Mission Impossible Language Models, ACL 2024
+    url: https://aclanthology.org/2024.acl-long.787/
+    source_type: paper_or_proceeding
+    used_by: [ccf-paper-writer]
+    recorded_at: 2026-06-05
+    verified_at: null
+    stale_after_days: 365
+    notes: Exemplar source record.
+  - id: neurips-2025-1000-layer-ssl-rl
+    title: 1000 Layer Networks For Self-Supervised RL, NeurIPS 2025
+    url: https://proceedings.neurips.cc/paper_files/paper/2025/hash/e74ee34cc0f2d0780f34ee77d8fba25b-Abstract-Conference.html
+    source_type: paper_or_proceeding
+    used_by: [ccf-paper-writer]
+    recorded_at: 2026-06-05
+    verified_at: null
+    stale_after_days: 365
+    notes: Exemplar source record.
+  - id: neurips-2024-var
+    title: Visual Autoregressive Modeling, NeurIPS 2024
+    url: https://proceedings.neurips.cc/paper_files/paper/2024/hash/9a24e284b187f662681440ba15c416fb-Abstract-Conference.html
+    source_type: paper_or_proceeding
+    used_by: [ccf-paper-writer]
+    recorded_at: 2026-06-05
+    verified_at: null
+    stale_after_days: 365
+    notes: Exemplar source record.
+  - id: arxiv-api
+    title: arXiv API User Manual
+    url: https://arxiv.org/help/api/
+    source_type: background_method
+    used_by: [ccf-literature-monitor, ccf-literature-searcher]
+    recorded_at: 2026-06-09
+    verified_at: null
+    stale_after_days: 365
+    notes: Use for recent preprint discovery and category watch queries; verify final claims against paper pages.
+  - id: openreview-api
+    title: OpenReview API Documentation
+    url: https://docs.openreview.net/
+    source_type: background_method
+    used_by: [ccf-literature-monitor, ccf-literature-searcher, ccf-paper-reviewer]
+    recorded_at: 2026-06-09
+    verified_at: null
+    stale_after_days: 365
+    notes: Use for venue feed and review-platform paper discovery when public; do not expose private manuscript text in queries.
+  - id: semantic-scholar-api
+    title: Semantic Scholar API Documentation
+    url: https://api.semanticscholar.org/api-docs/
+    source_type: background_method
+    used_by: [ccf-literature-searcher]
+    recorded_at: 2026-06-05
+    verified_at: null
+    stale_after_days: 365
+    notes: Discovery index for paper search and metadata; verify final claims with paper pages when possible.
+  - id: openalex-works-api
+    title: OpenAlex Works API Documentation
+    url: https://docs.openalex.org/api-entities/works
+    source_type: background_method
+    used_by: [ccf-literature-searcher]
+    recorded_at: 2026-06-05
+    verified_at: null
+    stale_after_days: 365
+    notes: Discovery index for works, venues, concepts, and citation metadata.
+  - id: dblp-search-api
+    title: DBLP Search API FAQ
+    url: https://dblp.org/faq/How+to+use+the+dblp+search+API.html
+    source_type: background_method
+    used_by: [ccf-literature-searcher]
+    recorded_at: 2026-06-05
+    verified_at: null
+    stale_after_days: 365
+    notes: Computer-science bibliography discovery source.
+  - id: crossref-rest-api
+    title: Crossref REST API Documentation
+    url: https://www.crossref.org/documentation/retrieve-metadata/rest-api/
+    source_type: background_method
+    used_by: [ccf-literature-searcher]
+    recorded_at: 2026-06-05
+    verified_at: null
+    stale_after_days: 365
+    notes: DOI and publication metadata discovery source.
+  - id: acm-artifact-review-badging
+    title: ACM Artifact Review And Badging
+    url: https://www.acm.org/publications/policies/artifact-review-and-badging-current
+    source_type: review_guideline
+    used_by: [ccf-experiment-designer]
+    recorded_at: 2026-06-05
+    verified_at: null
+    stale_after_days: 365
+    notes: Use for reproducibility, artifact availability, and experiment audit framing.
+  - id: ml-reproducibility-checklist
+    title: Machine Learning Reproducibility Checklist
+    url: https://arxiv.org/abs/2003.12206
+    source_type: paper_or_proceeding
+    used_by: [ccf-experiment-designer, ccf-paper-writer]
+    recorded_at: 2026-06-05
+    verified_at: null
+    stale_after_days: 365
+    notes: Use for experiment, code, data, hyperparameter, and reporting checklist design.
+  - id: acm-best-paper-awards
+    title: ACM Best Paper Awards
+    url: https://awards.acm.org/best-paper
+    source_type: paper_or_proceeding
+    used_by: [ccf-paper-writer]
+    recorded_at: 2026-06-05
+    verified_at: null
+    stale_after_days: 365
+    notes: Source for non-AI exemplar discovery across DB, systems, HCI, PL, theory, graphics, and security-adjacent venues.
+  - id: sigcomm-2024-program
+    title: SIGCOMM 2024 Program
+    url: https://conferences.sigcomm.org/sigcomm/2024/program/
+    source_type: paper_or_proceeding
+    used_by: [ccf-paper-writer]
+    recorded_at: 2026-06-05
+    verified_at: null
+    stale_after_days: 365
+    notes: Non-AI systems/networking exemplar source record.
+  - id: usenix-security-2024-technical-sessions
+    title: USENIX Security 2024 Technical Sessions
+    url: https://www.usenix.org/conference/usenixsecurity24/technical-sessions
+    source_type: paper_or_proceeding
+    used_by: [ccf-paper-writer]
+    recorded_at: 2026-06-05
+    verified_at: null
+    stale_after_days: 365
+    notes: Security exemplar and distinguished-paper discovery source.
+  - id: sigact-best-paper
+    title: SIGACT Best Paper Prize List
+    url: https://sigact.org/prizes/best_paper.html
+    source_type: paper_or_proceeding
+    used_by: [ccf-paper-writer]
+    recorded_at: 2026-06-05
+    verified_at: null
+    stale_after_days: 365
+    notes: Theory exemplar discovery source for STOC/FOCS-style papers.
+  - id: local-research-paper-writing
+    title: Local Research Paper Writing Skill
+    url: local-skill:research-paper-writing
+    source_type: local_reference
+    used_by: [ccf-paper-writer]
+    recorded_at: 2026-06-05
+    verified_at: null
+    stale_after_days: 365
+    notes: Local architecture reference; not a public source.
+  - id: local-ccfa-architecture-svgs
+    title: Local CCFA Architecture SVG Assets
+    url: repo:assets/
+    source_type: local_reference
+    used_by: [ccf-common, ccf-skill-forger]
+    recorded_at: 2026-06-05
+    verified_at: 2026-06-05
+    stale_after_days: 365
+    notes: Local architecture diagrams for CCFA skill-family routing, workflow, and reviewer-boundary documentation.
+  - id: gopen-swan-scientific-writing
+    title: The Science of Scientific Writing
+    url: https://www.cs.tufts.edu/comp/150FP/archive/george-gopen/sci.html
+    source_type: background_method
+    used_by: [ccf-common]
+    recorded_at: 2026-06-06
+    verified_at: 2026-06-06
+    stale_after_days: 3650
+    notes: Opening README quote for the research-storyline positioning; use as writing-argument framing, not as venue policy.
+  - id: lecun-manyika-learning-abstractions
+    title: Learning Abstractions - A Conversation With Yann LeCun
+    url: https://www.amacad.org/publication/daedalus/learning-abstractions-conversation-yann-lecun
+    source_type: background_method
+    used_by: [ccf-common]
+    recorded_at: 2026-06-06
+    verified_at: 2026-06-06
+    stale_after_days: 3650
+    notes: Opening README quote on science as communication; use as research-storyline and publication-framing background, not as venue policy.
+  - id: attention-is-all-you-need-neurips-2017
+    title: Attention Is All You Need
+    url: https://papers.nips.cc/paper_files/paper/2017/file/3f5ee243547dee91fbd053c1c4a845aa-Paper.pdf
+    source_type: paper_or_proceeding
+    used_by: [ccf-paper-writer, ccf-experiment-designer, ccf-integrity-auditor, ccf-skill-forger]
+    recorded_at: 2026-06-06
+    verified_at: 2026-06-06
+    stale_after_days: 3650
+    notes: Official NeurIPS 2017 paper PDF used for demo/attention-is-all-you-need official BLEU, training schedule, model configuration, and complexity table values.
+  - id: livefigure-editable-scientific-illustration
+    title: "LiveFigure: Generating Editable Scientific Illustration with VLM Agents"
+    url: https://arxiv.org/abs/2605.23527
+    source_type: paper_or_proceeding
+    used_by: [ccf-visual-composer]
+    recorded_at: 2026-08-09
+    verified_at: 2026-08-09
+    stale_after_days: 365
+    notes: Blueprint-first reference induction, PowerPoint-native procedural generation, isolated icon assets, and rendered visual diagnosis.
+  - id: autofigure-edit-editable-svg
+    title: "AutoFigure-Edit: Generating Editable Scientific Illustration"
+    url: https://arxiv.org/abs/2603.06674
+    source_type: paper_or_proceeding
+    used_by: [ccf-visual-composer]
+    recorded_at: 2026-08-09
+    verified_at: 2026-08-09
+    stale_after_days: 365
+    notes: Reference-guided style adaptation and native editable SVG generation.
+  - id: scifig-editable-figure-generation
+    title: "SciFig: Towards Automating Editable Figure Generation for Scientific Papers"
+    url: https://arxiv.org/abs/2601.04390
+    source_type: paper_or_proceeding
+    used_by: [ccf-visual-composer]
+    recorded_at: 2026-08-09
+    verified_at: 2026-08-09
+    stale_after_days: 365
+    notes: Hierarchical composition and editable methodology-figure generation from scientific text.
+  - id: pptxgenjs-shapes
+    title: PptxGenJS Shapes Documentation
+    url: https://gitbrent.github.io/PptxGenJS/docs/api-shapes.html
+    source_type: background_method
+    used_by: [ccf-visual-composer]
+    recorded_at: 2026-08-09
+    verified_at: 2026-08-09
+    stale_after_days: 365
+    notes: Native PowerPoint shapes, text-bearing shapes, coordinates, styling, and stable object names for deterministic PPTX reconstruction.
+  - id: microsoft-edit-svg-office
+    title: Edit SVG Images in Microsoft 365
+    url: https://support.microsoft.com/en-us/office/graphics-visuals/edit-svg-images-in-microsoft-365
+    source_type: background_method
+    used_by: [ccf-visual-composer]
+    recorded_at: 2026-08-09
+    verified_at: 2026-08-09
+    stale_after_days: 365
+    notes: Official support for inserting, formatting, and converting SVG graphics to Office shapes in supported Microsoft 365 applications.
+  - id: lucide-icons
+    title: Lucide Icon Toolkit
+    url: https://github.com/lucide-icons/lucide
+    source_type: background_method
+    used_by: [ccf-visual-composer]
+    recorded_at: 2026-08-09
+    verified_at: 2026-08-09
+    stale_after_days: 365
+    notes: Coherent open-source SVG icon family for common scientific-diagram concepts; record the applicable license with delivered assets.
+  - id: material-icons-svg
+    title: Material Design Icons SVG Repository
+    url: https://material-icons.github.io/material-icons/
+    source_type: background_method
+    used_by: [ccf-visual-composer]
+    recorded_at: 2026-08-09
+    verified_at: 2026-08-09
+    stale_after_days: 365
+    notes: Alternative coherent SVG icon family with multiple visual variants under Apache License 2.0.
+  - id: svg2pptx-native-shapes
+    title: SVG to PowerPoint Shape Converter
+    url: https://github.com/benouinirachid/svg2pptx
+    source_type: background_method
+    used_by: [ccf-visual-composer]
+    recorded_at: 2026-08-10
+    verified_at: 2026-08-10
+    stale_after_days: 365
+    notes: MIT-licensed SVG parser that reconstructs rectangles, circles, lines, polygons, paths, groups, and live text as native PowerPoint objects; gradients and filters require QA or fallback reconstruction.
+  - id: ai-scientist-v2
+    title: The AI Scientist-v2
+    url: https://github.com/SakanaAI/AI-Scientist-v2
+    source_type: background_method
+    used_by: [ccf-idea-optimizer, ccf-pipeline-orchestrator, ccf-experiment-designer]
+    recorded_at: 2026-08-11
+    verified_at: 2026-10-20
+    stale_after_days: 365
+    notes: Inspected experiment-node records, staged search, bounded debugging, and separation of buggy versus valid runs. Informs task-owned experiment iteration and selective replication; CCFA does not bundle its tree-search engine, require its role count, or claim workshop results transfer to other venues.
+  - id: rd-agent
+    title: Microsoft R&D-Agent
+    url: https://github.com/microsoft/RD-Agent
+    source_type: background_method
+    used_by: [ccf-idea-optimizer, ccf-pipeline-orchestrator, ccf-experiment-designer]
+    recorded_at: 2026-08-11
+    verified_at: 2026-10-20
+    stale_after_days: 365
+    notes: Workflow reference for connecting hypotheses and research implementation to actual measured feedback before the next decision. No RD-Agent dependencies or universal domain execution support are bundled.
+  - id: storm
+    title: STORM Knowledge Curation System
+    url: https://github.com/stanford-oval/storm
+    source_type: background_method
+    used_by: [ccf-literature-searcher, ccf-idea-optimizer]
+    recorded_at: 2026-08-11
+    verified_at: 2026-08-11
+    stale_after_days: 365
+    notes: Workflow reference for perspective-guided question decomposition, source-grounded follow-up questions, and dynamic concept organization.
+  - id: gpt-researcher
+    title: GPT Researcher
+    url: https://github.com/assafelovic/gpt-researcher
+    source_type: background_method
+    used_by: [ccf-literature-searcher, ccf-idea-optimizer]
+    recorded_at: 2026-08-11
+    verified_at: 2026-08-11
+    stale_after_days: 365
+    notes: Workflow reference for planner-executor separation, recursive breadth-depth research, concurrent retrieval, and scoped context aggregation.
+  - id: paper-qa2
+    title: PaperQA2
+    url: https://github.com/Future-House/paper-qa
+    source_type: background_method
+    used_by: [ccf-literature-searcher, ccf-idea-optimizer]
+    recorded_at: 2026-08-11
+    verified_at: 2026-08-11
+    stale_after_days: 365
+    notes: Workflow reference for scientific-document retrieval, hybrid evidence selection, reranking, contextual compression, and citation-grounded synthesis.
+  - id: ai-researcher
+    title: AI-Researcher
+    url: https://github.com/HKUDS/AI-Researcher
+    source_type: background_method
+    used_by: [ccf-literature-searcher, ccf-idea-optimizer]
+    recorded_at: 2026-08-11
+    verified_at: 2026-08-11
+    stale_after_days: 365
+    notes: Workflow reference for reference-based ideation, resource collection and filtering, and staged literature-to-algorithm development.
+  - id: arbor-agent
+    title: Arbor Autonomous Research Agent
+    url: https://github.com/RUC-NLPIR/Arbor
+    source_type: background_method
+    used_by: [ccf-idea-optimizer]
+    recorded_at: 2026-08-11
+    verified_at: 2026-08-11
+    stale_after_days: 180
+    notes: Recent workflow reference for a durable hypothesis tree, observe-ideate-select-backprop cycles, branch-level novelty checks, and evidence-preserving pruning.
+  - id: openai-gpt6-astra-guidance
+    title: OpenAI GPT-6 Astra Model Guidance
+    url: https://developers.openai.com/api/docs/guides/latest-model?model=gpt-6-astra
+    source_type: official_policy
+    used_by: [ccf-common, ccf-skill-forger]
+    recorded_at: 2026-09-05
+    verified_at: 2026-09-05
+    stale_after_days: 90
+    notes: Authorization-aware follow-through, instruction sensitivity, direct style, conditional delegation, and proportionate verification; host owns API capabilities.
+  - id: openai-build-skills
+    title: OpenAI Build Skills
+    url: https://learn.chatgpt.com/docs/build-skills
+    source_type: official_policy
+    used_by: [ccf-common, ccf-skill-forger]
+    recorded_at: 2026-09-05
+    verified_at: 2026-09-05
+    stale_after_days: 90
+    notes: Progressive disclosure, front-loaded descriptions, local discovery, automatic change detection, and optional agent configuration.
+  - id: openai-build-plugins
+    title: OpenAI Build Plugins
+    url: https://learn.chatgpt.com/docs/build-plugins
+    source_type: official_policy
+    used_by: [ccf-common, ccf-skill-forger]
+    recorded_at: 2026-09-05
+    verified_at: 2026-09-05
+    stale_after_days: 90
+    notes: Explicit manifest skills path and plugin packaging; retaining the existing repository root is a CCFA implementation choice.
+  - id: academic-research-skills-review
+    title: Academic Research Skills Review Templates
+    url: https://github.com/Imbad0202/academic-research-skills/blob/main/academic-paper-reviewer/templates/peer_review_report_template.md
+    source_type: background_method
+    used_by: [ccf-paper-reviewer, ccf-idea-reviewer]
+    recorded_at: 2026-09-06
+    verified_at: 2026-09-06
+    stale_after_days: 365
+    notes: Adapt stable finding IDs, evidence anchors, and decision-relevant severity. Preserve CCFA scope and compact output rather than importing its orchestration, gates, or template text. Popularity is discovery evidence, not review-quality validation.
+  - id: ai-scientist-review-code
+    title: AI Scientist Structured Review Implementation
+    url: https://github.com/SakanaAI/AI-Scientist/blob/main/ai_scientist/perform_review.py
+    source_type: background_method
+    used_by: [ccf-paper-reviewer]
+    recorded_at: 2026-09-06
+    verified_at: 2026-09-06
+    stale_after_days: 365
+    notes: Adapt explicit summary, strengths, weaknesses, questions, ratings, and confidence fields. Do not copy historical venue scales, forced binary decisions, uncertainty-to-rejection prompts, or exposed reasoning blocks.
+  - id: cmu-peerreview-bench
+    title: CMU Paper Reviewer PeerReview Bench Evaluation
+    url: https://github.com/prometheus-eval/cmu-paper-reviewer/blob/main/peerreview_bench/evaluation/README.md
+    source_type: background_method
+    used_by: [ccf-paper-reviewer, ccf-idea-reviewer]
+    recorded_at: 2026-09-06
+    verified_at: 2026-09-06
+    stale_after_days: 365
+    notes: Review findings for correctness, significance, and sufficient evidence; distinguish issue coverage from false accusations. Benchmark methodology reference only, not a high-star selection or a claim that CCFA ran this benchmark.
+  - id: openai-image-generation-guide
+    title: OpenAI Image Generation Guide
+    url: https://developers.openai.com/api/docs/guides/image-generation
+    source_type: background_method
+    used_by: [ccf-visual-composer, ccf-skill-forger]
+    recorded_at: 2026-09-06
+    verified_at: 2026-09-06
+    stale_after_days: 90
+    notes: Current generation/editing capabilities and limitations; respect host-exposed controls and do not claim guaranteed raster typography or geometry.
+  - id: openai-image-prompting-guide
+    title: OpenAI GPT Image Generation Models Prompting Guide
+    url: https://developers.openai.com/cookbook/examples/multimodal/image-gen-models-prompting-guide
+    source_type: background_method
+    used_by: [ccf-visual-composer, ccf-skill-forger]
+    recorded_at: 2026-09-06
+    verified_at: 2026-09-06
+    stale_after_days: 90
+    notes: Official guidance for explicit composition, reference roles, exact text, and iterative image edits. CCFA spacing tokens and palette choices are local design defaults.
+  - id: astradraw-visual-workflow
+    title: AstraDraw Reference-Guided Scientific Figure Workflow
+    url: https://github.com/IamJerryXu/AstraDraw
+    source_type: background_method
+    used_by: [ccf-visual-composer, ccf-skill-forger]
+    recorded_at: 2026-09-16
+    verified_at: 2026-09-16
+    stale_after_days: 180
+    notes: Inspected commit cc13467d3b5fe9404267e723327bf383664d96ab, art-direction/design-prior/selected-edit guidance, and conditional-flow, planar-ripple, and manifold previews. Informs coordinated presets, reference responsibilities, detail-view semantics, and protected edits. No upstream code or artwork is redistributed; cached images are inspection references, not new CCFA showcase assets.
+  - id: d2-grid-layout
+    title: D2 Grid Diagram Layout
+    url: https://d2lang.com/tour/grid-diagrams/
+    source_type: background_method
+    used_by: [ccf-visual-composer]
+    recorded_at: 2026-09-16
+    verified_at: 2026-09-16
+    stale_after_days: 180
+    notes: Reference for row/column grouping, explicit gaps, and content-aware cell bounds. Layout principles only; no runtime dependency or automatic routing guarantee.
+  - id: elk-layered-layout
+    title: Eclipse Layout Kernel Layered Layout
+    url: https://eclipse.dev/elk/reference/algorithms/org-eclipse-elk-layered.html
+    source_type: background_method
+    used_by: [ccf-visual-composer]
+    recorded_at: 2026-09-16
+    verified_at: 2026-09-16
+    stale_after_days: 180
+    notes: Reference for shared ports, edge routing, layered groups, and compaction. CCFA uses explicit geometry guidance without adding a layout-engine dependency.
+  - id: openreview-default-review-form
+    title: OpenReview Default Review Form
+    url: https://docs.openreview.net/reference/default-forms/default-review-form
+    source_type: background_method
+    used_by: [ccf-paper-reviewer, ccf-skill-forger]
+    recorded_at: 2026-09-16
+    verified_at: 2026-09-16
+    stale_after_days: 180
+    notes: Reference for explicit fields, order, types, and rating choices. A platform default form is not the official form of every conference; verified venue/year/track forms override the CCFA generic report.
+  - id: autoresearch-bounded-maintenance
+    title: Autoresearch Experiment Instructions
+    url: https://github.com/karpathy/autoresearch/blob/228791fb499afffb54b46200aca536f79142f117/program.md
+    source_type: background_method
+    used_by: [ccf-common, ccf-skill-forger, ccf-pipeline-orchestrator, ccf-experiment-designer]
+    recorded_at: 2026-10-15
+    verified_at: 2026-10-20
+    stale_after_days: 180
+    notes: Informs baseline-first execution, fixed evaluation, a limited edit surface, measured keep/discard decisions, and simpler candidates at comparable quality. Applied to explicitly requested research campaigns as well as optional maintenance comparisons. CCFA adds finite campaign limits and scoped file restoration; no indefinite daemon, GPU runtime, or repository-wide reset is imported. The retained source ID reflects its original maintenance use.
+  - id: gepa-reflective-candidates
+    title: GEPA Reflective Candidate Optimization
+    url: https://github.com/gepa-ai/gepa
+    source_type: background_method
+    used_by: [ccf-skill-forger]
+    recorded_at: 2026-10-15
+    verified_at: 2026-10-15
+    stale_after_days: 180
+    notes: Reference for deriving candidate changes from concrete execution feedback and evaluating quality alongside cost. No GEPA dependency, copied optimizer, or measured CCFA performance gain is implied.
+  - id: langgraph-recovery-replay
+    title: LangGraph Checkpoint Replay And Time Travel
+    url: https://docs.langchain.com/oss/python/langgraph/use-time-travel
+    source_type: background_method
+    used_by: [ccf-common, ccf-pipeline-orchestrator]
+    recorded_at: 2026-10-15
+    verified_at: 2026-10-15
+    stale_after_days: 180
+    notes: Reference for checkpoint-based continuation and replay boundaries. CCFA rechecks actual artifacts and prior side effects before resuming; its optional task record adds no LangGraph dependency or automatic durable-execution guarantee.
+  - id: inherited-goal-drift
+    title: Inherited Goal Drift
+    url: https://arxiv.org/abs/2603.03258
+    source_type: background_method
+    used_by: [ccf-common, ccf-skill-forger]
+    recorded_at: 2026-10-15
+    verified_at: 2026-10-15
+    stale_after_days: 365
+    notes: Research motivation for checking inherited histories against current intent and actual evidence. Findings from limited models and simulated environments do not diagnose hidden provider changes or establish CCFA recovery performance.
+  - id: coevolve-evidence-transfer
+    title: Collaborative Principle Evolution via Evidence Transfer for Scientific Discovery
+    url: https://arxiv.org/abs/2609.35315
+    source_type: background_method
+    used_by: [ccf-common, ccf-idea-optimizer, ccf-pipeline-orchestrator]
+    recorded_at: 2026-10-15
+    verified_at: 2026-10-20
+    stale_after_days: 365
+    notes: Preprint first submitted 2026-09-28. Informs preserving different branch hypotheses and sharing observations with their conditions. CCFA does not implement its posterior updates or claim its measured quality or speed gains.
+  - id: contextevo-decision-point-repair
+    title: Beyond Skill Evolution - Self-Evolving Context Management Policies for Long-Horizon Agent Harnesses
+    url: https://arxiv.org/abs/2609.34649
+    source_type: background_method
+    used_by: [ccf-common, ccf-skill-forger, ccf-pipeline-orchestrator]
+    recorded_at: 2026-10-15
+    verified_at: 2026-10-20
+    stale_after_days: 365
+    notes: Preprint first submitted 2026-09-28. Informs diagnosis of missing, stale, or contaminated context at the affected decision rather than repeatedly loading all history. Task-local recovery and maintenance replay use actual artifact references; no learned context policy, automatic harness training, hidden-model detection, or CCFA performance gain is established.
+  - id: saige-dependency-aware-collaboration
+    title: Rethinking Multi-Agent Collaboration - When More Is Less
+    url: https://arxiv.org/abs/2609.19759
+    source_type: background_method
+    used_by: [ccf-common, ccf-pipeline-orchestrator]
+    recorded_at: 2026-10-15
+    verified_at: 2026-10-15
+    stale_after_days: 365
+    notes: Preprint first submitted 2026-09-17, revised 2026-09-18. Informs delegation by task dependencies and selective sharing. Experimental agent counts are not universal limits, and parallel execution does not imply lower total token use.
+  - id: scroll-recoverable-context
+    title: Context as an Environment - Programmatic Context Management for Long-Horizon Agents
+    url: https://arxiv.org/abs/2608.21690
+    source_type: background_method
+    used_by: [ccf-common]
+    recorded_at: 2026-10-15
+    verified_at: 2026-10-20
+    stale_after_days: 365
+    notes: Preprint first submitted 2026-08-21. Informs compact working context with precise recoverable source addresses. CCFA reuses existing artifacts or host history; it does not bundle the persistent execution environment or claim equivalent memory performance.
+  - id: sage-layered-experiment-recovery
+    title: "One Reflection Is Not Enough: Self-Correcting Autonomous Research via Multi-Hypothesis Failure Attribution"
+    url: https://arxiv.org/abs/2606.31478
+    source_type: background_method
+    used_by: [ccf-pipeline-orchestrator, ccf-experiment-designer, ccf-idea-optimizer]
+    recorded_at: 2026-10-20
+    verified_at: 2026-10-20
+    stale_after_days: 365
+    notes: Preprint first submitted 2026-06-30. Informs attributing a failure to implementation, protocol, or hypothesis before changing the corresponding layer, with reported values bound to actual measurements. CCFA does not import arbitrary severity thresholds, alter raw values to fit a report, or claim the paper's benchmark gains.
+  - id: paragraph-argument-reconstruction
+    title: Research Paper Writing - Reverse Outline And Sentence Relations
+    url: https://github.com/Master-cai/Research-Paper-Writing-Skills/blob/main/research-paper-writing/SKILL.md
+    source_type: background_method
+    used_by: [ccf-paper-writer, ccf-humanization]
+    recorded_at: 2026-10-15
+    verified_at: 2026-10-15
+    stale_after_days: 180
+    notes: Informs reconstructing paragraph claims and support from the actual draft and checking adjacent-sentence relations. Independently expressed in the existing editing pass; no mandatory extra report or fixed argument template is imported.
+  - id: nature-paragraph-flow
+    title: Nature Skills Paragraph Flow
+    url: https://github.com/Yuan1z0825/nature-skills/blob/main/skills/nature-writing/references/paragraph-flow.md
+    source_type: background_method
+    used_by: [ccf-paper-writer]
+    recorded_at: 2026-10-15
+    verified_at: 2026-10-15
+    stale_after_days: 180
+    notes: Reference for paragraph-level reverse outlining and local connection repair. Related projects reuse some writing principles; repeated appearances are not independent validation of effectiveness.
+  - id: supervisor-proposition-level-polish
+    title: Supervisor Skills Paper Polish
+    url: https://github.com/HKUSTDial/Supervisor-Skills/blob/main/skills/paper-polish/SKILL.md
+    source_type: background_method
+    used_by: [ccf-paper-writer, ccf-humanization]
+    recorded_at: 2026-10-15
+    verified_at: 2026-10-15
+    stale_after_days: 180
+    notes: Informs recovering propositions before Chinese-to-English restructuring while preserving scientific meaning. Upstream skill is marked CC-BY-NC-SA-4.0; its text and code are not redistributed. CCFA independently states a scoped editing procedure and retains provenance here.
+  - id: lieflat-contextual-repairs
+    title: Lieflat Less AI Tone - Rules And Measurement Boundaries
+    url: https://github.com/larashero3-dotcom/lieflat-less-ai-tone
+    source_type: background_method
+    used_by: [ccf-humanization, ccf-paper-writer]
+    recorded_at: 2026-10-19
+    verified_at: 2026-10-19
+    stale_after_days: 180
+    notes: Informs locating a specific expression before editing and retaining meaningful language and author conventions. Chinese corpus rates are not universal scientific-writing thresholds. CCFA keeps authorized argument restructuring and uses contextual diagnostics; no upstream rule text or corpus is bundled.
+  - id: writing-dna-selective-exemplars
+    title: Writing DNA Skill - Reusable Writing Patterns
+    url: https://github.com/larashero3-dotcom/writing-dna-skill
+    source_type: background_method
+    used_by: [ccf-paper-to-exemplar, ccf-paper-writer]
+    recorded_at: 2026-10-19
+    verified_at: 2026-10-19
+    stale_after_days: 180
+    notes: Informs reusing selected structural and language patterns from authorized sources through existing exemplar cards. Explicitly selected language conventions take precedence over generic surface preferences while preserving evidence. No mandatory corpus collection, full-author imitation, or extra per-task analysis is introduced.
+  - id: defensive-writing-review-feedback
+    title: Defensive Writing in GPT Models
+    url: https://arxiv.org/abs/2610.11355v2
+    source_type: paper_or_proceeding
+    used_by: [ccf-humanization, ccf-paper-writer, ccf-paper-reviewer]
+    recorded_at: 2026-10-19
+    verified_at: 2026-10-19
+    stale_after_days: 365
+    notes: October 2026 preprint distinguishes justified claim corrections from redundant qualifications and studies review-feedback effects on 77 paragraphs from 20 computer-science papers. Its small human-reader study and limited model conditions motivate evidence-based revision checks, not claims of universal behavior or measured CCFA gains.
+  - id: complexheatmap-reference
+    title: ComplexHeatmap - A List Of Heatmaps
+    url: https://jokergoo.github.io/ComplexHeatmap-reference/book/a-list-of-heatmaps.html
+    source_type: background_method
+    used_by: [ccf-visual-composer]
+    recorded_at: 2026-10-19
+    verified_at: 2026-10-19
+    stale_after_days: 365
+    notes: Informs shared entity order, grouping, annotations and consistent mapping across comparable matrices. Reuse existing domain tools when suitable; the skill adds no mandatory R dependency.
+  - id: patchwork-layout
+    title: Patchwork - Controlling Layouts
+    url: https://patchwork.data-imaginist.com/articles/guides/layout.html
+    source_type: background_method
+    used_by: [ccf-visual-composer]
+    recorded_at: 2026-10-19
+    verified_at: 2026-10-19
+    stale_after_days: 365
+    notes: Informs alignment of data regions, shared semantic legends and axes, and preservation of fixed-aspect geometry. These principles extend existing composition guidance without imposing a new plotting runtime.
+  - id: scientific-inkscape
+    title: Scientific Inkscape - Figure Resizing And Exporting
+    url: https://github.com/burghoff/Scientific-Inkscape
+    source_type: background_method
+    used_by: [ccf-visual-composer]
+    recorded_at: 2026-10-19
+    verified_at: 2026-10-19
+    stale_after_days: 365
+    notes: Informs separating data-region resizing from physical text and stroke sizes, and updating exports from editable sources. The SVG helper supports minimum physical type size and optional point-based stroke widths while retaining legacy drawing units. The extension is optional when available; no external extension code is bundled.
+  - id: bioicons
+    title: Bioicons Scientific SVG Library
+    url: https://github.com/duerrsimon/bioicons
+    source_type: background_method
+    used_by: [ccf-visual-composer]
+    recorded_at: 2026-10-19
+    verified_at: 2026-10-19
+    stale_after_days: 365
+    notes: Reference for editable biology and chemistry objects selected by scientific meaning. Each selected asset retains its own author and license; the website code license does not license all icons. No asset collection is bundled.
+  - id: papervizagent
+    title: PaperVizAgent - PaperBanana Implementation
+    url: https://github.com/google-research/papervizagent
+    source_type: background_method
+    used_by: [ccf-visual-composer]
+    recorded_at: 2026-10-19
+    verified_at: 2026-10-19
+    stale_after_days: 180
+    notes: Informs separating scientific content checks from visual checks and directing a repair to a concrete region. CCFA reuses its existing optional review and figure-variant preferences rather than requiring fixed agents, repeated generation, or an upstream runtime.

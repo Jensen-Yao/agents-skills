@@ -1,0 +1,53 @@
+\documentclass[10pt]{article}
+\usepackage[margin=0.75in]{geometry}
+\usepackage{xcolor}
+\usepackage{enumitem}
+\setlist{leftmargin=*, itemsep=2pt, topsep=2pt}
+\pagenumbering{gobble}
+
+\definecolor{revone}{HTML}{1F77B4}
+\definecolor{revtwo}{HTML}{D62728}
+\definecolor{revthree}{HTML}{2CA02C}
+\definecolor{revfour}{HTML}{9467BD}
+
+\newcommand{\rlabel}[2]{\textbf{\textcolor{#1}{#2}}}
+\newcommand{\quotedconcern}[3]{\par\noindent\textcolor{#1}{\textbf{#2 wrote:}} \emph{``#3''}\par}
+\newcommand{\directanswer}[1]{\par\noindent\textbf{Direct answer:} #1\par}
+\newcommand{\evidence}[1]{\par\noindent\textbf{Evidence:} #1\par}
+\newcommand{\change}[1]{\par\noindent\textbf{Clarification/change:} #1\par}
+
+\begin{document}
+
+\section*{Response Overview}
+
+We thank the reviewers for their careful comments and for recognizing \textbf{[positive signal]}. We first summarize the main clarification: \textbf{[paper-level direct answer]}. We then respond to each reviewer with concise quotes, direct answers, and evidence.
+
+\section*{\rlabel{revone}{Reviewer 1}}
+
+\quotedconcern{revone}{R1}{[Core concern].}
+\directanswer{[Direct answer.]}
+\evidence{[Paper location, result, table, figure, appendix, or completed analysis.]}
+\change{[Specific clarification or manuscript edit.]}
+
+\section*{\rlabel{revtwo}{Reviewer 2}}
+
+\quotedconcern{revtwo}{R2}{[Core concern].}
+\directanswer{[Direct answer.]}
+\evidence{[Paper location, result, table, figure, appendix, or completed analysis.]}
+\change{[Specific clarification or manuscript edit.]}
+
+\section*{\rlabel{revthree}{Reviewer 3}}
+
+\quotedconcern{revthree}{R3}{[Core concern].}
+\directanswer{[Direct answer.]}
+\evidence{[Paper location, result, table, figure, appendix, or completed analysis.]}
+\change{[Specific clarification or manuscript edit.]}
+
+\section*{\rlabel{revfour}{Reviewer 4}}
+
+\quotedconcern{revfour}{R4}{[Core concern].}
+\directanswer{[Direct answer.]}
+\evidence{[Paper location, result, table, figure, appendix, or completed analysis.]}
+\change{[Specific clarification or manuscript edit.]}
+
+\end{document}

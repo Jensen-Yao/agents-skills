@@ -1,0 +1,375 @@
+#!/usr/bin/env python3
+"""Locate defensive and mechanical prose for context-aware humanization.
+
+The checker is deliberately non-mutating. It reads one file or stdin and emits
+text or JSON, allowing callers to keep the result ephemeral.
+"""
+
+from __future__ import annotations
+
+import argparse
+import json
+import re
+import sys
+from pathlib import Path
+
+
+OPENING_FILLER = [
+    r"\bin the realm of\b",
+    r"\bit is important to note that\b",
+    r"\bit should be (?:noted|emphasized) that\b",
+    r"\bit is worth (?:noting|mentioning) that\b",
+    r"\bwe would like to (?:note|emphasize|highlight) that\b",
+    r"\bin today'?s rapidly evolving\b",
+    r"\bthis serves as a testament to\b",
+    r"\bit goes without saying that\b",
+    r"\bin order to\b",
+    r"\bas a matter of fact\b",
+    r"\bwhen it comes to\b",
+    r"\bat the end of the day\b",
+    r"\bwith that being said\b",
+    r"\bthis section will discuss\b",
+    r"\bthe following paragraph examines\b",
+    r"\bwe now turn our attention to\b",
+]
+PRECISION_TERMS = (
+    "delve",
+    "tapestry",
+    "landscape",
+    "pivotal",
+    "crucial",
+    "foster",
+    "showcase",
+    "testament",
+    "navigate",
+    "leverage",
+    "realm",
+    "embark",
+    "underscore",
+    "multifaceted",
+    "nuanced",
+    "comprehensive",
+    "robust",
+    "intricate",
+    "cornerstone",
+    "paradigm",
+    "synergy",
+    "holistic",
+    "streamline",
+    "cutting-edge",
+    "groundbreaking",
+)
+FORMULAIC_PATTERNS = {
+    "not_only_but_also": r"\bnot only\b.{0,140}\bbut also\b",
+    "first_second_third": r"\bfirst(?:ly)?\b.{0,300}\bsecond(?:ly)?\b.{0,300}\bthird(?:ly)?\b",
+    "three_labels": r"(?:^|\n)\s*(?:1[.)]|first[:,]).*(?:\n|.){0,500}(?:2[.)]|second[:,]).*(?:\n|.){0,500}(?:3[.)]|third[:,])",
+}
+DEFENSIVE_PATTERNS = {
+    "imagined_reviewer": r"\b(?:to\s+)?(?:address|avoid|preempt|pre-empt|anticipate)\s+(?:any\s+|potential\s+|possible\s+)?reviewer(?:s['’]?)?\s+(?:concerns?|criticism|objections?|questions?)\b|(?:为(?:了)?避免|为回应|为打消|考虑到)审稿人[^。！？\n]{0,24}(?:质疑|担忧|顾虑)",
+    "apologetic_framing": r"\bwe\s+(?:merely|only)\s+(?:offer|propose|provide)\b|\b(?:merely|just)\s+(?:a\s+)?(?:simple|incremental|minor)\s+(?:extension|improvement|modification)\b|(?:尽管|虽然)[^。！？\n]{0,30}(?:只是|仅仅是)(?:一个)?(?:简单|微小|增量)",
+    "denial_led_scope": r"\bwe\s+(?:do not|don't)\s+(?:claim|intend|aim|seek)\s+to\b|\bwe\s+make\s+no\s+claims?\s+(?:about|of|regarding)\b|\b(?:our|the)\s+(?:goal|aim|intention)\s+is\s+not\s+to\b|我们(?:并不|并非|不)(?:试图|旨在|声称)",
+    "generic_disclaimer": r"\b(?:not\s+without\s+(?:its\s+)?limitations|as\s+with\s+any\s+(?:method|model|approach)|cannot\s+guarantee\s+(?:universal|general|all)|do\s+not\s+guarantee\s+universal)\b|(?:并非没有局限|任何方法都有局限|不能保证[^。！？\n]{0,25}(?:所有|任何|普遍)|不保证[^。！？\n]{0,25}(?:所有|普遍))",
+    "empty_assurance": r"\b(?:to\s+ensure|we\s+(?:carefully\s+)?ensure)\s+(?:the\s+|a\s+)?(?:fair(?:ness)?\s+and\s+rigor(?:ous)?|rigor(?:ous)?\s+and\s+fair(?:ness)?)\b|\bto\s+avoid\s+(?:any\s+|possible\s+)?misunderstanding\b|(?:为确保|为了保证)(?:论文|研究|实验|评估)的?(?:严谨性|科学性)|为避免(?:可能的)?误解",
+    "stacked_hedging": r"\b(?:may|might|could)\s+(?:potentially|possibly|perhaps)\b|\b(?:seems?|appears?)\s+to\s+(?:potentially|possibly)\b|(?:或许可能|可能潜在地|似乎可能表明)",
+    "engineering_status": r"\b(?:confirmed\s+(?:full\s+)?(?:version|method|configuration|baseline)|approved\s+configuration|publication-ready\s+(?:method|version|configuration))\b|(?:经过确认的完整版本|已批准的配置|通过内部(?:门禁|检查)的(?:方法|版本))",
+}
+
+
+def _read_text(path: str | None) -> str:
+    if path:
+        return Path(path).read_text(encoding="utf-8-sig")
+    if hasattr(sys.stdin, "buffer"):
+        return sys.stdin.buffer.read().decode("utf-8-sig")
+    return sys.stdin.read().removeprefix("\ufeff")
+
+
+def _prose_only(text: str) -> str:
+    # Preserve offsets and newlines so every diagnostic points into the source.
+    # Protect code, equations, comments and direct quotations. Table cells can
+    # contain authored prose; mask separators, not their scientific explanation.
+    # This is a heuristic filter, not a complete Markdown or TeX parser.
+    patterns = (
+        r"```.*?```|~~~.*?~~~",
+        r"`[^`\n]+`",
+        r"\\begin\{(?P<env>verbatim|lstlisting|minted|equation\*?|align\*?|quote|quotation)\}.*?\\end\{(?P=env)\}",
+        r"(?<!\\)\$\$.*?(?<!\\)\$\$|(?<!\\)\$[^$\n]*(?<!\\)\$",
+        r"\\\[.*?\\\]|\\\(.*?\\\)",
+        r"\\(?:cite[pt]?|Cite[pt]?|autocite|parencite|textcite)\*?(?:\[[^\]\n]*\])*\{[^{}\n]*\}",
+        r"\[(?:[^\]\n]*@[^\]\n]*)\]",
+        r"(?m)(?<![\\\d])%[^\n]*",
+        r"(?m)^[ \t]*\|?[ \t]*:?-{3,}:?[ \t]*(?:\|[ \t]*:?-{3,}:?[ \t]*)+\|?[ \t]*$",
+        r"<[^>]+>",
+        r"(?m)^[ \t]*(?:---+|___+|\*\*\*+)[ \t]*$",
+        r"(?m)^[ \t]*>[^\n]*$",
+        r'“[^”]*”|"[^"\n]*"|‘[^’]*’',
+    )
+    for pattern in patterns:
+        text = re.sub(pattern, lambda m: re.sub(r"[^\n]", " ", m.group(0)), text, flags=re.S)
+    text = text.replace("|", " ")
+    return text
+
+
+def _words(text: str) -> list[str]:
+    return re.findall(r"[A-Za-z]+(?:[-'][A-Za-z]+)*|[\u4e00-\u9fff]", text)
+
+
+def _sentences(text: str) -> list[str]:
+    return [s.strip() for s in re.split(r"(?<=[.!?])\s+|(?<=[。！？])\s*", text) if len(_words(s)) >= 3]
+
+
+def _line_number(text: str, position: int) -> int:
+    return text.count("\n", 0, position) + 1
+
+
+def _location(text: str, match: re.Match, offset: int = 0) -> dict:
+    position = offset + match.start()
+    return {
+        "line": _line_number(text, position),
+        "column": position - text.rfind("\n", 0, position),
+        "text": match.group(0),
+    }
+
+
+def _punctuation_signals(prose: str) -> list[dict]:
+    # Local signals work for English and Chinese without treating Chinese
+    # characters as English words. Sparse valid comparisons remain unflagged.
+    issues: list[dict] = []
+    clusters = []
+    english_words = 0
+    english_semicolons = []
+    contrast = r"\brather\s+than\b|比起|相比(?:于)?|相较(?:于)?|而不是|而非|(?:并非|不是)[^。！？;\n；]{1,100}?而是"
+    for paragraph in re.finditer(r"[^\r\n]+(?:\r?\n(?![ \t]*\r?\n)[^\r\n]+)*", prose):
+        body = paragraph.group(0)
+        semicolons = list(re.finditer(r"[;；]", body))
+        locations = [_location(prose, match, paragraph.start()) for match in semicolons]
+        if len(semicolons) >= 3:
+            clusters.extend(locations)
+        words = _words(body)
+        english_count = sum(word[0].isascii() for word in words)
+        if words and english_count / len(words) >= 0.9:
+            english_words += english_count
+            english_semicolons.extend(locations)
+        matches = list(re.finditer(contrast, body, flags=re.I))
+        if len(matches) >= 3:
+            positions = [_location(prose, match, paragraph.start()) for match in matches]
+            issues.append({
+                "code": "repeated_contrast",
+                "severity": "advisory",
+                "line": positions[0]["line"],
+                "count": len(matches),
+                "locations": positions,
+                "message": "Review repeated contrast framing in this paragraph; retain real technical alternatives and repair sentence relations before varying wording.",
+            })
+
+    # Retain the existing density diagnostic, but apply its English-word rate
+    # only to a sufficiently large English sample. One semicolon in a short
+    # passage is not evidence of overuse. Emit one punctuation issue, not both
+    # a document-rate issue and duplicate paragraph issues.
+    rate = len(english_semicolons) * 1000 / english_words if english_words else 0.0
+    if english_words >= 500 and rate > 2:
+        issues.append({
+            "code": "semicolon_density",
+            "severity": "advisory",
+            "line": english_semicolons[0]["line"],
+            "count": len(english_semicolons),
+            "per_1000_words": round(rate, 2),
+            "locations": english_semicolons,
+            "local_clusters": clusters,
+            "message": "Review semicolon density above two per 1,000 English prose words in a sample of at least 500 words; retain punctuation that expresses useful relations.",
+        })
+    elif clusters:
+        issues.append({
+            "code": "semicolon_cluster",
+            "severity": "advisory",
+            "line": clusters[0]["line"],
+            "count": len(clusters),
+            "locations": clusters,
+            "message": "Review paragraphs with three or more semicolons; check whether each clause develops the paragraph's argument and retain justified parallel structure.",
+        })
+    return issues
+
+
+def _expression_signals(prose: str) -> list[dict]:
+    """Locate candidates, without deciding scientific necessity from words."""
+    issues: list[dict] = []
+    labels = r"可(?:验证|检验|实现|解释|复现|操作)|\b(?:verifiable|testable|implementable|actionable|interpretable)\b"
+    for sentence in re.finditer(r"[^。！？.!?\n]+", prose):
+        matches = list(re.finditer(labels, sentence.group(0), flags=re.I))
+        if len(matches) >= 2:
+            positions = [_location(prose, match, sentence.start()) for match in matches]
+            issues.append({
+                "code": "capability_label_cluster",
+                "severity": "advisory",
+                "line": positions[0]["line"],
+                "count": len(matches),
+                "locations": positions,
+                "message": "Check whether these labels name supported technical properties or replace the actual operation and relationship. Keep useful properties; explain empty labels through the supplied mechanism.",
+            })
+    for match in re.finditer(r"(?:为(?:了)?(?:保险|稳妥|严谨)起见|为求稳妥|以免审稿人[^。！？\n]{0,16}(?:质疑|批评))", prose):
+        issues.append({
+            "code": "decision_justification",
+            "severity": "advisory",
+            **_location(prose, match),
+            "message": "Identify the factual constraint or scientific question behind a narrower goal or additional test; caution alone does not establish necessity. Retain actions justified by the actual task.",
+        })
+    return issues
+
+
+def inspect(text: str, scope: str, *, em_dash_limit: int | str | None = None) -> dict:
+    prose = _prose_only(text)
+    issues: list[dict] = []
+    word_count = len(_words(prose))
+    em_dash_count = prose.count("—") + len(re.findall(r"(?<!-)---(?!-)", prose))
+    if em_dash_limit is None:
+        limit = 3 if scope == "paper" else 0
+    elif em_dash_limit == "off":
+        limit = None
+    elif type(em_dash_limit) is int and em_dash_limit >= 0:
+        limit = em_dash_limit
+    else:
+        raise ValueError("em_dash_limit must be a nonnegative integer, 'off', or None for the scope default")
+    if limit is not None and em_dash_count > limit:
+        issues.append({
+            "code": "em_dash_limit",
+            "severity": "error",
+            "count": em_dash_count,
+            "limit": limit,
+            "message": f"Authored prose contains {em_dash_count} em dashes; {scope} limit is {limit}.",
+        })
+
+    for pattern in [*OPENING_FILLER, r"需要(?:强调|指出|说明)的是|值得(?:注意|强调|一提)的是"]:
+        for match in re.finditer(pattern, prose, flags=re.I):
+            issues.append({
+                "code": "opening_filler",
+                "severity": "warning",
+                "line": _line_number(prose, match.start()),
+                "text": match.group(0),
+                "message": "Delete the throat-clearing opener if the following clause stands directly.",
+            })
+
+    for category, pattern in DEFENSIVE_PATTERNS.items():
+        for match in re.finditer(pattern, prose, flags=re.I):
+            issues.append({
+                "code": "defensive_framing",
+                "severity": "warning",
+                "pattern": category,
+                "line": _line_number(prose, match.start()),
+                "text": match.group(0),
+                "message": "State the supported scientific payload directly or delete empty self-defense; preserve material facts, meaningful uncertainty, and required disclosures.",
+            })
+
+    lower = prose.lower()
+    flagged_terms = {term: len(re.findall(rf"\b{re.escape(term)}\b", lower)) for term in PRECISION_TERMS}
+    flagged_terms = {term: count for term, count in flagged_terms.items() if count}
+    if flagged_terms:
+        issues.append({
+            "code": "precision_terms",
+            "severity": "advisory",
+            "terms": flagged_terms,
+            "message": "Verify that each promotional or vague term is earned by evidence and scope.",
+        })
+
+    for name, pattern in FORMULAIC_PATTERNS.items():
+        matches = list(re.finditer(pattern, prose, flags=re.I | re.S | re.M))
+        if matches:
+            issues.append({
+                "code": "formulaic_structure",
+                "severity": "warning",
+                "pattern": name,
+                "count": len(matches),
+                "message": "Check whether the enumeration or contrast follows the argument rather than a fixed template.",
+            })
+
+    sentences = _sentences(prose)
+    lengths = [len(_words(sentence)) for sentence in sentences]
+    narrow_runs = []
+    for start in range(max(0, len(lengths) - 4)):
+        window = lengths[start : start + 5]
+        if len(window) == 5 and max(window) - min(window) <= 5:
+            narrow_runs.append({"sentences": [start + 1, start + 5], "word_counts": window})
+    if narrow_runs:
+        issues.append({
+            "code": "uniform_sentence_run",
+            "severity": "warning",
+            "runs": narrow_runs,
+            "message": "Review five-sentence runs with nearly identical length for repeated syntax.",
+        })
+
+    paragraphs = [p.strip() for p in re.split(r"\n\s*\n", prose) if len(_words(p)) >= 20]
+    paragraph_lengths = [len(_words(p)) for p in paragraphs]
+    if len(paragraph_lengths) >= 3:
+        mean = sum(paragraph_lengths) / len(paragraph_lengths)
+        if mean and max(abs(length - mean) / mean for length in paragraph_lengths) <= 0.15:
+            issues.append({
+                "code": "uniform_paragraphs",
+                "severity": "advisory",
+                "word_counts": paragraph_lengths,
+                "message": "Review unusually uniform paragraph lengths; retain them when the genre requires regularity.",
+            })
+
+    issues.extend(_punctuation_signals(prose))
+    issues.extend(_expression_signals(prose))
+
+    return {
+        "scope": scope,
+        "word_count": word_count,
+        "em_dash_count": em_dash_count,
+        "em_dash_limit": limit,
+        "issue_count": len(issues),
+        "issues": issues,
+    }
+
+
+def _render_text(result: dict) -> str:
+    status = "PASS" if not result["issues"] else "REVIEW"
+    limit_label = "off" if result["em_dash_limit"] is None else result["em_dash_limit"]
+    lines = [
+        f"{status}: {result['word_count']} words; em dashes {result['em_dash_count']}/{limit_label}; {result['issue_count']} issue(s)."
+    ]
+    for issue in result["issues"]:
+        location = f" line {issue['line']}" if "line" in issue else ""
+        excerpt = f" [{issue['text']}]" if "text" in issue else ""
+        pattern = f"/{issue['pattern']}" if "pattern" in issue else ""
+        lines.append(f"- {issue['severity'].upper()} {issue['code']}{pattern}{location}{excerpt}: {issue['message']}")
+    return "\n".join(lines)
+
+
+def _parse_em_dash_limit(value: str) -> int | str:
+    if value == "off":
+        return value
+    try:
+        count = int(value)
+    except ValueError as exc:
+        raise argparse.ArgumentTypeError("Use a nonnegative integer or 'off'") from exc
+    if count < 0:
+        raise argparse.ArgumentTypeError("Use a nonnegative integer or 'off'")
+    return count
+
+
+def main() -> int:
+    # Standalone reports and redirected diagnostics use UTF-8 on every platform.
+    for stream in (sys.stdout, sys.stderr):
+        if hasattr(stream, "reconfigure"):
+            stream.reconfigure(encoding="utf-8", errors="strict")
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("path", nargs="?", help="UTF-8 manuscript path; omit to read stdin")
+    parser.add_argument("--scope", choices=("paper", "section", "paragraph"), default="paper")
+    parser.add_argument("--format", choices=("text", "json"), default="text")
+    parser.add_argument("--em-dash-limit", type=_parse_em_dash_limit, metavar="N|off", help="Apply an explicitly selected punctuation convention; default keeps the scope-based limit")
+    parser.add_argument("--strict", action="store_true", help="Return 1 for error/warning candidates; matches still require contextual judgment")
+    args = parser.parse_args()
+
+    try:
+        result = inspect(_read_text(args.path), args.scope, em_dash_limit=args.em_dash_limit)
+    except (OSError, UnicodeError) as exc:
+        parser.error(f"Cannot read UTF-8 input: {exc}")
+    if args.format == "json":
+        print(json.dumps(result, ensure_ascii=False, indent=2))
+    else:
+        print(_render_text(result))
+    blocking = any(issue["severity"] in {"error", "warning"} for issue in result["issues"])
+    return 1 if args.strict and blocking else 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

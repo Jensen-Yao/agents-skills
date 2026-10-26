@@ -1,0 +1,77 @@
+---
+name: ccf-skill-forger
+description: "Maintain and audit Codex/CCFA skills, triggers, references, scripts, docs/SVG diagrams, installation dependencies, and release validation. Use for skill维护, GPT model adaptation, and family routing cleanup. Do not perform research writing or review."
+metadata:
+  ccf_skill_controls:
+    handoff_question_mode: partial
+    respect_session_denylists: true
+    protect_idea_scope_in_writing: true
+    private_material_safety: moderate
+    shared_controls: ../ccf-common/references/
+---
+
+# CCF Skill Forger
+
+## Family File Contract
+
+Before file work, reuse canonical paths and one task/artifact working directory; default to project-root `ccfa-workfiles/<purpose>/<artifact-id>/`. Update in place, preserve inputs, and use UTF-8 with Chinese-text checks. Apply [artifact-contracts.md](../ccf-common/references/artifact-contracts.md) for naming, ownership, and task-created cleanup; handoffs inherit these paths.
+
+## Collaboration Contract
+
+Before specialist execution, read and apply [ccf-humanization](../ccf-humanization/SKILL.md) first, then [ccf-common](../ccf-common/SKILL.md). At every handoff, reuse their applicable active rules or refresh missing/changed ones. Both preflights are required even without prose; detailed editing, experiment, and maintenance modes run only when relevant.
+
+Integrate necessary specialist contributions under one owner; reuse valid prerequisites and verify affected results. Follow the [cooperation routes](../ccf-common/references/routing.md) without duplicate reports.
+
+## Invocation Controls
+
+**CCFA Handoff Mode: PARTIAL (Recommended).** Follow `metadata.ccf_skill_controls.handoff_question_mode` and `../ccf-common/references/handoff-modes.md` when maintaining the CCFA skill family.
+
+When maintaining the CCFA skill family, preserve `metadata.ccf_skill_controls` in each `SKILL.md`. Do not add sibling-skill transitions without checking `../ccf-common/references/routing.md`, `../ccf-common/references/task-modes.md`, `../ccf-common/references/handoff-modes.md`, and the denylist-respecting fallback.
+
+If the user disables a skill or asks for writing-only behavior, encode that boundary directly in the edited skill instructions. Do not weaken idea-scope protection in writing skills unless the user explicitly requests that policy change.
+
+When adding sources, update `../ccf-common/references/source-registry.yaml` instead of duplicating URL lists in sibling skills. When adding browsing or evidence rules, keep them aligned with `../ccf-common/references/privacy-and-evidence.md`.
+
+Never commit machine-specific absolute paths, usernames, expanded home directories, or private local directory names into skills, README files, source registries, diagrams, examples, scripts, or command snippets. Use `$CODEX_HOME`, `$HOME`, repo-relative paths, or placeholders that do not identify the user or machine.
+
+## Core Rule
+
+Build skills as compact operational guidance for another Codex session. Keep `SKILL.md` focused on trigger-relevant workflow, decisions, and resource navigation. Put detailed examples, checklists, schemas, policy text, or long instructions in `references/` and load them only when needed. This skill also owns CCFA documentation SVG diagrams; do not create a separate runtime drawing skill for repository architecture or workflow diagrams.
+
+## Workflow
+
+1. Clarify the goal with concrete examples. If the user's intent is clear, proceed with reasonable assumptions. Ask only for missing information that changes the skill's scope, location, or required assets.
+2. Choose a skill name and destination. Use lowercase letters, digits, and hyphens only; keep names under 64 characters; check for conflicts in the target skills directory. Default to `$CODEX_HOME/skills`; if unset, use `~/.codex/skills`.
+3. Decide the resource shape:
+   - Use only `SKILL.md` for short, stable procedural guidance.
+   - Add `references/` for detailed documentation that Codex should read selectively.
+   - Add `scripts/` only for repeatable deterministic operations or fragile command sequences.
+   - Add `assets/` only for templates, images, boilerplate, or other files used in final outputs.
+4. Initialize the skill when creating from scratch. Prefer the local `skill-creator` initializer if available:
+
+```powershell
+python '<skill-creator-dir>/scripts/init_skill.py' <skill-name> --path '<skills-dir>' --resources references,scripts
+```
+
+5. Write `SKILL.md` before filling optional resources. Put all "when to use" trigger wording in the YAML `description`; the body is loaded only after trigger selection. Apply the functional-naming rule in shared task modes to method introductions and report titles while preserving source records and narrative content. Use imperative instructions and avoid user-facing tutorial prose.
+6. Add resources that directly support the skill. Remove placeholder files and unused directories. Test any script by running it on a small representative example.
+7. Validate changed behavior and structure using the existing family checks. Compare SKILL.md, agent prompts, registry, shared rules, and docs for conflicts. Check real YAML metadata, syntax of existing scripts, resource dependencies, and representative task boundaries; distinguish static checks from actual model evaluation. Preserve public paths and command compatibility. Do not add new files, dependencies, or evaluations when the user limits work to existing surfaces.
+8. Run `ccf-common/scripts/check_path_privacy.py` before finishing CCFA-family maintenance. Replace any committed local absolute path or username with `$CODEX_HOME`, `$HOME`, a repo-relative path, or a non-identifying placeholder.
+9. For CCFA documentation diagrams, work in the CCFA repository checkout and update its `tools/build_ccfa_diagrams.py`, regenerate all language variants, and screenshot-check rendered SVG output. Use `references/svg-style-guide.md`; do not hand-edit generated SVGs unless the same change is backported to the generator.
+
+For model adaptation, use current official guidance and store its provenance in the existing source registry. Remove conflicting or redundant instructions before adding new ones. Keep model settings and API-only capabilities in the host; do not hard-code a model in every skill or claim gains without representative comparisons.
+
+For optional rule evolution during authorized maintenance, apply `maintenance_evolution` from Common's preferences and the bounded candidate procedure in `references/design-checklist.md`. Required fixes and their checks remain active with it off. Compare at most one extra candidate under fixed acceptance, preserve a usable baseline, and keep changes within task-owned files; research tasks do not trigger skill self-editing.
+
+## Reference Files
+
+Load these files only when the task calls for them:
+
+- `references/design-checklist.md`: Use when planning a new skill, reviewing structure, or deciding whether content belongs in `SKILL.md`, `references/`, `scripts/`, or `assets/`.
+- `references/patterns.md`: Use when drafting a concrete `SKILL.md` shape, frontmatter description, or example-driven workflow.
+- `references/local-commands.md`: Use when scaffolding or validating skills on this machine, especially in PowerShell or Windows paths.
+- `references/svg-style-guide.md`: Use when maintaining CCFA architecture, workflow, routing, installation, artifact, catalog, or demo SVG diagrams.
+
+## Output Style
+
+Use an already approved scheme without another confirmation. For an explicit plan-only request, stop after the reviewable proposal; for authorized maintenance, implement it in the requested existing files. After creation, report the skill name, location, key files, and validation result. If validation cannot run because a local dependency is missing, say exactly what failed and perform the manual checks from `references/design-checklist.md`.

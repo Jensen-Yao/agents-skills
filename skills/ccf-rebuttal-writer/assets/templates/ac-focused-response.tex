@@ -1,0 +1,54 @@
+\documentclass[10pt]{article}
+\usepackage[margin=0.75in]{geometry}
+\usepackage{xcolor}
+\usepackage{enumitem}
+\setlist{leftmargin=*, itemsep=2pt, topsep=2pt}
+\pagenumbering{gobble}
+
+\definecolor{accolor}{HTML}{111111}
+\definecolor{revone}{HTML}{1F77B4}
+\definecolor{revtwo}{HTML}{D62728}
+\definecolor{revthree}{HTML}{2CA02C}
+
+\newcommand{\rlabel}[2]{\textbf{\textcolor{#1}{#2}}}
+\newcommand{\quotedconcern}[3]{\par\noindent\textcolor{#1}{\textbf{#2 wrote:}} \emph{``#3''}\par}
+\newcommand{\directanswer}[1]{\par\noindent\textbf{Direct answer:} #1\par}
+\newcommand{\evidence}[1]{\par\noindent\textbf{Evidence:} #1\par}
+\newcommand{\change}[1]{\par\noindent\textbf{Clarification/change:} #1\par}
+\newcommand{\limitation}[1]{\par\noindent\textbf{Transparent limitation:} #1\par}
+
+\begin{document}
+
+\section*{General Response}
+
+We thank the AC and reviewers for the constructive discussion and for recognizing \textbf{[positive signal]}. The central point we want to clarify is \textbf{[one decisive paper-level answer]}. This directly addresses the main discussion axis: \textbf{[soundness/novelty/evidence/completeness/fit]}.
+
+\section*{Common Concerns}
+
+\paragraph{AC concern: [decision axis].}
+\quotedconcern{accolor}{AC}{[Core AC or meta-review concern].}
+\directanswer{\textbf{[Direct answer to the decisive issue].}}
+\evidence{[Paper location, table, figure, line, appendix, or completed result].}
+\change{[Exact clarification or revision that will make the answer visible].}
+
+\paragraph{Shared reviewer concern: [underlying issue].}
+\quotedconcern{revone}{R1}{[Core concern].}
+\quotedconcern{revtwo}{R2}{[Related core concern].}
+\directanswer{Both comments concern [deeper intent]. We address it by [direct answer].}
+\evidence{[Data/result/location].}
+
+\section*{Reviewer-Specific Clarifications}
+
+\paragraph{\rlabel{revone}{R1}.}
+\directanswer{[Short clarification not already covered above.]}
+\evidence{[Location or result.]}
+
+\paragraph{\rlabel{revtwo}{R2}.}
+\directanswer{[Short clarification not already covered above.]}
+\evidence{[Location or result.]}
+
+\paragraph{\rlabel{revthree}{R3}.}
+\directanswer{[Short clarification not already covered above.]}
+\limitation{[Use only for a real bounded limitation.]}
+
+\end{document}

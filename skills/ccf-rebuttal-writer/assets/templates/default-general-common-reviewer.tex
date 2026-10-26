@@ -1,0 +1,78 @@
+\documentclass[10pt]{article}
+\usepackage[margin=0.75in]{geometry}
+\usepackage{xcolor}
+\usepackage{enumitem}
+\usepackage{hyperref}
+\setlist{leftmargin=*, itemsep=2pt, topsep=2pt}
+\pagenumbering{gobble}
+
+\definecolor{revone}{HTML}{1F77B4}
+\definecolor{revtwo}{HTML}{D62728}
+\definecolor{revthree}{HTML}{2CA02C}
+\definecolor{revfour}{HTML}{9467BD}
+
+\newcommand{\reviewer}[1]{\textbf{\textcolor{#1}{Reviewer}}}
+\newcommand{\rlabel}[2]{\textbf{\textcolor{#1}{#2}}}
+\newcommand{\reviewerquote}[3]{\par\noindent\textcolor{#1}{\textbf{#2 wrote:}} \emph{``#3''}\par}
+\newcommand{\quotedconcern}[3]{\par\noindent\textcolor{#1}{\textbf{#2 wrote:}} \emph{``#3''}\par}
+\newcommand{\directanswer}[1]{\par\noindent\textbf{Direct answer:} #1\par}
+\newcommand{\evidence}[1]{\par\noindent\textbf{Evidence:} #1\par}
+\newcommand{\change}[1]{\par\noindent\textbf{Clarification/change:} #1\par}
+\newcommand{\limitation}[1]{\par\noindent\textbf{Transparent limitation:} #1\par}
+
+\begin{document}
+
+\section*{General Response}
+
+We thank the reviewers and AC for the constructive feedback. We appreciate that the reviews recognized \textbf{[positive signal: e.g., the importance of the problem, novelty of the formulation, strength of the evaluation, or clarity of the method]}. Our central contribution is \textbf{[one-sentence contribution]}, evaluated under \textbf{[self-contained setting: datasets, metrics, task, or assumptions]}.
+
+\directanswer{The main concerns are about \textbf{[shared concern 1]}, \textbf{[shared concern 2]}, and \textbf{[shared concern 3]}. Below we first address the concerns that most affect the paper-level decision, then provide reviewer-specific clarifications.}
+
+\section*{Common Concerns}
+
+\paragraph{C1. Evaluation completeness and dataset coverage.}
+\quotedconcern{revtwo}{R2}{Why was [dataset/baseline/setting] not evaluated?}
+\quotedconcern{revthree}{R3}{The evaluation may be incomplete without [related check].}
+\directanswer{This concern is about evaluation completeness. We address it directly: \textbf{[direct answer with completed result or reason]}.}
+\evidence{In the paper, [Section/Table/Figure/Appendix/Line] reports [result]. We additionally find [newly completed analysis/result, if available], which supports [claim].}
+\change{We will make this clearer by adding [specific sentence/table pointer/figure note] and by explicitly stating that [scoped conclusion].}
+
+\paragraph{C2. Novelty and relation to prior work.}
+\quotedconcern{revone}{R1}{The method appears close to [prior work].}
+\directanswer{\textbf{The key difference is [mechanism/formulation/evidence/scope]}, not merely [surface similarity].}
+\evidence{[Prior work] assumes [assumption], while our method addresses [different assumption/challenge]. This is reflected in [paper location] and supported by [result/analysis].}
+\change{We will revise [Related Work/Introduction] to foreground this distinction and avoid ambiguity.}
+
+\paragraph{C3. Reproducibility, mechanism, or implementation details.}
+\quotedconcern{revfour}{R4}{Important implementation details are unclear.}
+\directanswer{We agree this can be clearer. The missing details are [self-contained details].}
+\evidence{The implementation uses [key setting], [metric], and [protocol]. These details are currently in [paper location] and will be consolidated in [section/appendix].}
+\change{We will add a concise reproducibility paragraph with [hyperparameters/splits/code availability/protocol].}
+
+\section*{Reviewer-Specific Clarifications}
+
+\paragraph{\rlabel{revone}{R1}.}
+\quotedconcern{revone}{R1}{[Concise quoted concern from R1].}
+\directanswer{[Direct answer first.]}
+\evidence{[Data, paper location, or completed analysis.]}
+\change{[Exact change or clarification.]}
+
+\paragraph{\rlabel{revtwo}{R2}.}
+\quotedconcern{revtwo}{R2}{[Concise quoted concern from R2].}
+\directanswer{[Direct answer first.]}
+\evidence{[Data, paper location, or completed analysis.]}
+\change{[Exact change or clarification.]}
+
+\paragraph{\rlabel{revthree}{R3}.}
+\quotedconcern{revthree}{R3}{[Concise quoted concern from R3].}
+\directanswer{[Direct answer first.]}
+\evidence{[Data, paper location, or completed analysis.]}
+\change{[Exact change or clarification.]}
+
+\paragraph{\rlabel{revfour}{R4}.}
+\quotedconcern{revfour}{R4}{[Concise quoted concern from R4].}
+\directanswer{[Direct answer first.]}
+\evidence{[Data, paper location, or completed analysis.]}
+\limitation{[Use only if the limitation is real and cannot be fully resolved within the response period.]}
+
+\end{document}

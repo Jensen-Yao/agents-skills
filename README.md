@@ -2,10 +2,10 @@
 
 <div align="center">
 
-**个人 Agent 技能库 —— 149 个活动 SKILL.md 技能，桌面端与手机端共用**<br>
-*Personal agent skills library — 149 active SKILL.md skills shared across desktop and mobile*
+**个人 Agent 技能库 —— 166 个活动 SKILL.md 技能，桌面端与手机端共用**<br>
+*Personal agent skills library — 166 active SKILL.md skills shared across desktop and mobile*
 
-[![Skills](https://img.shields.io/badge/skills-149-blue.svg)](#-技能索引-skill-index)
+[![Skills](https://img.shields.io/badge/skills-166-blue.svg)](#-技能索引-skill-index)
 [![SKILL.md](https://img.shields.io/badge/format-SKILL.md-purple.svg)](#-技能格式-skill-format)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![DSH](https://img.shields.io/badge/DeepSeek%20Harness-4D6BFE.svg)](https://github.com/deepseek-ai/deepseek-harness)
@@ -85,8 +85,8 @@ description: Apply Apple's interface and physical-motion principles... Use only 
 
 ## 🗂 技能索引 · Skill Index
 
-共 **149** 个活动技能，按类分组；**点击技能名查看完整 SKILL.md**；在线检索版（关键词搜索 + 分类筛选）：https://jensen-yao.github.io/agents-skills/
-*149 active skills grouped by category. Click a skill name to view its full SKILL.md; searchable online at the link above.*
+共 **166** 个活动技能，按类分组；**点击技能名查看完整 SKILL.md**；在线检索版（关键词搜索 + 分类筛选）：https://jensen-yao.github.io/agents-skills/
+*166 active skills grouped by category. Click a skill name to view its full SKILL.md; searchable online at the link above.*
 
 ### 学术文献 (19)
 
@@ -158,8 +158,25 @@ description: Apply Apple's interface and physical-motion principles... Use only 
 - [**`lm-evaluation-harness`**](skills/lm-evaluation-harness/SKILL.md) — 在 60+ 学术基准（MMLU、HumanEval、GSM8K、TruthfulQA、HellaSwag）上评估 LLM。当对模型质量做基准测试、比较模型、报告学术结果或追踪训练进度时使用。EleutherAI、HuggingFace 及各大实验室使用的行业标准。
 - [**`nemo-evaluator`**](skills/nemo-evaluator/SKILL.md) — 整合 18+ 评测工具、跨 100+ 基准以多后端执行评估 LLM。当需要在本地 Docker、Slurm HPC 或云平台上进行可扩展评估时使用。NVIDIA 的企业级平台，采用容器优先架构，保证基准测试可复现。
 
-### 研究与写作 (5)
+### 研究与写作 (22)
 
+- [**`ccf-common`**](skills/ccf-common/SKILL.md) — CCFA 家族的共享治理层：路由、触发注册表、任务模式、交接规范、来源注册表与产物契约。仅在维护或审计 CCFA 技能时使用，不用于日常研究任务。
+- [**`ccf-experiment-designer`**](skills/ccf-experiment-designer/SKILL.md) — 设计与解读 CCF 实验：数据集、基线、指标、消融、执行规范与结果表内容。用于设计实验、消融、benchmark 准备与实验反馈分析。
+- [**`ccf-humanization`**](skills/ccf-humanization/SKILL.md) — 所有 CCFA 技能（含研究、审稿、检索、实验、图表与维护）之前的必经预检：保持推理与表达直接、去除空洞措辞、落实具体对象与关系。
+- [**`ccf-idea-optimizer`**](skills/ccf-idea-optimizer/SKILL.md) — 将粗糙的 CCF 研究想法发展为问题、洞见、机制与证据计划。用于优化 idea、具象化 idea、找方向与方向探索。
+- [**`ccf-idea-reviewer`**](skills/ccf-idea-reviewer/SKILL.md) — 评估研究想法的价值、新颖性、洞见与机制。用于思路审核、"靠谱吗/值得做吗/创新够不够"、idea review、打分与排序。
+- [**`ccf-integrity-auditor`**](skills/ccf-integrity-auditor/SKILL.md) — 依据提供或已核验的证据审计现有 CCF 主张、数字、术语与引用。用于引用核验、claim 审计、数字一致性与 BibTeX 检查。
+- [**`ccf-literature-monitor`**](skills/ccf-literature-monitor/SKILL.md) — 扫描近期 arXiv/OpenReview 论文、会议源、实验室与竞品以发现重叠。用于竞品监控、新论文追踪、论文跟踪与周期性新颖性巡查。
+- [**`ccf-literature-searcher`**](skills/ccf-literature-searcher/SKILL.md) — 查找并核验外部文献、先行工作、数据集、benchmark 与引用候选。用于文献检索、相关工作、benchmark 搜索与研究机会地图。
+- [**`ccf-paper-reviewer`**](skills/ccf-paper-reviewer/SKILL.md) — 审阅稿件的主张、证据与写作而不重写。用于文章审核、审稿、投稿成熟度评估、writing review 与版本对比。
+- [**`ccf-paper-to-exemplar`**](skills/ccf-paper-to-exemplar/SKILL.md) — 将提供的论文 PDF 提炼为写作范例卡片并注册个人范例库。用于 PDF 转写作范例与可复用的论文写作模式。
+- [**`ccf-paper-writer`**](skills/ccf-paper-writer/SKILL.md) — 起草、修改、润色、压缩或演示化改写 CCF 稿件文本。用于写作、润色论文、完整初稿、改写、压缩论文与摘要/章节级修改。
+- [**`ccf-pipeline-orchestrator`**](skills/ccf-pipeline-orchestrator/SKILL.md) — 规划或协调 CCF 研究阶段、目标、门禁、产物与 ccfa.yaml 状态。用于任务拆解、流程规划、项目状态与端到端协调。
+- [**`ccf-project-scaffolder`**](skills/ccf-project-scaffolder/SKILL.md) — 初始化 CCF 项目目录、LaTeX 模板、产物目录与 ccfa.yaml。用于项目初始化、目录搭建与可复现工作区脚手架。
+- [**`ccf-rebuttal-writer`**](skills/ccf-rebuttal-writer/SKILL.md) — 撰写 CCF rebuttal、作者回应、修订台账、回复信与保守的重投计划。用于审稿意见回复、rebuttal、revision ledger 与重投迁移。
+- [**`ccf-skill-forger`**](skills/ccf-skill-forger/SKILL.md) — 维护与审计 Codex/CCFA 技能、触发器、参考文件、脚本、文档/示意图、安装依赖与发布校验。用于 skill 维护与 GPT 模型适配。
+- [**`ccf-submission-checker`**](skills/ccf-submission-checker/SKILL.md) — 检查 CCF 投稿规则与提交包：模板、页数、匿名性、PDF 构建、元数据与可复现性。用于投稿检查、会议格式、页数限制与产物就绪度。
+- [**`ccf-visual-composer`**](skills/ccf-visual-composer/SKILL.md) — 依据提供的内容渲染与重设计科研图表、可视化表格与方法/架构图。用于绘图美化、排版、配色与 GPT Image 生成式图表。
 - [**`brainstorming-research-ideas`**](skills/brainstorming-research-ideas/SKILL.md) — 引导研究者通过结构化构思框架发现高影响力的研究方向。当探索新的问题领域、在项目之间转换方向或为现有工作寻找新颖视角时使用。
 - [**`creative-thinking-for-research`**](skills/creative-thinking-for-research/SKILL.md) — 将认知科学的创造性思维框架应用于 CS 与 AI 研究的构思。当希望通过组合式创造、类比推理、约束操控等有实证依据的创意策略寻找真正新颖的研究方向时使用。
 - [**`ml-paper-writing`**](skills/ml-paper-writing/SKILL.md) — 为 NeurIPS、ICML、ICLR、ACL、AAAI、COLM 撰写达到发表水准的 ML 与 AI 论文。当从研究仓库起草论文、组织论证结构、核实引用或准备 camera-ready 终稿时使用。若面向系统类会议，请改用 systems-paper-writing。

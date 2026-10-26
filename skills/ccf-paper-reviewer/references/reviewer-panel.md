@@ -1,0 +1,34 @@
+# Manuscript Review Perspectives
+
+Use perspectives to test the conclusion against distinct evidence. For scientific/full review, synthesize them in the reviewer-perspectives section of the detailed report or within the brief report's findings in `fixed-output-format.md`; do not create one mandatory full report or numeric score per role.
+
+## Evidence Lenses
+
+Select those relevant to the paper and requested scope:
+
+- **Novelty / positioning:** inspect the closest-work difference and strongest overlap claim.
+- **Method / soundness:** inspect assumptions, derivations, algorithms, causal reasoning, or system guarantees.
+- **Evidence / evaluation:** check whether supplied experiments, proofs, workloads, or studies support the central claims. Match evidence expectations to paper type.
+- **Clarity / reader:** reconstruct the contribution, definitions, argument, and figure/table references from the manuscript.
+- **Reproducibility / ethics:** examine material protocol details, observed ethical issues, and applicable venue requirements.
+- **Domain / application:** assess the importance and realism of the stated problem and contribution.
+
+Writing-only review selects reader, argument, terminology, and presentation lenses; it does not escalate to a scientific acceptance panel.
+
+## Three-View Synthesis
+
+After establishing anchored findings, present a compact synthesis of:
+
+| View | Decisive basis / concern IDs | Stance | What would change it |
+| --- | --- | --- | --- |
+| Best-supported assessment | Inspectable merits and defects | Evidence-led judgment | Decisive unresolved condition |
+| Strongest favorable reading | The best defensible contribution and support | Favorable interpretation if justified | Assumption it depends on |
+| Strongest critical reading | A substantiated decision-relevant objection | Critical interpretation if justified | Repair or answer that resolves it |
+
+The views can agree. If no separate favorable or critical case is supported, say so briefly rather than inventing one. Do not assign hypothetical scores first and force reviewers to defend them. Keep one final scorecard in the report; multiple full scorecards are reserved for an explicitly requested reviewer panel or the existing version-comparison contract.
+
+Use actual independent calls only when permitted and useful for substantial distinct evidence slices. Apply the effective `independent_review` preference from `../../ccf-common/references/preferences.md`: `off` disables an unrequested additional independent pass; `auto` requires a concrete unresolved issue that independent inspection can materially clarify; `on` permits a relevant additional check without requiring one for every task. Current instructions and host limits take precedence. The primary review, evidence verification, and strongest-counterevidence checks remain mandatory within the requested scope in every mode.
+
+When enabled, assign the disputed claim or complementary evidence slice with source identity/version, exact locations, and a completion condition. Give source materials and questions rather than the lead reviewer's desired verdict. Reuse existing extraction and validated facts. Integrate anchored findings into the canonical report; do not ask each contributor for a duplicate full report. Label the provenance honestly. A single-agent three-view review is not three independent reviewers or empirical consensus. A missing independent-call capability limits only the extra pass, not the primary review.
+
+Synthesize using the strongest unresolved finding and actual support, not majority vote or a mean that erases a decisive flaw. Refer to the canonical concern IDs; avoid repeating full criticisms in each view. Preserve frozen reviewer roles for an existing version-comparison contract.
